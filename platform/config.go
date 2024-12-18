@@ -18,10 +18,6 @@ type LoggerConfig struct {
 	Format string `env:"LOG_FORMAT" envDefault:"json"`
 }
 
-type SwaggerConfig struct {
-	Host string `env:"SWAGGER_HOST" envDefault:"localhost:8080"`
-}
-
 type DatabaseConfig struct {
 	SQL struct {
 		FilePath        string        `env:"DB_FILE_PATH" envDefault:"db/sober.db"`
