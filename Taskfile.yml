@@ -9,8 +9,32 @@ tasks:
 
   build:
     cmds:
+      - go build
+
+  build:prod:
+    cmds:
       - go build -o bin/go-sober -v main.go
 
   test:
     cmds:
       - go test -v ./...
+
+  test:coverage:
+    cmds:
+      - go test -coverprofile=coverage.out ./...
+      - go tool cover -func=coverage.out
+
+  test:bruno:
+    cmds:
+      - task db:migrate
+      - cd bruno && bru run --env Local
+
+  db:migrate:
+    desc: Run database migrations
+    cmds:
+      - migrate -source file://db/migrations -database "sqlite3://db/sober.db" up
+
+  db:rollback:
+    desc: Rollback the last database migration
+    cmds:
+      - migrate -source file://db/migrations -database "sqlite3://db/sober.db" down 1
