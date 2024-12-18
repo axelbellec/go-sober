@@ -43,7 +43,7 @@ func main() {
 	// Create a new ServeMux to use with the logging middleware
 	mux := http.NewServeMux()
 
-	// Public routes
+	// [Public routes]
 	// Auth
 	mux.HandleFunc("/auth/signup", authController.SignUp)
 	mux.HandleFunc("/auth/login", authController.Login)
@@ -52,8 +52,11 @@ func main() {
 	mux.HandleFunc("/drink-options", drinkController.GetDrinkOptions)
 	mux.HandleFunc("/drink-options/", drinkController.GetDrinkOption)
 
-	// Protected routes
+	// [Protected routes]
+	// Auth
 	mux.HandleFunc("/auth/me", authMiddleware.RequireAuth(authController.Me))
+
+	// Analytics
 	mux.HandleFunc("/analytics/timeline/bac", authMiddleware.RequireAuth(analyticsController.GetBAC))
 
 	// Drink logging

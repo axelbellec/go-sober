@@ -192,13 +192,15 @@ func (s *Service) calculateBACSummary(timeline []models.BACPoint, totalDrinksCon
 	var durationOverBAC int
 	var wasEverIntoxicated bool
 
-	drinkingSinceTime = timeline[0].Time
+	drinkingSinceTime = time.Time{}
 
 	// Find max BAC and calculate time over limit
 	var lastNonZeroIndex int
 	for i, point := range timeline {
-
 		if point.BAC > 0 {
+			if drinkingSinceTime.IsZero() {
+				drinkingSinceTime = point.Time
+			}
 			wasEverIntoxicated = true
 			lastNonZeroIndex = i
 		}
