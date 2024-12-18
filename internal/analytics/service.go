@@ -136,8 +136,19 @@ func (s *Service) calculateAbsorptionFactor(timeElapsed float64) float64 {
 		return 1.0
 	}
 
+	// Linear increase from 0 to 1
 	normalizedTime := timeElapsed / absorptionTimeMin
-	return s.betaCurve(normalizedTime)
+
+	// Beta approximation
+	// The linear model is less accurate because alcohol
+	// absorption isn't constant - it varies based on many
+	// factors and follows more of an S-curve pattern.
+	// That's why the beta distribution (which creates an S-curve)
+	// is preferred for more accurate BAC calculations.
+	betaAbsorption := s.betaCurve(normalizedTime)
+
+	return betaAbsorption
+
 }
 
 func (s *Service) betaCurve(t float64) float64 {
