@@ -1,0 +1,32 @@
+meta {
+  name: Get Drink Options
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/drink-options
+  body: none
+}
+
+tests {
+  test("should return list of drink options", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.be.an("array");
+    
+    // Test structure of first drink option if array is not empty
+    if (res.body.length > 0) {
+      const firstDrink = res.body[0];
+      expect(firstDrink).to.have.property("id");
+      expect(firstDrink).to.have.property("name");
+      expect(firstDrink).to.have.property("type");
+      expect(firstDrink).to.have.property("size_value");
+      expect(firstDrink).to.have.property("size_unit");
+      expect(firstDrink).to.have.property("abv");
+    }
+  });
+  
+  test("should return proper content type", function() {
+    expect(res.headers["content-type"]).to.include("application/json");
+  });
+} 

@@ -1,0 +1,29 @@
+meta {
+  name: Create Drink Log
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/drink-logs
+  headers {
+    Content-Type: application/json
+    Authorization: Bearer {{authToken}}
+  }
+  body: json {
+    {
+      "drink_option_id": 1
+    }
+  }
+}
+
+tests {
+  test("Should return 201 status code", function() {
+    expect(response.status).to.equal(201);
+  });
+
+  test("Response should contain drink log data", function() {
+    expect(response.body).to.have.property("id");
+  });
+}
+

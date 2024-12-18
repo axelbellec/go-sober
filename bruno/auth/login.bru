@@ -1,0 +1,32 @@
+meta {
+  name: Login
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "test@example.com",
+    "password": "securepassword123"
+  }
+}
+
+script:post-response {
+  if (res.body.token) {
+    bru.setVar("auth_token", res.body.token);
+  }
+}
+
+tests {
+  test("should login successfully", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body.token).to.be.a("string");
+    expect(res.body.message).to.equal("Login successful");
+  });
+}

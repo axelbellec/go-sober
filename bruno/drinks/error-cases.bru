@@ -1,0 +1,27 @@
+meta {
+  name: Drink Options Error Cases
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/drink-options?invalid=param
+  body: none
+}
+
+tests {
+  test("should handle invalid query parameters gracefully", function() {
+    expect(res.status).to.be.within(200, 400);
+  });
+}
+
+get {
+  url: {{baseUrl}}/drink-options/999999
+  body: none
+}
+
+tests {
+  test("should return 404 for non-existent drink option", function() {
+    expect(res.status).to.equal(404);
+  });
+} 
