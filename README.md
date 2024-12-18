@@ -18,7 +18,7 @@ Use controller, service, repository, and model folders.
 
 ## Bruno API Collection
 
-The project includes a Bruno API collection for testing the endpoints. The collection supports multiple environments:
+The project includes a [Bruno](https://docs.usebruno.com/introduction/what-is-bruno) API collection for testing the endpoints. The collection supports multiple environments:
 
 - Local
 - Test
@@ -30,4 +30,26 @@ Install Bruno CLI: https://docs.usebruno.com/bru-cli/overview
 # Go to bruno directory and run tests
 cd ./bruno
 bru run --env Local
+```
+
+## Taskfile
+
+[Taskfile](https://taskfile.dev/) is a task runner for Go. It is used to run the project.
+
+To run the project:
+
+```bash
+task run
+```
+
+To run tests:
+
+```bash
+task test
+```
+
+To build the project:
+
+```bash
+task build
 ```

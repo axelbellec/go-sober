@@ -1,0 +1,16 @@
+version: "3"
+
+dotenv: [".env"]
+
+tasks:
+  run:
+    cmds:
+      - go run main.go
+
+  build:
+    cmds:
+      - go build -o bin/go-sober -v main.go
+
+  test:
+    cmds:
+      - go test -v ./...
