@@ -2,7 +2,7 @@
 
 ## Tech Stack Updates
 
-- Go 1.23+ (latest stable version)
+- Go 1.22+
 
 ## Project Structure
 
