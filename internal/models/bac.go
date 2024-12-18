@@ -19,7 +19,7 @@ type BACCalculationParams struct {
 	StartTime    time.Time `json:"start_time"`
 	EndTime      time.Time `json:"end_time"`
 	WeightKg     float64   `json:"weight_kg"`
-	Gender       string    `json:"gender" validate:"oneof=male female unknown"`
+	Gender       Gender    `json:"gender" validate:"oneof=male female unknown"`
 	TimeStepMins int       `json:"time_step_mins,omitempty"` // Add this field
 }
 

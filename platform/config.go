@@ -2,6 +2,7 @@ package platform
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/caarlos0/env/v10"
 )
@@ -23,7 +24,10 @@ type SwaggerConfig struct {
 
 type DatabaseConfig struct {
 	SQL struct {
-		FilePath string `env:"DB_FILE_PATH" envDefault:"db/sober.db"`
+		FilePath        string        `env:"DB_FILE_PATH" envDefault:"db/sober.db"`
+		MaxOpenConns    int           `env:"DB_MAX_OPEN_CONNS" envDefault:"25"`
+		MaxIdleConns    int           `env:"DB_MAX_IDLE_CONNS" envDefault:"5"`
+		ConnMaxLifetime time.Duration `env:"DB_CONN_MAX_LIFETIME" envDefault:"1h"`
 	}
 }
 

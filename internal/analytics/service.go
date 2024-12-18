@@ -155,9 +155,9 @@ func (s *Service) betaCurve(t float64) float64 {
 	return (numerator / denominator) / maxValue
 }
 
-func (s *Service) getWidmarkFactor(gender string) float64 {
+func (s *Service) getWidmarkFactor(gender models.Gender) float64 {
 	switch gender {
-	case "female":
+	case models.Female:
 		return femaleWidmarkFactor
 	default:
 		return maleWidmarkFactor

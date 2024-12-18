@@ -55,8 +55,8 @@ func (c *Controller) GetBAC(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	gender := query.Get("gender")
-	if gender != "male" && gender != "female" {
+	gender := models.Gender(query.Get("gender"))
+	if gender != models.Male && gender != models.Female && gender != models.Unknown {
 		http.Error(w, "Invalid gender parameter", http.StatusBadRequest)
 		return
 	}

@@ -17,7 +17,7 @@ func main() {
 	platform.InitPlatform()
 
 	// Initialize SQLite database using config
-	db, err := database.NewSQLiteDB(platform.AppConfig.Database.SQL.FilePath)
+	db, err := database.NewSQLiteDB(platform.AppConfig.Database)
 	if err != nil {
 		log.Fatal(err)
 	}

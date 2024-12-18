@@ -8,3 +8,11 @@ type User struct {
 	Password  string    `json:"-"` // "-" means this won't be included in JSON
 	CreatedAt time.Time `json:"created_at"`
 }
+
+type Gender string
+
+const (
+	Male    Gender = "male"
+	Female  Gender = "female"
+	Unknown Gender = "unknown"
+)
