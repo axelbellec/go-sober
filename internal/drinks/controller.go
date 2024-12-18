@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"go-sober/internal/constants"
 	"go-sober/internal/dtos"
 	"go-sober/internal/models"
 )
@@ -77,7 +78,7 @@ func (c *Controller) CreateDrinkLog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get user from context (set by auth middleware)
-	claims := r.Context().Value("user").(*models.Claims)
+	claims := r.Context().Value(constants.UserContextKey).(*models.Claims)
 	if claims == nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -129,7 +130,7 @@ func (c *Controller) GetDrinkLogs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get user ID from context (set by auth middleware)
-	claims := r.Context().Value("user").(*models.Claims)
+	claims := r.Context().Value(constants.UserContextKey).(*models.Claims)
 	if claims == nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return

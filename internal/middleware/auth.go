@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"go-sober/internal/auth"
+	"go-sober/internal/constants"
 )
 
 type AuthMiddleware struct {
@@ -38,7 +39,7 @@ func (m *AuthMiddleware) RequireAuth(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// Add claims to request context
-		ctx := context.WithValue(r.Context(), "user", claims)
+		ctx := context.WithValue(r.Context(), constants.UserContextKey, claims)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }

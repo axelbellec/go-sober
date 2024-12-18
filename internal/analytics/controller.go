@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"go-sober/internal/constants"
 	"go-sober/internal/dtos"
 	"go-sober/internal/mappers"
 	"go-sober/internal/models"
@@ -26,7 +27,7 @@ func (c *Controller) GetBAC(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get user from context
-	claims := r.Context().Value("user").(*models.Claims)
+	claims := r.Context().Value(constants.UserContextKey).(*models.Claims)
 	if claims == nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return

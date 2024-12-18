@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"go-sober/internal/constants"
 	"go-sober/internal/dtos"
 	"go-sober/internal/models"
 )
@@ -83,7 +84,7 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) Me(w http.ResponseWriter, r *http.Request) {
-	claims := r.Context().Value("user").(*models.Claims)
+	claims := r.Context().Value(constants.UserContextKey).(*models.Claims)
 
 	response := dtos.UserMeResponse{
 		UserID: claims.UserID,
