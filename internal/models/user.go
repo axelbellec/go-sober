@@ -16,3 +16,12 @@ const (
 	Female  Gender = "female"
 	Unknown Gender = "unknown"
 )
+
+func ToGender(gender string) Gender {
+	if gender == "male" {
+		return Male
+	} else if gender == "female" {
+		return Female
+	}
+	return Unknown
+}

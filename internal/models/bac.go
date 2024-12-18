@@ -26,21 +26,21 @@ type BACCalculationParams struct {
 type BACPoint struct {
 	Time      time.Time `json:"time"`
 	BAC       float64   `json:"bac"`
-	Status    BACStatus `json:"status,omitempty"`
-	IsOverBAC bool      `json:"is_over_bac,omitempty"`
+	Status    BACStatus `json:"status"`
+	IsOverBAC bool      `json:"is_over_bac"`
 }
 
 // BACSummary provides summary statistics for the BAC calculation
 type BACSummary struct {
 	MaxBAC            float64   `json:"max_bac"`
 	MaxBACTime        time.Time `json:"max_bac_time"`
-	SoberSinceTime    time.Time `json:"sober_since_time,omitempty"`
+	SoberSinceTime    time.Time `json:"sober_since_time"`
 	TotalDrinks       int       `json:"total_drinks"`
-	DrinkingSinceTime time.Time `json:"drinking_since_time,omitempty"`
-	DurationOverBAC   int       `json:"duration_over_bac,omitempty"`
+	DrinkingSinceTime time.Time `json:"drinking_since_time"`
+	DurationOverBAC   int       `json:"duration_over_bac"`
 }
 
 type BACCalculation struct {
 	Timeline []BACPoint `json:"timeline"`
-	Summary  BACSummary `json:"summary,omitempty"`
+	Summary  BACSummary `json:"summary"`
 }

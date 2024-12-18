@@ -1,0 +1,15 @@
+meta {
+  name: Get Nonexistent Drink Option
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{host}}/drink-options/999999
+}
+
+tests {
+  test("should return 404 for non-existent drink option", function() {
+    expect(res.status).to.equal(404);
+  });
+} 

@@ -5,15 +5,13 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/auth/login
-  body: json
-  auth: none
+  url: {{host}}/auth/login
 }
 
-body:json {
+body {
   {
-    "email": "test@example.com",
-    "password": "securepassword123"
+    "email": "{{testEmail}}",
+    "password": "{{testPassword}}"
   }
 }
 

@@ -1,0 +1,19 @@
+meta {
+  name: Invalid Auth Token
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{host}}/auth/me
+}
+
+headers {
+  Authorization: Bearer invalid.token.here
+}
+
+tests {
+  test("should return 401 for invalid token", function() {
+    expect(res.status).to.equal(401);
+  });
+} 

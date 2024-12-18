@@ -1,0 +1,22 @@
+meta {
+  name: Invalid Login
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/auth/login
+}
+
+body {
+  {
+    "email": "nonexistent@example.com",
+    "password": "wrongpassword"
+  }
+}
+
+tests {
+  test("should return 401 for invalid credentials", function() {
+    expect(res.status).to.equal(401);
+  });
+} 

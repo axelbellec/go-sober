@@ -26,7 +26,6 @@ const (
 	metabolismRatePerMin  = metabolismRatePerHour / 60
 	absorptionTimeMin     = 60 // 1 hour which is the maximum absorption time
 	maxPhysiologicalBAC   = 0.55
-	timeStepMinutes       = 10
 
 	// Beta distribution parameters
 	alpha = 2.0
@@ -61,7 +60,7 @@ func (s *Service) CalculateBAC(userID int64, params models.BACCalculationParams)
 
 	response := models.BACCalculation{
 		Timeline: make([]models.BACPoint, len(timeline.Timeline)),
-		Summary:  s.calculateBACSummary(timeline.Timeline, totalDrinksConsumed),
+		Summary:  s.calculateBACSummary(timeline.Timeline, totalDrinksConsumed, params.TimeStepMins),
 	}
 
 	// Map timeline points
@@ -78,11 +77,11 @@ func (s *Service) CalculateBAC(userID int64, params models.BACCalculationParams)
 }
 
 func (s *Service) calculateBACPoints(drinks []models.DrinkLog, startTime, endTime time.Time,
-	bodyWeightGrams float64, widmarkFactor float64) []models.BACPoint {
+	bodyWeightGrams float64, widmarkFactor float64, timeStepMin int) []models.BACPoint {
 
 	var bacPoints []models.BACPoint
 	currentTime := startTime
-	timeStep := time.Duration(timeStepMinutes) * time.Minute
+	timeStep := time.Duration(timeStepMin) * time.Minute
 
 	for !currentTime.After(endTime) {
 		bac := s.calculateBACAtTime(drinks, currentTime, bodyWeightGrams, widmarkFactor)
@@ -186,12 +185,12 @@ func (s *Service) calculateBAC(drinks []models.DrinkLog, params models.BACCalcul
 	widmarkFactor := s.getWidmarkFactor(params.Gender)
 	bodyWeightGrams := params.WeightKg * 1000
 
-	points := s.calculateBACPoints(drinks, params.StartTime, params.EndTime, bodyWeightGrams, widmarkFactor)
+	points := s.calculateBACPoints(drinks, params.StartTime, params.EndTime, bodyWeightGrams, widmarkFactor, params.TimeStepMins)
 	return BACTimeline{Timeline: points}, nil
 }
 
 // calculateBACSummary generates a summary of the BAC timeline
-func (s *Service) calculateBACSummary(timeline []models.BACPoint, totalDrinksConsumed int) models.BACSummary {
+func (s *Service) calculateBACSummary(timeline []models.BACPoint, totalDrinksConsumed int, timeStepMins int) models.BACSummary {
 	if len(timeline) == 0 {
 		return models.BACSummary{}
 	}
@@ -223,7 +222,7 @@ func (s *Service) calculateBACSummary(timeline []models.BACPoint, totalDrinksCon
 
 		if point.BAC > 0.08 { // Legal driving limit in most places
 			// Calculate duration until next point or use the default time step
-			duration := timeStepMinutes
+			duration := timeStepMins
 			if i < len(timeline)-1 {
 				duration = int(timeline[i+1].Time.Sub(point.Time).Minutes())
 			}

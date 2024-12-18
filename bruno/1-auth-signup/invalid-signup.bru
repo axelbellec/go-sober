@@ -1,0 +1,22 @@
+meta {
+  name: Invalid Signup
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/auth/signup
+}
+
+body {
+  {
+    "email": "invalid-email",
+    "password": ""
+  }
+}
+
+tests {
+  test("should return 400 for invalid signup data", function() {
+    expect(res.status).to.equal(400);
+  });
+} 

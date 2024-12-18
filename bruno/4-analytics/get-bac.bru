@@ -1,0 +1,38 @@
+meta {
+  name: Get BAC Timeline
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{host}}/analytics/timeline/bac?start_time={{datetimeStart}}&end_time={{datetimeEnd}}&weight_kg={{defaultWeight}}&gender={{defaultGender}}&time_step_mins={{defaultTimeStepMins}}
+}
+
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+}
+
+tests {
+  test("should return BAC timeline", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.property("timeline");
+    expect(res.body).to.have.property("summary");
+    
+    const timeline = res.body.timeline;
+    expect(timeline).to.be.an("array");
+    if (timeline.length > 0) {
+      expect(timeline[0]).to.have.property("time");
+      expect(timeline[0]).to.have.property("bac");
+      expect(timeline[0]).to.have.property("status");
+      expect(timeline[0]).to.have.property("is_over_bac");
+    }
+    
+    const summary = res.body.summary;
+    expect(summary).to.have.property("max_bac");
+    expect(summary).to.have.property("max_bac_time");
+    expect(summary).to.have.property("total_drinks");
+    expect(summary).to.have.property("duration_over_bac");
+  });
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Invalid Drink Options Parameters
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/drink-options?invalid=param
+}
+
+tests {
+  test("should handle invalid query parameters gracefully", function() {
+    expect(res.status).to.be.within(200, 400);
+  });
+} 

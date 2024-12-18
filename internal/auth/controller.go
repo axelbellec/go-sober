@@ -32,7 +32,13 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	// Check if user already exists
 	if _, err := c.service.repo.GetUserByEmail(user.Email); err == nil {
-		http.Error(w, "User already exists", http.StatusBadRequest)
+		response := dtos.UserSignupResponse{
+			Message: "User already exists",
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusConflict)
+		json.NewEncoder(w).Encode(response)
 		return
 	}
 

@@ -1,0 +1,30 @@
+meta {
+  name: Sign Up
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/auth/signup
+}
+
+body {
+  {
+    "email": "{{testEmail}}",
+    "password": "{{testPassword}}"
+  }
+}
+
+tests {
+  test("should handle user signup", function() {
+    // Accept both 201 (new user created) and 409 (user already exists)
+    const validStatuses = [201, 409];
+    expect(validStatuses).to.include(res.status);
+    
+    if (res.status === 201) {
+      expect(res.body.message).to.equal("User created successfully");
+    } else if (res.status === 409) {
+      expect(res.body.message).to.equal("User already exists");
+    }
+  });
+}
