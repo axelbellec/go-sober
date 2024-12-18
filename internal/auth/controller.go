@@ -30,6 +30,12 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Check if user already exists
+	if _, err := c.service.repo.GetUserByEmail(user.Email); err == nil {
+		http.Error(w, "User already exists", http.StatusBadRequest)
+		return
+	}
+
 	if err := c.service.repo.CreateUser(user.Email, user.Password); err != nil {
 		http.Error(w, "Could not create user", http.StatusInternalServerError)
 		return
