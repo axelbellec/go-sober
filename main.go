@@ -45,31 +45,23 @@ func main() {
 
 	// [Public routes]
 	// Auth
-	mux.HandleFunc("/auth/signup", authController.SignUp)
-	mux.HandleFunc("/auth/login", authController.Login)
+	mux.HandleFunc("POST /auth/signup", authController.SignUp)
+	mux.HandleFunc("POST /auth/login", authController.Login)
 
 	// Drink options
-	mux.HandleFunc("/drink-options", drinkController.GetDrinkOptions)
-	mux.HandleFunc("/drink-options/", drinkController.GetDrinkOption)
+	mux.HandleFunc("GET /drink-options", drinkController.GetDrinkOptions)
+	mux.HandleFunc("GET /drink-options/", drinkController.GetDrinkOption)
 
 	// [Protected routes]
 	// Auth
-	mux.HandleFunc("/auth/me", authMiddleware.RequireAuth(authController.Me))
+	mux.HandleFunc("GET /auth/me", authMiddleware.RequireAuth(authController.Me))
 
 	// Analytics
-	mux.HandleFunc("/analytics/timeline/bac", authMiddleware.RequireAuth(analyticsController.GetBAC))
+	mux.HandleFunc("GET /analytics/timeline/bac", authMiddleware.RequireAuth(analyticsController.GetBAC))
 
 	// Drink logging
-	mux.HandleFunc("/drink-logs", authMiddleware.RequireAuth(func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodPost:
-			drinkController.CreateDrinkLog(w, r)
-		case http.MethodGet:
-			drinkController.GetDrinkLogs(w, r)
-		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		}
-	}))
+	mux.HandleFunc("GET /drink-logs", authMiddleware.RequireAuth(drinkController.GetDrinkLogs))
+	mux.HandleFunc("POST /drink-logs", authMiddleware.RequireAuth(drinkController.CreateDrinkLog))
 
 	// Start server using config port
 	addr := ":" + platform.AppConfig.Port

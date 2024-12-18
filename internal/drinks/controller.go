@@ -22,11 +22,6 @@ func NewController(service *Service) *Controller {
 }
 
 func (c *Controller) GetDrinkOptions(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	drinkOptions, err := c.service.GetDrinkOptions()
 	if err != nil {
 		http.Error(w, "Could not fetch drink options", http.StatusInternalServerError)
@@ -42,11 +37,6 @@ func (c *Controller) GetDrinkOptions(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) GetDrinkOption(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	// Extract the ID from the URL path
 	// The URL pattern "/drink-options/{id}" needs to be handled with a URL router
 	// Since we're using net/http directly, we need to parse the path manually
@@ -72,11 +62,6 @@ func (c *Controller) GetDrinkOption(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) CreateDrinkLog(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	// Get user from context (set by auth middleware)
 	claims := r.Context().Value(constants.UserContextKey).(*models.Claims)
 	if claims == nil {

@@ -21,11 +21,6 @@ func NewController(service *Service) *Controller {
 }
 
 func (c *Controller) GetBAC(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	// Get user from context
 	claims := r.Context().Value(constants.UserContextKey).(*models.Claims)
 	if claims == nil {

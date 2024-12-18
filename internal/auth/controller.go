@@ -18,11 +18,6 @@ func NewController(service *Service) *Controller {
 }
 
 func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	var user dtos.UserSignupRequest
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -50,11 +45,6 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	var credentials dtos.UserLoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
