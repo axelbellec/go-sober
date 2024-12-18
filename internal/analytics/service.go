@@ -227,7 +227,7 @@ func (s *Service) calculateBACSummary(timeline []models.BACPoint, totalDrinksCon
 
 	switch {
 	case !wasEverIntoxicated:
-		// Person was never intoxicated
+		// Person was never intoxicated by alcohol
 		soberSinceTime = timeline[0].Time
 	case lastNonZeroIndex == len(timeline)-1:
 		// Person is still not sober at the end of timeline

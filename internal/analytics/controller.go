@@ -27,7 +27,6 @@ func (c *Controller) GetBAC(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
-
 	// Parse query parameters
 	query := r.URL.Query()
 
