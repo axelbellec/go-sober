@@ -10,15 +10,21 @@ import (
 
 	"go-sober/internal/constants"
 	"go-sober/internal/dtos"
+	"go-sober/internal/embedding"
 	"go-sober/internal/models"
+	"go-sober/internal/parser"
 )
 
 type Controller struct {
-	service *Service
+	service          *Service
+	embeddingService embedding.EmbeddingService
 }
 
-func NewController(service *Service) *Controller {
-	return &Controller{service: service}
+func NewController(service *Service, embeddingService embedding.EmbeddingService) *Controller {
+	return &Controller{
+		service:          service,
+		embeddingService: embeddingService,
+	}
 }
 
 func (c *Controller) GetDrinkOptions(w http.ResponseWriter, r *http.Request) {
@@ -135,6 +141,42 @@ func (c *Controller) GetDrinkLogs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return drink logs as JSON
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}
+
+func (c *Controller) ParseDrinkLog(w http.ResponseWriter, r *http.Request) {
+	claims := r.Context().Value(constants.UserContextKey).(*models.Claims)
+	if claims == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	var req dtos.ParseDrinkLogRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	drinkOptions, err := c.service.GetDrinkOptions()
+	if err != nil {
+		http.Error(w, "Could not fetch drink options", http.StatusInternalServerError)
+		return
+	}
+
+	parser := parser.NewDrinkParser(drinkOptions, c.embeddingService)
+	match, err := parser.Parse(req.Text)
+	if err != nil {
+		http.Error(w, "Could not parse drink description", http.StatusBadRequest)
+		return
+	}
+
+	response := dtos.ParseDrinkLogResponse{
+		DrinkOption: match.DrinkOption,
+		Confidence:  match.Confidence,
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)

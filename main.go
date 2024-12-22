@@ -8,6 +8,7 @@ import (
 	"go-sober/internal/auth"
 	"go-sober/internal/database"
 	"go-sober/internal/drinks"
+	"go-sober/internal/embedding"
 	"go-sober/internal/middleware"
 	"go-sober/platform"
 )
@@ -34,7 +35,8 @@ func main() {
 	// Initialize the drinks components
 	drinkRepo := drinks.NewRepository(db)
 	drinkService := drinks.NewService(drinkRepo)
-	drinkController := drinks.NewController(drinkService)
+	embeddingService := embedding.NewOllamaEmbedding("http://localhost:11434")
+	drinkController := drinks.NewController(drinkService, embeddingService)
 
 	// Initialize analytics components
 	analyticsService := analytics.NewService(drinkRepo)
@@ -62,6 +64,7 @@ func main() {
 	// Drink logging
 	mux.HandleFunc("GET /drink-logs", authMiddleware.RequireAuth(drinkController.GetDrinkLogs))
 	mux.HandleFunc("POST /drink-logs", authMiddleware.RequireAuth(drinkController.CreateDrinkLog))
+	mux.HandleFunc("POST /drink-logs/parse", authMiddleware.RequireAuth(drinkController.ParseDrinkLog))
 
 	// Start server using config port
 	addr := ":" + platform.AppConfig.Port

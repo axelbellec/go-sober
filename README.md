@@ -77,6 +77,7 @@ A robust Go-based API for tracking alcohol consumption and calculating Blood Alc
 - SQLite 3
 - Task (task runner)
 - Bruno (API testing)
+- Ollama (for natural language processing)
 
 ### Installation
 
@@ -110,6 +111,18 @@ task db:migrate
 
 ```bash
 task run
+```
+
+2. Install and setup Ollama:
+
+```bash
+# Install Ollama from https://ollama.ai
+
+# Start Ollama server
+ollama serve
+
+# Pull the required model
+ollama pull nomic-embed-text
 ```
 
 ## 📚 API Documentation
