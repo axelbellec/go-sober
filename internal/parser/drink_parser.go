@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"database/sql"
 	"fmt"
 	"go-sober/internal/embedding"
 	"go-sober/internal/models"
@@ -18,28 +19,53 @@ type DrinkParser struct {
 	drinkOptions     []models.DrinkOption
 	drinkEmbeddings  [][]float64
 	embeddingService embedding.EmbeddingService
+	repository       *embedding.Repository
 }
 
-func NewDrinkParser(drinkOptions []models.DrinkOption, embeddingService embedding.EmbeddingService) *DrinkParser {
+func NewDrinkParser(drinkOptions []models.DrinkOption, embeddingService embedding.EmbeddingService, db *sql.DB) *DrinkParser {
 	parser := &DrinkParser{
 		drinkOptions:     drinkOptions,
 		embeddingService: embeddingService,
+		repository:       embedding.NewRepository(db),
 	}
 
-	// Pre-compute embeddings
-	parser.drinkEmbeddings = make([][]float64, len(drinkOptions))
-	for i, option := range drinkOptions {
+	parser.loadOrComputeEmbeddings()
+	return parser
+}
 
-		description := fmt.Sprintf("%s %s %d%s", option.Name, option.Type, option.SizeValue, option.SizeUnit)
-		embedding, err := embeddingService.GetEmbedding(description)
+func (p *DrinkParser) loadOrComputeEmbeddings() {
+	p.drinkEmbeddings = make([][]float64, len(p.drinkOptions))
+	for i, option := range p.drinkOptions {
+		// Try to load from database first
+		embedding, err := p.repository.GetEmbedding(option.ID)
+		if err == nil {
+			p.drinkEmbeddings[i] = embedding
+			continue
+		}
+
+		// If not found in database, compute and store
+		description := p.formatDrinkDescription(option)
+
+		fmt.Println("Getting embedding for", description)
+		embedding, err = p.embeddingService.GetEmbedding(description)
 		if err != nil {
 			log.Printf("Error computing embedding for drink option %d: %v", option.ID, err)
 			continue
 		}
-		parser.drinkEmbeddings[i] = embedding
-	}
 
-	return parser
+		// Store in database
+		fmt.Println("Storing embedding for", description)
+		err = p.repository.StoreEmbedding(option.ID, embedding)
+		if err != nil {
+			log.Printf("Error storing embedding for drink option %d: %v", option.ID, err)
+		}
+
+		p.drinkEmbeddings[i] = embedding
+	}
+}
+
+func (p *DrinkParser) formatDrinkDescription(option models.DrinkOption) string {
+	return fmt.Sprintf("%s %s %d%s", option.Name, option.Type, option.SizeValue, option.SizeUnit)
 }
 
 func (p *DrinkParser) Parse(text string) (*DrinkMatch, error) {

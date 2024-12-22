@@ -36,7 +36,7 @@ func main() {
 	drinkRepo := drinks.NewRepository(db)
 	drinkService := drinks.NewService(drinkRepo)
 	embeddingService := embedding.NewOllamaEmbedding("http://localhost:11434")
-	drinkController := drinks.NewController(drinkService, embeddingService)
+	drinkController := drinks.NewController(drinkService, embeddingService, db)
 
 	// Initialize analytics components
 	analyticsService := analytics.NewService(drinkRepo)

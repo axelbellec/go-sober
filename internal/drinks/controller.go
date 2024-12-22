@@ -2,6 +2,7 @@
 package drinks
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -18,12 +19,14 @@ import (
 type Controller struct {
 	service          *Service
 	embeddingService embedding.EmbeddingService
+	db               *sql.DB
 }
 
-func NewController(service *Service, embeddingService embedding.EmbeddingService) *Controller {
+func NewController(service *Service, embeddingService embedding.EmbeddingService, db *sql.DB) *Controller {
 	return &Controller{
 		service:          service,
 		embeddingService: embeddingService,
+		db:               db,
 	}
 }
 
@@ -165,7 +168,7 @@ func (c *Controller) ParseDrinkLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parser := parser.NewDrinkParser(drinkOptions, c.embeddingService)
+	parser := parser.NewDrinkParser(drinkOptions, c.embeddingService, c.db)
 	match, err := parser.Parse(req.Text)
 	if err != nil {
 		http.Error(w, "Could not parse drink description", http.StatusBadRequest)
