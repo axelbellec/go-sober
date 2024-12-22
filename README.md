@@ -1,4 +1,4 @@
-# Sōber 🍺
+# Sōber 🧃
 
 A robust Go-based API for tracking alcohol consumption and calculating Blood Alcohol Content (BAC) with high precision.
 

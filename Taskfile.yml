@@ -3,28 +3,43 @@ version: "3"
 dotenv: [".env"]
 
 tasks:
+  default:
+    cmds:
+      - task run
+
   run:
+    desc: Run binary
     cmds:
       - go run main.go
 
+  run:prod:
+    desc: Run production binary
+    cmds:
+      - ./bin/go-sober
+
   build:
+    desc: Build binary
     cmds:
       - go build
 
   build:prod:
+    desc: Build production binary
     cmds:
       - go build -o bin/go-sober -v main.go
 
   test:
+    desc: Run tests
     cmds:
       - go test -v ./...
 
   test:coverage:
+    desc: Run tests with coverage
     cmds:
       - go test -coverprofile=coverage.out ./...
       - go tool cover -func=coverage.out
 
   test:bruno:
+    desc: Run Bruno tests
     cmds:
       - task db:migrate
       - cd bruno && bru run --env Local
