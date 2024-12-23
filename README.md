@@ -75,10 +75,11 @@ A robust Go-based API for tracking alcohol consumption and calculating Blood Alc
 
 - Go 1.23 or higher
 - SQLite 3
-- Task (task runner)
-- Bruno (API testing)
-- Ollama (for natural language processing)
-- Swag (for generating Swagger documentation)
+- [Task](https://taskfile.dev/) (task runner)
+- [Bruno](https://www.usebruno.com/) (API testing)
+- [Ollama](https://ollama.com/) (for natural language processing)
+- [Swag](https://github.com/swaggo/swag) (for generating Swagger documentation)
+- [Air](https://github.com/air-verse/air) (for hot reloading)
 
 ### Installation
 
