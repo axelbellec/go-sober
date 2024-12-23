@@ -15,6 +15,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
+import { toast } from "sonner";
 
 // Define the form validation schema
 const loginSchema = z.object({
@@ -42,17 +43,23 @@ export function LoginForm() {
     try {
       const response = await fetch("http://localhost:3000/api/v1/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(data),
       });
+
       if (response.ok) {
-        const data = await response.json();
-        // Store the token in localStorage
-        localStorage.setItem("token", data.token);
+        const responseData = await response.json();
+        localStorage.setItem("token", responseData.token);
+        toast.success("Login successful!");
         router.push("/drinks/log");
+      } else {
+        toast.error("Invalid email or password");
       }
     } catch (error) {
       console.error("Login failed:", error);
+      toast.error("Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }

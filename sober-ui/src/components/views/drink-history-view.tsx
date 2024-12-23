@@ -13,7 +13,7 @@ export function DrinkHistoryView() {
   }, [refreshDrinkLogs]);
 
   // Group drinks by date
-  const groupedDrinks = drinkLogs.reduce((groups, drink) => {
+  const groupedDrinks = (drinkLogs ?? []).reduce((groups, drink) => {
     // Safely parse the date and handle invalid dates
     const drinkDate = new Date(drink.logged_at);
     if (isNaN(drinkDate.getTime())) {
@@ -47,7 +47,7 @@ export function DrinkHistoryView() {
         </div>
       ))}
 
-      {drinkLogs.length === 0 && (
+      {(drinkLogs ?? []).length === 0 && (
         <div className="text-center py-8 text-muted-foreground">
           No drinks logged yet
         </div>

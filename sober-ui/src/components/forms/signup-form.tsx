@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,23 +15,18 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import Link from "next/link";
+import { toast } from "sonner";
 
-// Define the form validation schema
 const signupSchema = z
   .object({
     email: z.string().email("Invalid email address"),
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-      ),
-    confirmPassword: z.string(),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    passwordConfirmation: z.string().min(1, "Please confirm your password"),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.password === data.passwordConfirmation, {
     message: "Passwords don't match",
-    path: ["confirmPassword"],
+    path: ["passwordConfirmation"],
   });
 
 type SignupFormValues = z.infer<typeof signupSchema>;
@@ -40,25 +34,24 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 export function SignupForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       email: "",
       password: "",
-      confirmPassword: "",
+      passwordConfirmation: "",
     },
   });
 
   async function onSubmit(data: SignupFormValues) {
     setIsLoading(true);
-    setError(null);
-
     try {
       const response = await fetch("http://localhost:3000/api/v1/auth/signup", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           email: data.email,
           password: data.password,
@@ -66,15 +59,17 @@ export function SignupForm() {
       });
 
       if (response.ok) {
-        // Redirect to login page after successful signup
-        router.push("/login");
+        const responseData = await response.json();
+        localStorage.setItem("token", responseData.token);
+        toast.success("Account created successfully!");
+        router.push("/drinks/log");
       } else {
         const errorData = await response.json();
-        setError(errorData.message || "Signup failed");
+        toast.error(errorData.message || "Failed to create account");
       }
     } catch (error) {
       console.error("Signup failed:", error);
-      setError("An error occurred during signup");
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -100,6 +95,7 @@ export function SignupForm() {
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="password"
@@ -117,9 +113,10 @@ export function SignupForm() {
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
-          name="confirmPassword"
+          name="passwordConfirmation"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Confirm Password</FormLabel>
@@ -135,15 +132,11 @@ export function SignupForm() {
           )}
         />
 
-        {error && (
-          <div className="text-sm text-destructive text-center">{error}</div>
-        )}
-
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Creating account..." : "Create account"}
+          {isLoading ? "Creating account..." : "Sign up"}
         </Button>
 
-        <div className="text-center text-sm">
+        <div className="text-center text-sm mt-4">
           Already have an account?{" "}
           <Link href="/login" className="text-primary hover:underline">
             Log in
