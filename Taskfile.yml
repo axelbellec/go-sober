@@ -70,10 +70,15 @@ tasks:
     cmds:
       - migrate -source {{.MIGRATIONS_PATH}} -database "{{.DB_URL}}" down 1
 
+  db:drop:
+    desc: Drop the database
+    cmds:
+      - rm {{.DB_PATH}} || true
+
   db:reset:
     desc: Reset the database
+    deps: [db:drop]
     cmds:
-      - rm {{.DB_PATH}}
       - task db:migrate
 
   docker:build:
