@@ -29,6 +29,7 @@ func main() {
 
 	config := platform.AppConfig
 
+	corsMiddleware := middleware.NewCorsMiddleware()
 	loggingMiddleware := middleware.NewLoggingMiddleware()
 
 	// Initialize SQLite database using config
@@ -94,7 +95,7 @@ func main() {
 	// Start server using config port
 	addr := ":" + config.Port
 	log.Printf("Server starting on http://localhost%s, environment: %s\n", addr, config.Environment)
-	if err := http.ListenAndServe(addr, loggingMiddleware.LogRequest(mux)); err != nil {
+	if err := http.ListenAndServe(addr, loggingMiddleware.LogRequest(corsMiddleware.EnableCors(mux))); err != nil {
 		log.Fatal(err)
 	}
 
