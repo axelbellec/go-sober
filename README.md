@@ -78,6 +78,7 @@ A robust Go-based API for tracking alcohol consumption and calculating Blood Alc
 - Task (task runner)
 - Bruno (API testing)
 - Ollama (for natural language processing)
+- Swag (for generating Swagger documentation)
 
 ### Installation
 
@@ -107,13 +108,13 @@ cp .env.example .env
 task db:migrate
 ```
 
-5. Run the application:
+5. Generate Swagger documentation:
 
 ```bash
-task run
+task docs
 ```
 
-2. Install and setup Ollama:
+6. Install and setup Ollama:
 
 ```bash
 # Install Ollama from https://ollama.ai
@@ -125,7 +126,19 @@ ollama serve
 ollama pull nomic-embed-text
 ```
 
+7. Run the application:
+
+```bash
+task run
+```
+
 ## 📚 API Documentation
+
+The API is documented using Swagger/OpenAPI. You can access the interactive documentation at:
+
+```
+http://localhost:8080/swagger
+```
 
 ### Bruno API Collection
 
