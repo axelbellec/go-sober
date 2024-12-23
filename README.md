@@ -178,6 +178,9 @@ task test:bruno
 # Start development server
 task run
 
+# Run production binary
+task run:prod
+
 # Run tests
 task test
 
@@ -187,12 +190,34 @@ task test:coverage
 # Run Bruno tests
 task test:bruno
 
-# Build production binary
+# Build development binary
 task build
+
+# Build production binary
+task build:prod
 
 # Database operations
 task db:migrate
+task db:rollback
+
+# Docker operations
+task docker:build
+task docker:run
 ```
+
+### Task Descriptions
+
+- `run`: Starts the development server using `go run`
+- `run:prod`: Runs the compiled production binary
+- `build`: Builds the binary for development
+- `build:prod`: Creates an optimized production binary in `bin/go-sober`
+- `test`: Runs all Go tests with verbose output
+- `test:coverage`: Executes tests and generates coverage reports
+- `test:bruno`: Runs API tests using Bruno (includes database migration)
+- `db:migrate`: Applies all pending database migrations
+- `db:rollback`: Rolls back the most recent database migration
+- `docker:build`: Builds the Docker image
+- `docker:run`: Runs the Docker container with environment variables
 
 ### Code Style
 
