@@ -17,6 +17,16 @@ func NewController(service *Service) *Controller {
 	return &Controller{service: service}
 }
 
+// @Summary Sign up a new user
+// @Description Create a new user account
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param user body dtos.UserSignupRequest true "User signup request"
+// @Success 201 {object} dtos.UserSignupResponse
+// @Failure 400 {object} dtos.ClientError
+// @Failure 409 {object} dtos.ClientError
+// @Router /auth/signup [post]
 func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
 	var user dtos.UserSignupRequest
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
@@ -56,6 +66,16 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// @Summary Login a user
+// @Description Authenticate a user and generate a JWT token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param user body dtos.UserLoginRequest true "User login request"
+// @Success 200 {object} dtos.UserLoginResponse
+// @Failure 400 {object} dtos.ClientError
+// @Failure 401 {object} dtos.ClientError
+// @Router /auth/login [post]
 func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
 	var credentials dtos.UserLoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
@@ -86,6 +106,14 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// @Summary Get the current user
+// @Description Retrieve the current user's information
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Success 200 {object} dtos.UserMeResponse
+// @Router /auth/me [get]
 func (c *Controller) Me(w http.ResponseWriter, r *http.Request) {
 	claims := r.Context().Value(constants.UserContextKey).(*models.Claims)
 

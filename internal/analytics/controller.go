@@ -20,6 +20,21 @@ func NewController(service *Service) *Controller {
 	return &Controller{service: service}
 }
 
+// @Summary Get BAC calculation
+// @Description Calculate BAC for a user
+// @Tags analytics
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param start_time query string true "Start time"
+// @Param end_time query string true "End time"
+// @Param weight_kg query float64 true "Weight in kg"
+// @Param gender query string true "Gender"
+// @Param time_step_mins query int true "Time step in minutes"
+// @Success 200 {object} dtos.BACCalculationResponse
+// @Failure 400 {object} dtos.ClientError
+// @Failure 500 {object} dtos.ClientError
+// @Router /analytics/timeline/bac [get]
 func (c *Controller) GetBAC(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	claims := r.Context().Value(constants.UserContextKey).(*models.Claims)

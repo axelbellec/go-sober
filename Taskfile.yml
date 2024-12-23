@@ -91,3 +91,8 @@ tasks:
     deps: [docker:build]
     cmds:
       - docker run --name {{.BINARY_NAME}} -p 8080:8080 --env-file .env {{.BINARY_NAME}}
+
+  docs:
+    desc: Generate Swagger documentation
+    cmds:
+      - swag init

@@ -4,6 +4,9 @@ import (
 	"log"
 	"net/http"
 
+	httpSwagger "github.com/swaggo/http-swagger/v2" // http-swagger middleware
+
+	_ "go-sober/docs" // swagger docs
 	"go-sober/internal/analytics"
 	"go-sober/internal/auth"
 	"go-sober/internal/database"
@@ -13,6 +16,11 @@ import (
 	"go-sober/platform"
 )
 
+// @title Sober API
+// @version 1.0
+// @description API for the Sober app
+// @host localhost:8080
+// @BasePath /
 func main() {
 	// Initialize platform (config, logger, etc)
 	platform.InitPlatform()
@@ -72,6 +80,14 @@ func main() {
 	mux.HandleFunc("GET /drink-logs", authMiddleware.RequireAuth(drinkController.GetDrinkLogs))
 	mux.HandleFunc("POST /drink-logs", authMiddleware.RequireAuth(drinkController.CreateDrinkLog))
 	mux.HandleFunc("POST /drink-logs/parse", authMiddleware.RequireAuth(drinkController.ParseDrinkLog))
+
+	// Swagger documentation
+	mux.HandleFunc("GET /swagger/doc.json", httpSwagger.WrapHandler)
+	mux.Handle("/swagger/", httpSwagger.Handler(
+		httpSwagger.URL("/swagger/doc.json"), // Use relative URL
+		httpSwagger.DocExpansion("none"),
+		httpSwagger.DomID("swagger-ui"),
+	))
 
 	// Start server using config port
 	addr := ":" + config.Port

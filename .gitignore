@@ -6,8 +6,7 @@ db/sober.db
 .task/
 
 # Database docs
-docs/SPECS.md
-docs/DEV.md
+specs/
 
 # Binary files
 bin/

@@ -1,0 +1,554 @@
+basePath: /
+definitions:
+  Error:
+    properties:
+      code:
+        description: Similar to the http status code
+        example: 400
+        type: integer
+        x-order: "1"
+      correlation_id:
+        description: The error id from context traceId
+        example: "01234567890123456789012345678900"
+        type: string
+        x-order: "5"
+      details:
+        description: Additional details about the error, omitted if empty
+        items:
+          type: object
+        type: array
+        x-order: "4"
+      message:
+        description: A human-readable error message
+        example: Invalid request Body
+        type: string
+        x-order: "3"
+      type:
+        description: The type of error
+        enum:
+        - validation
+        - database
+        - entity
+        example: validation
+        type: string
+        x-order: "2"
+    type: object
+  dtos.BACCalculationResponse:
+    properties:
+      summary:
+        $ref: '#/definitions/models.BACSummary'
+      timeline:
+        items:
+          $ref: '#/definitions/models.BACPoint'
+        type: array
+    type: object
+  dtos.CreateDrinkLogRequest:
+    properties:
+      drink_option_id:
+        type: integer
+      logged_at:
+        type: string
+    type: object
+  dtos.CreateDrinkLogResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  dtos.DrinkLogsResponse:
+    properties:
+      drink_logs:
+        items:
+          $ref: '#/definitions/models.DrinkLog'
+        type: array
+    type: object
+  dtos.DrinkOptionResponse:
+    properties:
+      drink_option:
+        $ref: '#/definitions/models.DrinkOption'
+    type: object
+  dtos.DrinkOptionsResponse:
+    properties:
+      drink_options:
+        items:
+          $ref: '#/definitions/models.DrinkOption'
+        type: array
+    type: object
+  dtos.ParseDrinkLogRequest:
+    properties:
+      text:
+        type: string
+    type: object
+  dtos.ParseDrinkLogResponse:
+    properties:
+      confidence:
+        type: number
+      drink_option:
+        $ref: '#/definitions/models.DrinkOption'
+    type: object
+  dtos.UpdateDrinkOptionRequest:
+    properties:
+      abv:
+        type: number
+      name:
+        type: string
+      size_unit:
+        type: string
+      size_value:
+        type: integer
+      type:
+        type: string
+    required:
+    - abv
+    - name
+    - size_unit
+    - size_value
+    - type
+    type: object
+  dtos.UserLoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  dtos.UserLoginResponse:
+    properties:
+      message:
+        type: string
+      token:
+        type: string
+    type: object
+  dtos.UserMeResponse:
+    properties:
+      email:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  dtos.UserSignupRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  dtos.UserSignupResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.BACPoint:
+    properties:
+      bac:
+        type: number
+      is_over_bac:
+        type: boolean
+      status:
+        $ref: '#/definitions/models.BACStatus'
+      time:
+        type: string
+    type: object
+  models.BACStatus:
+    enum:
+    - Sober
+    - Minimal
+    - Light
+    - Mild
+    - Significant
+    - Severe
+    - Dangerous
+    type: string
+    x-enum-varnames:
+    - BACStatusSober
+    - BACStatusMinimal
+    - BACStatusLight
+    - BACStatusMild
+    - BACStatusSignificant
+    - BACStatusSevere
+    - BACStatusDangerous
+  models.BACSummary:
+    properties:
+      drinking_since_time:
+        type: string
+      duration_over_bac:
+        type: integer
+      max_bac:
+        type: number
+      max_bac_time:
+        type: string
+      sober_since_time:
+        type: string
+      total_drinks:
+        type: integer
+    type: object
+  models.DrinkLog:
+    properties:
+      abv:
+        type: number
+      drink_name:
+        type: string
+      drink_option_id:
+        type: integer
+      id:
+        type: integer
+      logged_at:
+        type: string
+      size_unit:
+        type: string
+      size_value:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  models.DrinkOption:
+    properties:
+      abv:
+        type: number
+      id:
+        type: integer
+      name:
+        type: string
+      size_unit:
+        type: string
+      size_value:
+        type: integer
+      type:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for the Sober app
+  title: Sober API
+  version: "1.0"
+paths:
+  /analytics/timeline/bac:
+    get:
+      consumes:
+      - application/json
+      description: Calculate BAC for a user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Start time
+        in: query
+        name: start_time
+        required: true
+        type: string
+      - description: End time
+        in: query
+        name: end_time
+        required: true
+        type: string
+      - description: Weight in kg
+        in: query
+        name: weight_kg
+        required: true
+        type: number
+      - description: Gender
+        in: query
+        name: gender
+        required: true
+        type: string
+      - description: Time step in minutes
+        in: query
+        name: time_step_mins
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.BACCalculationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Get BAC calculation
+      tags:
+      - analytics
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user and generate a JWT token
+      parameters:
+      - description: User login request
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.UserLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.UserLoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Login a user
+      tags:
+      - auth
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the current user's information
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.UserMeResponse'
+      summary: Get the current user
+      tags:
+      - auth
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account
+      parameters:
+      - description: User signup request
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.UserSignupRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.UserSignupResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Sign up a new user
+      tags:
+      - auth
+  /drink-logs:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all drink logs for the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.DrinkLogsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Get drink logs for the current user
+      tags:
+      - drinks
+    post:
+      consumes:
+      - application/json
+      description: Create a new drink log for the current user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Create drink log request
+        in: body
+        name: drinkLog
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.CreateDrinkLogRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.CreateDrinkLogResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Create a drink log
+      tags:
+      - drinks
+  /drink-logs/parse:
+    post:
+      consumes:
+      - application/json
+      description: Parse a drink log and return the drink option and confidence
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Parse drink log request
+        in: body
+        name: drinkLog
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.ParseDrinkLogRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.ParseDrinkLogResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Parse a drink log
+      tags:
+      - drinks
+  /drink-options:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all drink options
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.DrinkOptionsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Get all drink options
+      tags:
+      - drinks
+  /drink-options/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific drink option by ID
+      parameters:
+      - description: Drink option ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Delete a drink option
+      tags:
+      - drinks
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific drink option by ID
+      parameters:
+      - description: Drink option ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.DrinkOptionResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Get a specific drink option
+      tags:
+      - drinks
+    put:
+      consumes:
+      - application/json
+      description: Update a specific drink option by ID
+      parameters:
+      - description: Drink option ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated drink option
+        in: body
+        name: drinkOption
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.UpdateDrinkOptionRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Update a drink option
+      tags:
+      - drinks
+swagger: "2.0"

@@ -31,6 +31,14 @@ func NewController(service *Service, embeddingService embedding.EmbeddingService
 	}
 }
 
+// @Summary Get all drink options
+// @Description Retrieve all drink options
+// @Tags drinks
+// @Accept json
+// @Produce json
+// @Success 200 {object} dtos.DrinkOptionsResponse
+// @Failure 500 {object} dtos.ClientError
+// @Router /drink-options [get]
 func (c *Controller) GetDrinkOptions(w http.ResponseWriter, r *http.Request) {
 	drinkOptions, err := c.service.GetDrinkOptions()
 	if err != nil {
@@ -47,6 +55,15 @@ func (c *Controller) GetDrinkOptions(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// @Summary Get a specific drink option
+// @Description Retrieve a specific drink option by ID
+// @Tags drinks
+// @Accept json
+// @Produce json
+// @Param id path string true "Drink option ID"
+// @Success 200 {object} dtos.DrinkOptionResponse
+// @Failure 404 {object} dtos.ClientError
+// @Router /drink-options/{id} [get]
 func (c *Controller) GetDrinkOption(w http.ResponseWriter, r *http.Request) {
 	// Extract the ID from the URL path
 	// The URL pattern "/drink-options/{id}" needs to be handled with a URL router
@@ -73,6 +90,18 @@ func (c *Controller) GetDrinkOption(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// @Summary Update a drink option
+// @Description Update a specific drink option by ID
+// @Tags drinks
+// @Accept json
+// @Produce json
+// @Param id path string true "Drink option ID"
+// @Param drinkOption body dtos.UpdateDrinkOptionRequest true "Updated drink option"
+// @Success 204
+// @Failure 400 {object} dtos.ClientError
+// @Failure 404 {object} dtos.ClientError
+// @Failure 500 {object} dtos.ClientError
+// @Router /drink-options/{id} [put]
 func (c *Controller) UpdateDrinkOption(w http.ResponseWriter, r *http.Request) {
 	// Extract ID from URL
 	pathParts := strings.Split(r.URL.Path, "/")
@@ -116,6 +145,16 @@ func (c *Controller) UpdateDrinkOption(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// @Summary Delete a drink option
+// @Description Delete a specific drink option by ID
+// @Tags drinks
+// @Accept json
+// @Produce json
+// @Param id path string true "Drink option ID"
+// @Success 204
+// @Failure 404 {object} dtos.ClientError
+// @Failure 500 {object} dtos.ClientError
+// @Router /drink-options/{id} [delete]
 func (c *Controller) DeleteDrinkOption(w http.ResponseWriter, r *http.Request) {
 	// Extract ID from URL
 	pathParts := strings.Split(r.URL.Path, "/")
@@ -143,6 +182,17 @@ func (c *Controller) DeleteDrinkOption(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// @Summary Create a drink log
+// @Description Create a new drink log for the current user
+// @Tags drinks
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param drinkLog body dtos.CreateDrinkLogRequest true "Create drink log request"
+// @Success 201 {object} dtos.CreateDrinkLogResponse
+// @Failure 400 {object} dtos.ClientError
+// @Failure 500 {object} dtos.ClientError
+// @Router /drink-logs [post]
 func (c *Controller) CreateDrinkLog(w http.ResponseWriter, r *http.Request) {
 	// Get user from context (set by auth middleware)
 	claims := r.Context().Value(constants.UserContextKey).(*models.Claims)
@@ -190,6 +240,14 @@ func (c *Controller) CreateDrinkLog(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// @Summary Get drink logs for the current user
+// @Description Retrieve all drink logs for the current user
+// @Tags drinks
+// @Accept json
+// @Produce json
+// @Success 200 {object} dtos.DrinkLogsResponse
+// @Failure 500 {object} dtos.ClientError
+// @Router /drink-logs [get]
 func (c *Controller) GetDrinkLogs(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -220,6 +278,17 @@ func (c *Controller) GetDrinkLogs(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// @Summary Parse a drink log
+// @Description Parse a drink log and return the drink option and confidence
+// @Tags drinks
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param drinkLog body dtos.ParseDrinkLogRequest true "Parse drink log request"
+// @Success 200 {object} dtos.ParseDrinkLogResponse
+// @Failure 400 {object} dtos.ClientError
+// @Failure 500 {object} dtos.ClientError
+// @Router /drink-logs/parse [post]
 func (c *Controller) ParseDrinkLog(w http.ResponseWriter, r *http.Request) {
 	claims := r.Context().Value(constants.UserContextKey).(*models.Claims)
 	if claims == nil {
