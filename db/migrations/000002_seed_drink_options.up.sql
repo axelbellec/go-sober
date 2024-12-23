@@ -1,16 +1,5 @@
--- Create the drink_options table
-CREATE TABLE drink_options (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    type TEXT NOT NULL,
-    size_value INTEGER NOT NULL,
-    size_unit TEXT NOT NULL,
-    abv REAL NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
--- Insert some default drink options
+-- Let's seed some drink options
 INSERT INTO drink_options (name, type, size_value, size_unit, abv) VALUES
 
 -- Beers
@@ -107,12 +96,3 @@ INSERT INTO drink_options (name, type, size_value, size_unit, abv) VALUES
 ('Jägermeister Shot', 'shot', 3, 'cl', 0.35),
 ('Sambuca Shot', 'shot', 3, 'cl', 0.38),
 ('Fireball Shot', 'shot', 3, 'cl', 0.33);
-
-
-CREATE TRIGGER update_drink_options_timestamp 
-AFTER UPDATE ON drink_options
-FOR EACH ROW
-BEGIN
-    UPDATE drink_options SET updated_at = CURRENT_TIMESTAMP
-    WHERE id = OLD.id;
-END;
