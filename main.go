@@ -17,10 +17,12 @@ func main() {
 	// Initialize platform (config, logger, etc)
 	platform.InitPlatform()
 
+	config := platform.AppConfig
+
 	loggingMiddleware := middleware.NewLoggingMiddleware()
 
 	// Initialize SQLite database using config
-	db, err := database.NewSQLiteDB(platform.AppConfig.Database)
+	db, err := database.NewSQLiteDB(config.Database)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,14 +30,17 @@ func main() {
 
 	// Initialize repository, service, controller and middleware with config
 	authRepo := auth.NewRepository(db)
-	authService := auth.NewService(authRepo, platform.AppConfig)
+	authService := auth.NewService(authRepo, config)
 	authController := auth.NewController(authService)
 	authMiddleware := middleware.NewAuthMiddleware(authService)
 
 	// Initialize the drinks components
 	drinkRepo := drinks.NewRepository(db)
 	drinkService := drinks.NewService(drinkRepo)
-	embeddingService := embedding.NewOllamaEmbedding("http://localhost:11434")
+	embeddingService := embedding.NewOllamaEmbedding(
+		config.Embedding.Ollama.BaseURL,
+		config.Embedding.Ollama.Model,
+	)
 	drinkController := drinks.NewController(drinkService, embeddingService, db)
 
 	// Initialize analytics components
@@ -69,8 +74,8 @@ func main() {
 	mux.HandleFunc("POST /drink-logs/parse", authMiddleware.RequireAuth(drinkController.ParseDrinkLog))
 
 	// Start server using config port
-	addr := ":" + platform.AppConfig.Port
-	log.Printf("Server starting on %s, environment: %s\n", addr, platform.AppConfig.Environment)
+	addr := ":" + config.Port
+	log.Printf("Server starting on http://localhost%s, environment: %s\n", addr, config.Environment)
 	if err := http.ListenAndServe(addr, loggingMiddleware.LogRequest(mux)); err != nil {
 		log.Fatal(err)
 	}

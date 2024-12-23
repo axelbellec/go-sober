@@ -17,14 +17,17 @@ type OllamaEmbedding struct {
 	model   string
 }
 
-func NewOllamaEmbedding(baseURL string) *OllamaEmbedding {
+func NewOllamaEmbedding(baseURL, model string) *OllamaEmbedding {
 	if baseURL == "" {
-		baseURL = "http://localhost:11434" // Default Ollama address
+		baseURL = "http://localhost:11434" // Fallback default
+	}
+	if model == "" {
+		model = "nomic-embed-text" // Fallback default
 	}
 
 	return &OllamaEmbedding{
 		baseURL: baseURL,
-		model:   "nomic-embed-text", // Using nomic-embed-text for embeddings
+		model:   model,
 	}
 }
 

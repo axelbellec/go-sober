@@ -18,6 +18,13 @@ type LoggerConfig struct {
 	Format string `env:"LOG_FORMAT" envDefault:"json"`
 }
 
+type EmbeddingConfig struct {
+	Ollama struct {
+		BaseURL string `env:"OLLAMA_BASE_URL" envDefault:"http://localhost:11434"`
+		Model   string `env:"OLLAMA_MODEL" envDefault:"nomic-embed-text"`
+	}
+}
+
 type DatabaseConfig struct {
 	SQL struct {
 		FilePath        string        `env:"DB_FILE_PATH" envDefault:"db/sober.db"`
@@ -41,6 +48,7 @@ type Config struct {
 	Logger      LoggerConfig
 	Database    DatabaseConfig
 	Auth        AuthConfig
+	Embedding   EmbeddingConfig
 }
 
 var AppConfig *Config = nil
