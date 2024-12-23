@@ -9,3 +9,8 @@ type DrinkOption struct {
 	SizeUnit  string  `json:"size_unit"`
 	ABV       float64 `json:"abv"`
 }
+
+type Quantity struct {
+	Value int
+	Unit  string
+}
