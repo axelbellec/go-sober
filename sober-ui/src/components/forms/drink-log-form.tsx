@@ -23,9 +23,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { fetchWithAuth } from "@/lib/utils";
 
 const drinkLogSchema = z.object({
-  drinkOptionId: z.number(),
+  drinkOptionId: z.number().optional(),
   abv: z.number().min(0).max(100),
   sizeValue: z.number().min(0),
   sizeUnit: z.string(),
@@ -40,7 +41,7 @@ export function DrinkLogForm() {
   const form = useForm<DrinkLogFormValues>({
     resolver: zodResolver(drinkLogSchema),
     defaultValues: {
-      drinkOptionId: 1,
+      drinkOptionId: 0,
       abv: 0,
       sizeValue: 0,
       sizeUnit: "cl",
@@ -48,7 +49,7 @@ export function DrinkLogForm() {
   });
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/v1/drink-options")
+    fetchWithAuth("http://localhost:3000/api/v1/drink-options")
       .then((res) => res.json())
       .then((data) => {
         const options = Array.isArray(data.drink_options)
@@ -75,20 +76,21 @@ export function DrinkLogForm() {
   async function onSubmit(data: DrinkLogFormValues) {
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/api/v1/drink-logs", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          drink_option_id: data.drinkOptionId,
-          logged_at: new Date().toISOString(),
-        }),
-      });
+      const response = await fetchWithAuth(
+        "http://localhost:3000/api/v1/drink-logs",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            drink_option_id: data.drinkOptionId,
+            logged_at: new Date().toISOString(),
+          }),
+        }
+      );
 
       if (response.ok) {
-        // Reset form and show success message
         form.reset();
       }
     } catch (error) {

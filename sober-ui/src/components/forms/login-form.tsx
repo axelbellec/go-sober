@@ -46,6 +46,9 @@ export function LoginForm() {
         body: JSON.stringify(data),
       });
       if (response.ok) {
+        const data = await response.json();
+        // Store the token in localStorage
+        localStorage.setItem("token", data.token);
         router.push("/drinks/log");
       }
     } catch (error) {
