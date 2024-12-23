@@ -14,9 +14,9 @@ tasks:
       - task --list
 
   run:
-    desc: Run binary in development mode
+    desc: Run binary in development mode with hot reloading
     cmds:
-      - go run main.go
+      - air --build.cmd="go build -o bin/go-sober ."
 
   run:prod:
     desc: Run production binary
