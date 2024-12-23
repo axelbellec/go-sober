@@ -2,6 +2,9 @@
 .env
 db/sober.db
 
+# Custom
+.task/
+
 # Database docs
 docs/SPECS.md
 docs/DEV.md

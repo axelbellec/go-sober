@@ -2,30 +2,44 @@ version: "3"
 
 dotenv: [".env"]
 
+vars:
+  BINARY_NAME: go-sober
+  DB_PATH: db/sober.db
+  DB_URL: sqlite3://{{.DB_PATH}}
+  MIGRATIONS_PATH: file://db/migrations
+
 tasks:
   default:
     cmds:
-      - task run
+      - task --list
 
   run:
-    desc: Run binary
+    desc: Run binary in development mode
     cmds:
       - go run main.go
 
   run:prod:
     desc: Run production binary
     cmds:
-      - ./bin/go-sober
+      - ./bin/{{.BINARY_NAME}}
 
   build:
-    desc: Build binary
+    desc: Build binary for development
     cmds:
       - go build
+    sources:
+      - ./**/*.go
+    generates:
+      - "{{ .BINARY_NAME }}"
 
   build:prod:
     desc: Build production binary
     cmds:
-      - go build -o bin/go-sober -v main.go
+      - go build -o bin/{{.BINARY_NAME}} -v main.go
+    sources:
+      - ./**/*.go
+    generates:
+      - bin/{{.BINARY_NAME}}
 
   test:
     desc: Run tests
@@ -37,29 +51,38 @@ tasks:
     cmds:
       - go test -coverprofile=coverage.out ./...
       - go tool cover -func=coverage.out
+      - rm coverage.out
 
   test:bruno:
     desc: Run Bruno tests
+    deps: [db:migrate]
+    dir: bruno
     cmds:
-      - task db:migrate
-      - cd bruno && bru run --env Local
+      - bru run --env Local
 
   db:migrate:
     desc: Run database migrations
     cmds:
-      - migrate -source file://db/migrations -database "sqlite3://db/sober.db" up
+      - migrate -source {{.MIGRATIONS_PATH}} -database "{{.DB_URL}}" up
 
   db:rollback:
     desc: Rollback the last database migration
     cmds:
-      - migrate -source file://db/migrations -database "sqlite3://db/sober.db" down 1
+      - migrate -source {{.MIGRATIONS_PATH}} -database "{{.DB_URL}}" down 1
+
+  db:reset:
+    desc: Reset the database
+    cmds:
+      - rm {{.DB_PATH}}
+      - task db:migrate
 
   docker:build:
     desc: Build Docker image
     cmds:
-      - docker build -t sober .
+      - docker build -t {{.BINARY_NAME}} .
 
   docker:run:
-    desc: Run Docker image
+    desc: Run Docker container
+    deps: [docker:build]
     cmds:
-      - docker run --name sober -p 8080:8080 --env-file .env sober
+      - docker run --name {{.BINARY_NAME}} -p 8080:8080 --env-file .env {{.BINARY_NAME}}
