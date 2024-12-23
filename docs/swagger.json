@@ -1,4 +1,10 @@
 {
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
     "swagger": "2.0",
     "info": {
         "description": "API for the Sober app",
@@ -7,7 +13,7 @@
         "version": "1.0"
     },
     "host": "localhost:8080",
-    "basePath": "/",
+    "basePath": "/api/v1",
     "paths": {
         "/analytics/timeline/bac": {
             "get": {

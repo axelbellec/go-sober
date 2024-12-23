@@ -20,7 +20,9 @@ import (
 // @version 1.0
 // @description API for the Sober app
 // @host localhost:8080
-// @BasePath /
+// @BasePath /api/v1
+// @accept json
+// @produce json
 func main() {
 	// Initialize platform (config, logger, etc)
 	platform.InitPlatform()
@@ -60,31 +62,31 @@ func main() {
 
 	// [Public routes]
 	// Auth
-	mux.HandleFunc("POST /auth/signup", authController.SignUp)
-	mux.HandleFunc("POST /auth/login", authController.Login)
+	mux.HandleFunc("POST /api/v1/auth/signup", authController.SignUp)
+	mux.HandleFunc("POST /api/v1/auth/login", authController.Login)
 
 	// Drink options
-	mux.HandleFunc("GET /drink-options", drinkController.GetDrinkOptions)
-	mux.HandleFunc("GET /drink-options/", drinkController.GetDrinkOption)
-	mux.HandleFunc("PUT /drink-options/", drinkController.UpdateDrinkOption)
-	mux.HandleFunc("DELETE /drink-options/", drinkController.DeleteDrinkOption)
+	mux.HandleFunc("GET /api/v1/drink-options", drinkController.GetDrinkOptions)
+	mux.HandleFunc("GET /api/v1/drink-options/{id}", drinkController.GetDrinkOption)
+	mux.HandleFunc("PUT /api/v1/drink-options/{id}", drinkController.UpdateDrinkOption)
+	mux.HandleFunc("DELETE /api/v1/drink-options/{id}", drinkController.DeleteDrinkOption)
 
 	// [Protected routes]
 	// Auth
-	mux.HandleFunc("GET /auth/me", authMiddleware.RequireAuth(authController.Me))
+	mux.HandleFunc("GET /api/v1/auth/me", authMiddleware.RequireAuth(authController.Me))
 
 	// Analytics
-	mux.HandleFunc("GET /analytics/timeline/bac", authMiddleware.RequireAuth(analyticsController.GetBAC))
+	mux.HandleFunc("GET /api/v1/analytics/timeline/bac", authMiddleware.RequireAuth(analyticsController.GetBAC))
 
 	// Drink logging
-	mux.HandleFunc("GET /drink-logs", authMiddleware.RequireAuth(drinkController.GetDrinkLogs))
-	mux.HandleFunc("POST /drink-logs", authMiddleware.RequireAuth(drinkController.CreateDrinkLog))
-	mux.HandleFunc("POST /drink-logs/parse", authMiddleware.RequireAuth(drinkController.ParseDrinkLog))
+	mux.HandleFunc("GET /api/v1/drink-logs", authMiddleware.RequireAuth(drinkController.GetDrinkLogs))
+	mux.HandleFunc("POST /api/v1/drink-logs", authMiddleware.RequireAuth(drinkController.CreateDrinkLog))
+	mux.HandleFunc("POST /api/v1/drink-logs/parse", authMiddleware.RequireAuth(drinkController.ParseDrinkLog))
 
 	// Swagger documentation
-	mux.HandleFunc("GET /swagger/doc.json", httpSwagger.WrapHandler)
-	mux.Handle("/swagger/", httpSwagger.Handler(
-		httpSwagger.URL("/swagger/doc.json"), // Use relative URL
+	mux.HandleFunc("GET /api/v1/swagger/doc.json", httpSwagger.WrapHandler)
+	mux.HandleFunc("GET /api/v1/swagger/", httpSwagger.Handler(
+		httpSwagger.URL("/api/v1/swagger/doc.json"), // Use relative URL
 		httpSwagger.DocExpansion("none"),
 		httpSwagger.DomID("swagger-ui"),
 	))

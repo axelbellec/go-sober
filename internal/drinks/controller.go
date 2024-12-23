@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"go-sober/internal/constants"
@@ -68,14 +67,16 @@ func (c *Controller) GetDrinkOption(w http.ResponseWriter, r *http.Request) {
 	// Extract the ID from the URL path
 	// The URL pattern "/drink-options/{id}" needs to be handled with a URL router
 	// Since we're using net/http directly, we need to parse the path manually
-	pathParts := strings.Split(r.URL.Path, "/")
-	if len(pathParts) != 3 {
-		http.Error(w, "Invalid path", http.StatusBadRequest)
+
+	// Get the last part of the path
+	drinkOptionID, err := strconv.Atoi(r.PathValue("id"))
+
+	if err != nil {
+		http.Error(w, "Invalid ID format", http.StatusBadRequest)
 		return
 	}
 
-	id := pathParts[2]
-	drinkOption, err := c.service.GetDrinkOption(id)
+	drinkOption, err := c.service.GetDrinkOption(drinkOptionID)
 	if err != nil {
 		http.Error(w, "Drink option not found", http.StatusNotFound)
 		return
@@ -103,14 +104,8 @@ func (c *Controller) GetDrinkOption(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} dtos.ClientError
 // @Router /drink-options/{id} [put]
 func (c *Controller) UpdateDrinkOption(w http.ResponseWriter, r *http.Request) {
-	// Extract ID from URL
-	pathParts := strings.Split(r.URL.Path, "/")
-	if len(pathParts) != 3 {
-		http.Error(w, "Invalid path", http.StatusBadRequest)
-		return
-	}
 
-	id, err := strconv.Atoi(pathParts[2])
+	drinkOptionID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		http.Error(w, "Invalid ID format", http.StatusBadRequest)
 		return
@@ -133,7 +128,7 @@ func (c *Controller) UpdateDrinkOption(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update drink option
-	if err := c.service.UpdateDrinkOption(id, drinkOption); err != nil {
+	if err := c.service.UpdateDrinkOption(drinkOptionID, drinkOption); err != nil {
 		if err.Error() == "drink option not found" {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
@@ -156,21 +151,15 @@ func (c *Controller) UpdateDrinkOption(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} dtos.ClientError
 // @Router /drink-options/{id} [delete]
 func (c *Controller) DeleteDrinkOption(w http.ResponseWriter, r *http.Request) {
-	// Extract ID from URL
-	pathParts := strings.Split(r.URL.Path, "/")
-	if len(pathParts) != 3 {
-		http.Error(w, "Invalid path", http.StatusBadRequest)
-		return
-	}
 
-	id, err := strconv.Atoi(pathParts[2])
+	drinkOptionID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		http.Error(w, "Invalid ID format", http.StatusBadRequest)
 		return
 	}
 
 	// Delete drink option
-	if err := c.service.DeleteDrinkOption(id); err != nil {
+	if err := c.service.DeleteDrinkOption(drinkOptionID); err != nil {
 		if err.Error() == "drink option not found" {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return

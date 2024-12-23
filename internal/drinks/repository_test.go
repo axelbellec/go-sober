@@ -78,13 +78,13 @@ func TestGetDrinkOption(t *testing.T) {
 	repo := setupTestDB(t)
 
 	t.Run("existing drink option", func(t *testing.T) {
-		option, err := repo.GetDrinkOption("1")
+		option, err := repo.GetDrinkOption(1)
 		assert.NoError(t, err)
 		assert.Equal(t, "Beer", option.Name)
 	})
 
 	t.Run("non-existent drink option", func(t *testing.T) {
-		_, err := repo.GetDrinkOption("999")
+		_, err := repo.GetDrinkOption(999)
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "drink option not found")
 	})

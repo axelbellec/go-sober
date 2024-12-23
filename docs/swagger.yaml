@@ -1,4 +1,6 @@
-basePath: /
+basePath: /api/v1
+consumes:
+- application/json
 definitions:
   Error:
     properties:
@@ -551,4 +553,6 @@ paths:
       summary: Update a drink option
       tags:
       - drinks
+produces:
+- application/json
 swagger: "2.0"

@@ -54,7 +54,7 @@ func (r *Repository) GetDrinkOptions() ([]models.DrinkOption, error) {
 	return drinkOptions, nil
 }
 
-func (r *Repository) GetDrinkOption(id string) (*models.DrinkOption, error) {
+func (r *Repository) GetDrinkOption(id int) (*models.DrinkOption, error) {
 	var drinkOption models.DrinkOption
 	err := r.db.QueryRow("SELECT id, name, type, size_value, size_unit, abv FROM drink_options WHERE id = ?", id).
 		Scan(&drinkOption.ID, &drinkOption.Name, &drinkOption.Type, &drinkOption.SizeValue, &drinkOption.SizeUnit, &drinkOption.ABV)

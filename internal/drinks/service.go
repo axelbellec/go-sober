@@ -19,7 +19,7 @@ func (s *Service) GetDrinkOptions() ([]models.DrinkOption, error) {
 	return s.repo.GetDrinkOptions()
 }
 
-func (s *Service) GetDrinkOption(id string) (*models.DrinkOption, error) {
+func (s *Service) GetDrinkOption(id int) (*models.DrinkOption, error) {
 	return s.repo.GetDrinkOption(id)
 }
 
