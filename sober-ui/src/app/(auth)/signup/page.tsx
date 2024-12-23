@@ -4,8 +4,8 @@ import { PageLayout } from "@/components/layouts/page-layout";
 export default function SignupPage() {
   return (
     <PageLayout
-      heading="Create an account"
-      subheading="Enter your email below to create your account"
+      heading="Join Sōber 🧃"
+      subheading="Create your account to start tracking mindfully"
       className="sm:w-[350px]"
     >
       <SignupForm />

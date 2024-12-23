@@ -173,19 +173,20 @@ export default function Home() {
         {/* Hero Section */}
         <section className="flex flex-col items-center justify-center space-y-4 px-4 py-24 text-center md:py-32">
           <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-            Sōber 🧃
+            Mindful Drinking Made Simple 🧃
           </h1>
           <p className="max-w-[700px] text-lg text-muted-foreground sm:text-xl">
-            Track your alcohol consumption intelligently. Make informed
-            decisions about your drinking habits with real-time BAC monitoring.
+            Take control of your drinking habits with Sōber. Track your drinks,
+            understand your limits, and make informed decisions about your
+            alcohol consumption.
           </p>
           <div className="flex flex-col gap-4 sm:flex-row">
             <Link href="/signup">
-              <Button size="lg">Get Started</Button>
+              <Button size="lg">Start Your Journey</Button>
             </Link>
             <Link href="/login">
               <Button variant="outline" size="lg">
-                Sign In
+                Welcome Back
               </Button>
             </Link>
           </div>
@@ -193,14 +194,16 @@ export default function Home() {
 
         {/* Features Section */}
         <section className="container mx-auto px-4 py-16">
-          <h2 className="mb-12 text-center text-3xl font-bold">Key Features</h2>
+          <h2 className="mb-12 text-center text-3xl font-bold">
+            How Sōber Helps You
+          </h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <CardTitle>Real-time BAC Tracking</CardTitle>
+                <CardTitle>Smart BAC Tracking</CardTitle>
                 <CardDescription>
-                  Monitor your blood alcohol content in real-time with
-                  scientific accuracy
+                  Know where you stand with real-time blood alcohol tracking
+                  that's both accurate and easy to understand
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -212,9 +215,10 @@ export default function Home() {
 
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <CardTitle>Drink History</CardTitle>
+                <CardTitle>Personal Insights</CardTitle>
                 <CardDescription>
-                  Keep a detailed log of your drinks and consumption patterns
+                  Build better habits with a clear view of your drinking
+                  patterns and personalized recommendations
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -226,10 +230,10 @@ export default function Home() {
 
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <CardTitle>Smart Insights</CardTitle>
+                <CardTitle>Mindful Decisions</CardTitle>
                 <CardDescription>
-                  Get personalized insights and recommendations based on your
-                  drinking patterns
+                  Make informed choices about your drinking with real-time
+                  insights and gentle reminders
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -241,11 +245,11 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Benefits Section - New */}
+        {/* Benefits Section */}
         <section className="bg-muted/50 py-16">
           <div className="container mx-auto px-4">
             <h2 className="mb-12 text-center text-3xl font-bold">
-              Why Choose Sōber?
+              Your Journey with Sōber
             </h2>
             <div className="grid gap-8 md:grid-cols-2">
               <div className="flex items-start space-x-4">
@@ -253,10 +257,12 @@ export default function Home() {
                   🎯
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold">Accurate Tracking</h3>
+                  <h3 className="text-xl font-semibold">
+                    Science-Backed Tracking
+                  </h3>
                   <p className="mt-2 text-muted-foreground">
-                    Our scientifically-backed BAC calculations provide reliable
-                    insights into your alcohol consumption.
+                    Trust our precise BAC calculations to give you reliable,
+                    actionable insights about your drinking.
                   </p>
                 </div>
               </div>
@@ -265,10 +271,12 @@ export default function Home() {
                   🔒
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold">Privacy First</h3>
+                  <h3 className="text-xl font-semibold">
+                    Your Data, Your Privacy
+                  </h3>
                   <p className="mt-2 text-muted-foreground">
-                    Your data is encrypted and secure. We never share your
-                    personal information.
+                    Rest easy knowing your information is encrypted and
+                    completely private. We never share your data.
                   </p>
                 </div>
               </div>
@@ -277,10 +285,10 @@ export default function Home() {
                   📱
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold">Easy to Use</h3>
+                  <h3 className="text-xl font-semibold">Effortless Tracking</h3>
                   <p className="mt-2 text-muted-foreground">
-                    Simple interface designed for quick and effortless drink
-                    logging.
+                    Track your drinks in seconds with our intuitive interface
+                    designed for real-world use.
                   </p>
                 </div>
               </div>
@@ -289,10 +297,10 @@ export default function Home() {
                   📈
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold">Detailed Analytics</h3>
+                  <h3 className="text-xl font-semibold">Clear Insights</h3>
                   <p className="mt-2 text-muted-foreground">
-                    Visualize your drinking patterns and make informed
-                    decisions.
+                    Understand your habits with easy-to-read charts and
+                    personalized insights that matter.
                   </p>
                 </div>
               </div>
@@ -303,13 +311,15 @@ export default function Home() {
         {/* CTA Section */}
         <section className="bg-muted py-16">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="mb-4 text-3xl font-bold">Ready to Take Control?</h2>
+            <h2 className="mb-4 text-3xl font-bold">
+              Start Your Mindful Journey Today
+            </h2>
             <p className="mb-8 text-muted-foreground">
-              Join thousands of users making smarter drinking decisions
+              Join thousands making smarter choices about their drinking habits
             </p>
             <Link href="/signup">
               <Button size="lg" className="min-w-[200px]">
-                Start Tracking Now
+                Get Started Free
               </Button>
             </Link>
           </div>

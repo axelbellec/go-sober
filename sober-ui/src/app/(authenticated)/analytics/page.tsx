@@ -4,8 +4,8 @@ import { PageLayout } from "@/components/layouts/page-layout";
 export default function AnalyticsPage() {
   return (
     <PageLayout
-      heading="Blood Alcohol Content Timeline 📊"
-      subheading="Track your BAC over time"
+      heading="Your BAC Timeline 📊"
+      subheading="Monitor your blood alcohol content over time"
     >
       <BACTimelineView />
     </PageLayout>

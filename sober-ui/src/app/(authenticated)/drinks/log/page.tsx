@@ -6,8 +6,8 @@ import { PageLayout } from "@/components/layouts/page-layout";
 export default function DrinkLogPage() {
   return (
     <PageLayout
-      heading="Log a Drink 🍺"
-      subheading="Search and select your drink"
+      heading="Track a Drink 🍺"
+      subheading="Keep track of what you're drinking"
       className="sm:w-[350px]"
     >
       <DrinkLogForm />
