@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import {
-  Line,
-  LineChart,
+  Area,
+  AreaChart,
+  CartesianGrid,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -126,10 +127,29 @@ export function BACTimelineView() {
         <CardContent>
           <div className="h-[300px] sm:h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart
+              <AreaChart
                 data={chartData}
                 margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
               >
+                <defs>
+                  <linearGradient id="bacGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop
+                      offset="5%"
+                      stopColor="hsl(var(--primary))"
+                      stopOpacity={0.8}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor="hsl(var(--primary))"
+                      stopOpacity={0.1}
+                    />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  vertical={false}
+                  stroke="#888888"
+                  opacity={0.2}
+                />
                 <XAxis
                   dataKey="time"
                   stroke="#888888"
@@ -143,7 +163,7 @@ export function BACTimelineView() {
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(value) => `${(value * 100).toFixed(3)}%`}
+                  tickFormatter={(value) => `${(value * 100).toFixed(2)}%`}
                 />
                 <Tooltip
                   content={({ active, payload }) => {
@@ -174,15 +194,17 @@ export function BACTimelineView() {
                     return null;
                   }}
                 />
-                <Line
+                <Area
                   type="monotone"
                   dataKey="bac"
                   stroke="hsl(var(--primary))"
-                  strokeWidth={2.5}
+                  fill="url(#bacGradient)"
+                  fillOpacity={0.4}
+                  strokeWidth={2}
                   dot={false}
                   activeDot={{ r: 6, fill: "hsl(var(--primary))" }}
                 />
-              </LineChart>
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </CardContent>
