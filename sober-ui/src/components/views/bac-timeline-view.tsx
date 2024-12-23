@@ -84,19 +84,19 @@ export function BACTimelineView() {
     : "Still drinking";
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+    <div className="w-full max-w-7xl mx-auto px-4 space-y-6">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Peak BAC</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold text-primary">
               {(maxBAC * 100).toFixed(3)}%
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Started Drinking
@@ -106,7 +106,7 @@ export function BACTimelineView() {
             <div className="text-2xl font-bold">{drinkingSince}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Sober Since</CardTitle>
           </CardHeader>
@@ -116,7 +116,7 @@ export function BACTimelineView() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="shadow-sm hover:shadow-md transition-shadow">
         <CardHeader>
           <CardTitle>BAC Timeline</CardTitle>
           <CardDescription>
@@ -124,15 +124,19 @@ export function BACTimelineView() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px]">
+          <div className="h-[300px] sm:h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
+              <LineChart
+                data={chartData}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+              >
                 <XAxis
                   dataKey="time"
                   stroke="#888888"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
+                  padding={{ left: 10, right: 10 }}
                 />
                 <YAxis
                   stroke="#888888"
@@ -174,8 +178,9 @@ export function BACTimelineView() {
                   type="monotone"
                   dataKey="bac"
                   stroke="hsl(var(--primary))"
-                  strokeWidth={2}
+                  strokeWidth={2.5}
                   dot={false}
+                  activeDot={{ r: 6, fill: "hsl(var(--primary))" }}
                 />
               </LineChart>
             </ResponsiveContainer>

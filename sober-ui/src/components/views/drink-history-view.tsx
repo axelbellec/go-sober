@@ -34,18 +34,20 @@ export function DrinkHistoryView() {
 
   return (
     <div className="space-y-6 min-h-0">
-      {Object.entries(groupedDrinks).map(([date, drinks]) => (
-        <div key={date} className="space-y-2">
-          <h2 className="font-semibold sticky top-0 bg-background/95 backdrop-blur-sm py-2 z-10">
-            {format(new Date(date), "EEEE, MMMM d")}
-          </h2>
-          <div className="space-y-2">
-            {drinks.map((drink) => (
-              <DrinkLogItem key={drink.id} drink={drink} />
-            ))}
+      {Object.entries(groupedDrinks)
+        .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime())
+        .map(([date, drinks]) => (
+          <div key={date} className="space-y-2">
+            <h2 className="font-semibold sticky top-0 bg-background/95 backdrop-blur-sm py-2 z-10">
+              {format(new Date(date), "EEEE, MMMM d")}
+            </h2>
+            <div className="space-y-2">
+              {drinks.map((drink) => (
+                <DrinkLogItem key={drink.id} drink={drink} />
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
 
       {(drinkLogs ?? []).length === 0 && (
         <div className="text-center py-8 text-muted-foreground">
