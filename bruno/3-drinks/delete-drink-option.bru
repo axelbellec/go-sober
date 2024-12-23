@@ -1,0 +1,19 @@
+meta {
+  name: Delete Drink Option
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{host}}/drink-options/1
+}
+
+headers {
+  Authorization: Bearer {{auth_token}}
+}
+
+tests {
+  test("should delete drink option successfully", function() {
+    expect(res.status).to.equal(204);
+  });
+} 

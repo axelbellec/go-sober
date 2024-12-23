@@ -1,0 +1,28 @@
+meta {
+  name: Get Drink Option
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/drink-options/2
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+}
+
+tests {
+  test("should get drink option successfully", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.property("drink_option");
+    const drinkOption = res.body.drink_option;
+    expect(drinkOption).to.have.property("id");
+    expect(drinkOption).to.have.property("name");
+    expect(drinkOption).to.have.property("type");
+    expect(drinkOption).to.have.property("size_value");
+    expect(drinkOption).to.have.property("size_unit");
+    expect(drinkOption).to.have.property("abv");
+  });
+}

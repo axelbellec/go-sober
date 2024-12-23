@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -70,6 +71,76 @@ func (c *Controller) GetDrinkOption(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
+}
+
+func (c *Controller) UpdateDrinkOption(w http.ResponseWriter, r *http.Request) {
+	// Extract ID from URL
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) != 3 {
+		http.Error(w, "Invalid path", http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.Atoi(pathParts[2])
+	if err != nil {
+		http.Error(w, "Invalid ID format", http.StatusBadRequest)
+		return
+	}
+
+	// Parse request body
+	var req dtos.UpdateDrinkOptionRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Convert DTO to model
+	drinkOption := &models.DrinkOption{
+		Name:      req.Name,
+		Type:      req.Type,
+		SizeValue: req.SizeValue,
+		SizeUnit:  req.SizeUnit,
+		ABV:       req.ABV,
+	}
+
+	// Update drink option
+	if err := c.service.UpdateDrinkOption(id, drinkOption); err != nil {
+		if err.Error() == "drink option not found" {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Failed to update drink option", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (c *Controller) DeleteDrinkOption(w http.ResponseWriter, r *http.Request) {
+	// Extract ID from URL
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) != 3 {
+		http.Error(w, "Invalid path", http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.Atoi(pathParts[2])
+	if err != nil {
+		http.Error(w, "Invalid ID format", http.StatusBadRequest)
+		return
+	}
+
+	// Delete drink option
+	if err := c.service.DeleteDrinkOption(id); err != nil {
+		if err.Error() == "drink option not found" {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Failed to delete drink option", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (c *Controller) CreateDrinkLog(w http.ResponseWriter, r *http.Request) {

@@ -53,6 +53,8 @@ func main() {
 	// Drink options
 	mux.HandleFunc("GET /drink-options", drinkController.GetDrinkOptions)
 	mux.HandleFunc("GET /drink-options/", drinkController.GetDrinkOption)
+	mux.HandleFunc("PUT /drink-options/", drinkController.UpdateDrinkOption)
+	mux.HandleFunc("DELETE /drink-options/", drinkController.DeleteDrinkOption)
 
 	// [Protected routes]
 	// Auth

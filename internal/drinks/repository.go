@@ -67,6 +67,57 @@ func (r *Repository) GetDrinkOption(id string) (*models.DrinkOption, error) {
 	return &drinkOption, nil
 }
 
+// Add after GetDrinkOption method
+
+func (r *Repository) UpdateDrinkOption(id int, option *models.DrinkOption) error {
+	query := `
+        UPDATE drink_options 
+        SET name = ?, type = ?, size_value = ?, size_unit = ?, abv = ?
+        WHERE id = ?
+    `
+
+	result, err := r.db.Exec(query,
+		option.Name,
+		option.Type,
+		option.SizeValue,
+		option.SizeUnit,
+		option.ABV,
+		id,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to update drink option: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("error checking rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("drink option not found")
+	}
+
+	return nil
+}
+
+func (r *Repository) DeleteDrinkOption(id int) error {
+	result, err := r.db.Exec("DELETE FROM drink_options WHERE id = ?", id)
+	if err != nil {
+		return fmt.Errorf("failed to delete drink option: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("error checking rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("drink option not found")
+	}
+
+	return nil
+}
+
 func (r *Repository) CreateDrinkLog(userID int64, drinkOptionID int64, loggedAt *time.Time) (int64, error) {
 	var timestamp time.Time
 	if loggedAt == nil {

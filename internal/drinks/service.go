@@ -23,6 +23,14 @@ func (s *Service) GetDrinkOption(id string) (*models.DrinkOption, error) {
 	return s.repo.GetDrinkOption(id)
 }
 
+func (s *Service) UpdateDrinkOption(id int, option *models.DrinkOption) error {
+	return s.repo.UpdateDrinkOption(id, option)
+}
+
+func (s *Service) DeleteDrinkOption(id int) error {
+	return s.repo.DeleteDrinkOption(id)
+}
+
 func (s *Service) CreateDrinkLog(userID int64, drinkOptionID int64, loggedAt *time.Time) (int64, error) {
 	return s.repo.CreateDrinkLog(userID, drinkOptionID, loggedAt)
 }

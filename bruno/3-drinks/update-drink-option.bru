@@ -1,0 +1,30 @@
+meta {
+  name: Update Drink Option
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{host}}/drink-options/1
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+}
+
+body {
+  {
+    "name": "Updated Beer",
+    "type": "beer",
+    "size_value": 50,
+    "size_unit": "cl",
+    "abv": 0.052
+  }
+}
+
+tests {
+  test("should update drink option successfully", function() {
+    expect(res.status).to.equal(204);
+  });
+}
