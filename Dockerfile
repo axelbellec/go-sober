@@ -10,12 +10,13 @@ COPY . .
 RUN go build -o /app/bin .
 
 FROM gcr.io/distroless/base-debian12
-COPY --from=base /app/bin /app
+COPY --from=base /app/bin /app/sober
 
 ENV ENVIRONMENT=dev
 
-EXPOSE 8080
-
 USER nonroot:nonroot
 
-ENTRYPOINT ["/app"]
+EXPOSE 8080
+
+ENTRYPOINT ["/app/sober/go-sober"]
+

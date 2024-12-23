@@ -53,3 +53,13 @@ tasks:
     desc: Rollback the last database migration
     cmds:
       - migrate -source file://db/migrations -database "sqlite3://db/sober.db" down 1
+
+  docker:build:
+    desc: Build Docker image
+    cmds:
+      - docker build -t sober .
+
+  docker:run:
+    desc: Run Docker image
+    cmds:
+      - docker run --name sober -p 8080:8080 --env-file .env sober
