@@ -24,6 +24,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetchWithAuth } from "@/lib/utils";
+import { useDrinkLogs } from "@/contexts/drink-logs-context";
+import { toast } from "sonner";
 
 const drinkLogSchema = z.object({
   drinkOptionId: z.number().min(1, "Please select a drink"),
@@ -48,6 +50,8 @@ export function DrinkLogForm() {
     },
     mode: "onChange",
   });
+
+  const { addDrinkLog, refreshDrinkLogs } = useDrinkLogs();
 
   useEffect(() => {
     fetchWithAuth("http://localhost:3000/api/v1/drink-options")
@@ -96,10 +100,15 @@ export function DrinkLogForm() {
       );
 
       if (response.ok) {
+        const newLog = await response.json();
+        addDrinkLog(newLog);
         form.reset();
+        toast.success("Drink logged successfully");
+        refreshDrinkLogs();
       }
     } catch (error) {
       console.error("Failed to log drink:", error);
+      toast.error("Failed to log drink");
     } finally {
       setIsLoading(false);
     }

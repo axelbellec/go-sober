@@ -1,72 +1,42 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useDrinkLogs } from "@/contexts/drink-logs-context";
 import { format, formatDistanceToNow } from "date-fns";
 import { DrinkLog } from "@/lib/types/api";
-import { fetchWithAuth } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 
 export function DrinkHistoryView() {
-  const [drinkLogs, setDrinkLogs] = useState<DrinkLog[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { drinkLogs, refreshDrinkLogs } = useDrinkLogs();
 
   useEffect(() => {
-    loadDrinkLogs();
-  }, []);
-
-  async function loadDrinkLogs() {
-    try {
-      const response = await fetchWithAuth(
-        "http://localhost:3000/api/v1/drink-logs"
-      );
-      if (!response.ok) throw new Error("Failed to load drink history");
-      const data = await response.json();
-      const sortedDrinkLogs = data.drink_logs.sort(
-        (a: DrinkLog, b: DrinkLog) =>
-          new Date(b.logged_at).getTime() - new Date(a.logged_at).getTime()
-      );
-      setDrinkLogs(sortedDrinkLogs);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-8">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-destructive mb-4">{error}</p>
-        <Button onClick={() => loadDrinkLogs()}>Retry</Button>
-      </div>
-    );
-  }
+    refreshDrinkLogs();
+  }, [refreshDrinkLogs]);
 
   // Group drinks by date
   const groupedDrinks = drinkLogs.reduce((groups, drink) => {
-    const date = format(new Date(drink.logged_at), "yyyy-MM-dd");
+    // Safely parse the date and handle invalid dates
+    const drinkDate = new Date(drink.logged_at);
+    if (isNaN(drinkDate.getTime())) {
+      return groups; // Skip invalid dates
+    }
+
+    const date = format(drinkDate, "yyyy-MM-dd");
     if (!groups[date]) {
       groups[date] = [];
     }
     groups[date].push(drink);
+    groups[date].sort(
+      (a, b) =>
+        new Date(b.logged_at).getTime() - new Date(a.logged_at).getTime()
+    );
     return groups;
   }, {} as Record<string, DrinkLog[]>);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-h-0">
       {Object.entries(groupedDrinks).map(([date, drinks]) => (
         <div key={date} className="space-y-2">
-          <h2 className="font-semibold">
+          <h2 className="font-semibold sticky top-0 bg-background/95 backdrop-blur-sm py-2 z-10">
             {format(new Date(date), "EEEE, MMMM d")}
           </h2>
           <div className="space-y-2">
@@ -87,6 +57,12 @@ export function DrinkHistoryView() {
 }
 
 function DrinkLogItem({ drink }: { drink: DrinkLog }) {
+  // Safely parse the date and handle invalid dates
+  const loggedDate = new Date(drink.logged_at);
+  const timeAgo = !isNaN(loggedDate.getTime())
+    ? formatDistanceToNow(loggedDate, { addSuffix: true })
+    : "Invalid date";
+
   return (
     <div className="rounded-lg border p-4 hover:bg-muted/50">
       <div className="flex justify-between items-start">
@@ -97,9 +73,7 @@ function DrinkLogItem({ drink }: { drink: DrinkLog }) {
             {drink.size_unit}, {drink.abv * 100}% ABV
           </p>
         </div>
-        <div className="text-sm text-muted-foreground">
-          {formatDistanceToNow(new Date(drink.logged_at), { addSuffix: true })}
-        </div>
+        <div className="text-sm text-muted-foreground">{timeAgo}</div>
       </div>
     </div>
   );
