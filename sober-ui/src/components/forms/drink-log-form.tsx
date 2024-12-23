@@ -26,10 +26,10 @@ import {
 import { fetchWithAuth } from "@/lib/utils";
 
 const drinkLogSchema = z.object({
-  drinkOptionId: z.number().optional(),
-  abv: z.number().min(0).max(100),
-  sizeValue: z.number().min(0),
-  sizeUnit: z.string(),
+  drinkOptionId: z.number().min(1, "Please select a drink"),
+  abv: z.number().min(0.01, "ABV must be greater than 0").max(100),
+  sizeValue: z.number().min(1, "Size must be greater than 0"),
+  sizeUnit: z.string().min(1, "Unit is required"),
 });
 
 type DrinkLogFormValues = z.infer<typeof drinkLogSchema>;
@@ -46,6 +46,7 @@ export function DrinkLogForm() {
       sizeValue: 0,
       sizeUnit: "cl",
     },
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -66,14 +67,18 @@ export function DrinkLogForm() {
   const onDrinkSelect = (drinkId: string) => {
     const drink = drinkOptions.find((d) => d.id === parseInt(drinkId));
     if (drink) {
-      form.setValue("drinkOptionId", drink.id);
-      form.setValue("abv", drink.abv * 100);
-      form.setValue("sizeValue", drink.size_value);
-      form.setValue("sizeUnit", drink.size_unit);
+      form.setValue("drinkOptionId", drink.id, { shouldValidate: true });
+      form.setValue("abv", drink.abv * 100, { shouldValidate: true });
+      form.setValue("sizeValue", drink.size_value, { shouldValidate: true });
+      form.setValue("sizeUnit", drink.size_unit, { shouldValidate: true });
     }
   };
 
   async function onSubmit(data: DrinkLogFormValues) {
+    if (!form.formState.isValid) {
+      return;
+    }
+
     setIsLoading(true);
     try {
       const response = await fetchWithAuth(
@@ -111,7 +116,7 @@ export function DrinkLogForm() {
               <FormLabel>Select Drink</FormLabel>
               <Select
                 onValueChange={onDrinkSelect}
-                value={field.value.toString()}
+                value={field.value?.toString() || ""}
               >
                 <FormControl>
                   <SelectTrigger>
@@ -196,7 +201,11 @@ export function DrinkLogForm() {
           />
         </div>
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isLoading || !form.formState.isValid}
+        >
           {isLoading ? "Logging..." : "Log Drink"}
         </Button>
       </form>

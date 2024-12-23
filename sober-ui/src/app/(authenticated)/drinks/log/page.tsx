@@ -1,4 +1,6 @@
 import { DrinkLogForm } from "@/components/forms/drink-log-form";
+import { DrinkHistoryView } from "@/components/views/drink-history-view";
+import { Separator } from "@/components/ui/separator";
 
 export default function DrinkLogPage() {
   return (
@@ -13,6 +15,8 @@ export default function DrinkLogPage() {
           </p>
         </div>
         <DrinkLogForm />
+        <Separator className="my-4" />
+        <DrinkHistoryView />
       </div>
     </div>
   );
