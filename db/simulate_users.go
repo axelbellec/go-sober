@@ -8,7 +8,13 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
+
+	"go-sober/platform"
 )
+
+func init() {
+	platform.InitPlatform()
+}
 
 type AuthResponse struct {
 	Token string `json:"token"`
@@ -29,13 +35,15 @@ func createUserAndLogin(email, password string) (string, error) {
 
 	// Create user
 	userJSON, _ := json.Marshal(user)
-	_, err := http.Post("http://localhost:8080/auth/signup", "application/json", bytes.NewBuffer(userJSON))
+	uri := fmt.Sprintf("http://localhost:%s/api/v1/auth/signup", platform.AppConfig.Port)
+	_, err := http.Post(uri, "application/json", bytes.NewBuffer(userJSON))
 	if err != nil {
 		return "", fmt.Errorf("signup failed: %v", err)
 	}
 
 	// Login and get token
-	resp, err := http.Post("http://localhost:8080/auth/login", "application/json", bytes.NewBuffer(userJSON))
+	uri = fmt.Sprintf("http://localhost:%s/api/v1/auth/login", platform.AppConfig.Port)
+	resp, err := http.Post(uri, "application/json", bytes.NewBuffer(userJSON))
 	if err != nil {
 		return "", fmt.Errorf("login failed: %v", err)
 	}
@@ -70,7 +78,8 @@ func addDrinkLogs(token string, baseTime time.Time) error {
 		}
 
 		drinkLogJSON, _ := json.Marshal(drinkLog)
-		req, err := http.NewRequest("POST", "http://localhost:8080/drink-logs", bytes.NewBuffer(drinkLogJSON))
+		uri := fmt.Sprintf("http://localhost:%s/api/v1/drink-logs", platform.AppConfig.Port)
+		req, err := http.NewRequest("POST", uri, bytes.NewBuffer(drinkLogJSON))
 		if err != nil {
 			return fmt.Errorf("failed to create request: %v", err)
 		}

@@ -6,5 +6,4 @@ package platform
 func InitPlatform() {
 	initConfig()
 	initLogger()
-
 }
