@@ -11,7 +11,9 @@ export default function AuthenticatedLayout({
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem(
+      process.env.NEXT_PUBLIC_LOCALSTORAGE_TOKEN_KEY!
+    );
     if (!token) {
       router.push("/login");
     }

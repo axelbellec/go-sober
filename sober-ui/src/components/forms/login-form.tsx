@@ -41,17 +41,23 @@ export function LoginForm() {
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/api/v1/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
 
       if (response.ok) {
         const responseData = await response.json();
-        localStorage.setItem("token", responseData.token);
+        localStorage.setItem(
+          process.env.NEXT_PUBLIC_LOCALSTORAGE_TOKEN_KEY!,
+          responseData.token
+        );
         toast.success("Login successful!");
         router.push("/drinks/log");
       } else {

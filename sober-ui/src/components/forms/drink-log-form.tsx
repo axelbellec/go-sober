@@ -54,7 +54,7 @@ export function DrinkLogForm() {
   const { addDrinkLog, refreshDrinkLogs } = useDrinkLogs();
 
   useEffect(() => {
-    fetchWithAuth("http://localhost:3000/api/v1/drink-options")
+    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/drink-options`)
       .then((res) => res.json())
       .then((data) => {
         const options = Array.isArray(data.drink_options)
@@ -86,7 +86,7 @@ export function DrinkLogForm() {
     setIsLoading(true);
     try {
       const response = await fetchWithAuth(
-        "http://localhost:3000/api/v1/drink-logs",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/drink-logs`,
         {
           method: "POST",
           headers: {

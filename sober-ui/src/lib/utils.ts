@@ -6,7 +6,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export async function fetchWithAuth(url: string, options: RequestInit = {}) {
-  const token = localStorage.getItem("token");
+  const tokenKey = process.env.NEXT_PUBLIC_LOCALSTORAGE_TOKEN_KEY!;
+  const token = localStorage.getItem(tokenKey);
   const headers = {
     ...options.headers,
     Authorization: `Bearer ${token}`,
@@ -19,7 +20,7 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}) {
 
   if (response.status === 401) {
     // Token expired or invalid
-    localStorage.removeItem("token");
+    localStorage.removeItem(tokenKey);
     window.location.href = "/login";
     throw new Error("Unauthorized");
   }

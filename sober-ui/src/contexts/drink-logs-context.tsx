@@ -20,7 +20,7 @@ export function DrinkLogsProvider({ children }: { children: React.ReactNode }) {
   const refreshDrinkLogs = useCallback(async () => {
     try {
       const response = await fetchWithAuth(
-        "http://localhost:3000/api/v1/drink-logs"
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/drink-logs`
       );
       const data = await response.json();
       setDrinkLogs(data.drink_logs);

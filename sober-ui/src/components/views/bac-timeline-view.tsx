@@ -44,7 +44,9 @@ export function BACTimelineView() {
         });
 
         const response = await fetchWithAuth(
-          `http://localhost:3000/api/v1/analytics/timeline/bac?${params.toString()}`
+          `${
+            process.env.NEXT_PUBLIC_API_URL
+          }/api/v1/analytics/timeline/bac?${params.toString()}`
         );
         if (response.ok) {
           const data = await response.json();
