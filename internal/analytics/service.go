@@ -27,9 +27,9 @@ const (
 	absorptionTimeMin     = 60 // 1 hour which is the maximum absorption time
 	maxPhysiologicalBAC   = 0.55
 
-	// Beta distribution parameters
-	alpha = 2.0
-	beta  = 3.0
+	// // Beta distribution parameters
+	// alpha = 2.0
+	// beta  = 3.0
 )
 
 type BACTimeline struct {
@@ -138,32 +138,32 @@ func (s *Service) calculateAbsorptionFactor(timeElapsed float64) float64 {
 	// Linear increase from 0 to 1
 	normalizedTime := timeElapsed / absorptionTimeMin
 
-	// Beta approximation
-	// The linear model is less accurate because alcohol
-	// absorption isn't constant - it varies based on many
-	// factors and follows more of an S-curve pattern.
-	// That's why the beta distribution (which creates an S-curve)
-	// is preferred for more accurate BAC calculations.
-	betaAbsorption := s.betaCurve(normalizedTime)
+	// // Beta approximation
+	// // The linear model is less accurate because alcohol
+	// // absorption isn't constant - it varies based on many
+	// // factors and follows more of an S-curve pattern.
+	// // That's why the beta distribution (which creates an S-curve)
+	// // is preferred for more accurate BAC calculations.
+	// betaAbsorption := s.betaCurve(normalizedTime)
 
-	return betaAbsorption
+	return normalizedTime
 
 }
 
-func (s *Service) betaCurve(t float64) float64 {
-	// Normalize time to [0,1] interval
-	x := math.Max(0, math.Min(1, t))
+// func (s *Service) betaCurve(t float64) float64 {
+// 	// Normalize time to [0,1] interval
+// 	x := math.Max(0, math.Min(1, t))
 
-	// Beta distribution formula
-	numerator := math.Pow(x, alpha-1) * math.Pow(1-x, beta-1)
-	denominator := 1.0 // B(alpha,beta) normalization constant
+// 	// Beta distribution formula
+// 	numerator := math.Pow(x, alpha-1) * math.Pow(1-x, beta-1)
+// 	denominator := 1.0 // B(alpha,beta) normalization constant
 
-	// Scale to ensure maximum value is 1.0
-	maxValue := math.Pow((alpha-1)/(alpha+beta-2), alpha-1) *
-		math.Pow((beta-1)/(alpha+beta-2), beta-1)
+// 	// Scale to ensure maximum value is 1.0
+// 	maxValue := math.Pow((alpha-1)/(alpha+beta-2), alpha-1) *
+// 		math.Pow((beta-1)/(alpha+beta-2), beta-1)
 
-	return (numerator / denominator) / maxValue
-}
+// 	return (numerator / denominator) / maxValue
+// }
 
 func (s *Service) getWidmarkFactor(gender models.Gender) float64 {
 	switch gender {
