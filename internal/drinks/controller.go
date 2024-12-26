@@ -234,6 +234,7 @@ func (c *Controller) CreateDrinkLog(w http.ResponseWriter, r *http.Request) {
 // @Tags drinks
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Bearer token"
 // @Success 200 {object} dtos.DrinkLogsResponse
 // @Failure 500 {object} dtos.ClientError
 // @Router /drink-logs [get]

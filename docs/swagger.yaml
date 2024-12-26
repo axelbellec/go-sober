@@ -364,6 +364,12 @@ paths:
       consumes:
       - application/json
       description: Retrieve all drink logs for the current user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
