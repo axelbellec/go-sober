@@ -29,10 +29,10 @@ export function BACTimelineView() {
     async function fetchBACTimeline() {
       try {
         // Now - 2hours
-        const startTime = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const startTime = new Date(Date.now() - 2 * 60 * 60 * 1000);
 
         // Now + 2 hours
-        const endTime = new Date(Date.now() + 2 * 60 * 60 * 1000);
+        const endTime = new Date(Date.now() + 4 * 60 * 60 * 1000);
 
         // Default parameters
         const params = new URLSearchParams({
@@ -186,7 +186,7 @@ export function BACTimelineView() {
                                 BAC
                               </span>
                               <span className="font-bold">
-                                {(payload[0].value * 100).toFixed(3)}%
+                                {(Number(payload[0].value) * 100).toFixed(3)}%
                               </span>
                             </div>
                           </div>

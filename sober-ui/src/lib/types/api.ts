@@ -121,3 +121,11 @@ export interface BACCalculationResponse {
     summary: BACSummary;
     timeline: BACPoint[];
 }
+
+export interface CurrentBACResponse {
+    current_bac: number;
+    bac_status: BACStatus;
+    is_sober: boolean;
+    estimated_sober_time: string;
+    last_calculated: string;
+}

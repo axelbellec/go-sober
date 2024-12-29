@@ -23,14 +23,18 @@ export function DrinkLogsProvider({ children }: { children: React.ReactNode }) {
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/drink-logs`
       );
       const data = await response.json();
-      setDrinkLogs(data.drink_logs);
+      setDrinkLogs(data.drink_logs || []);
     } catch (error) {
       console.error("Failed to fetch drink logs:", error);
+      setDrinkLogs([]);
     }
   }, []);
 
   const addDrinkLog = useCallback((newLog: DrinkLog) => {
-    setDrinkLogs((prev) => [newLog, ...prev]);
+    setDrinkLogs((prev) => {
+      const currentLogs = Array.isArray(prev) ? prev : [];
+      return [newLog, ...currentLogs];
+    });
   }, []);
 
   return (
