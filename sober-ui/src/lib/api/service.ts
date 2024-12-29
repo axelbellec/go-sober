@@ -20,8 +20,6 @@ import type {
     BACCalculationResponse,
     CurrentBACResponse,
 } from '../types/api';
-import { fetchWithAuth } from '../utils';
-
 
 
 export class ApiService {
@@ -93,7 +91,7 @@ export class ApiService {
     }
 
     async getCurrentUser(): Promise<UserMeResponse> {
-        const response = await fetchWithAuth(`${this.baseUrl}/auth/me`);
+        const response = await this.fetchWithAuth(`${this.baseUrl}/auth/me`);
         return this.handleResponse<UserMeResponse>(response);
     }
 
@@ -112,7 +110,7 @@ export class ApiService {
         id: number,
         data: UpdateDrinkOptionRequest
     ): Promise<void> {
-        const response = await fetchWithAuth(`${this.baseUrl}/drink-options/${id}`, {
+        const response = await this.fetchWithAuth(`${this.baseUrl}/drink-options/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -124,7 +122,7 @@ export class ApiService {
     }
 
     async deleteDrinkOption(id: number) {
-        const response = await fetchWithAuth(`${this.baseUrl}/drink-options/${id}`, {
+        const response = await this.fetchWithAuth(`${this.baseUrl}/drink-options/${id}`, {
             method: 'DELETE',
         });
 
@@ -133,7 +131,7 @@ export class ApiService {
 
     // Drink Logs API
     async getDrinkLogs(): Promise<DrinkLogsResponse> {
-        const response = await fetchWithAuth(`${this.baseUrl}/drink-logs`);
+        const response = await this.fetchWithAuth(`${this.baseUrl}/drink-logs`);
         return this.handleResponse<DrinkLogsResponse>(response);
     }
 
@@ -146,7 +144,7 @@ export class ApiService {
             logged_at: loggedAt,
         };
 
-        const response = await fetchWithAuth(`${this.baseUrl}/drink-logs`, {
+        const response = await this.fetchWithAuth(`${this.baseUrl}/drink-logs`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -160,7 +158,7 @@ export class ApiService {
     async parseDrinkLog(text: string): Promise<ParseDrinkLogResponse> {
         const request: ParseDrinkLogRequest = { text };
 
-        const response = await fetchWithAuth(`${this.baseUrl}/drink-logs/parse`, {
+        const response = await this.fetchWithAuth(`${this.baseUrl}/drink-logs/parse`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -178,7 +176,7 @@ export class ApiService {
             gender,
         });
 
-        const response = await fetchWithAuth(
+        const response = await this.fetchWithAuth(
             `${this.baseUrl}/analytics/current/bac?${params.toString()}`
         );
 
@@ -200,7 +198,7 @@ export class ApiService {
             time_step_mins: timeStepMins.toString(),
         });
 
-        const response = await fetchWithAuth(
+        const response = await this.fetchWithAuth(
             `${this.baseUrl}/analytics/timeline/bac?${params.toString()}`
         );
 
