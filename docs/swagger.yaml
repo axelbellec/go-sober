@@ -56,6 +56,19 @@ definitions:
       id:
         type: integer
     type: object
+  dtos.CurrentBACResponse:
+    properties:
+      bac_status:
+        $ref: '#/definitions/models.BACStatus'
+      current_bac:
+        type: number
+      estimated_sober_time:
+        type: string
+      is_sober:
+        type: boolean
+      last_calculated:
+        type: string
+    type: object
   dtos.DrinkLogsResponse:
     properties:
       drink_logs:
@@ -174,6 +187,8 @@ definitions:
         type: string
       duration_over_bac:
         type: integer
+      estimated_sober_time:
+        type: string
       max_bac:
         type: number
       max_bac_time:
@@ -224,6 +239,45 @@ info:
   title: Sober API
   version: "1.0"
 paths:
+  /analytics/current/bac:
+    get:
+      consumes:
+      - application/json
+      description: Get current Blood Alcohol Content for a user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Weight in kg
+        in: query
+        name: weight_kg
+        required: true
+        type: number
+      - description: Gender
+        in: query
+        name: gender
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.CurrentBACResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Get Current BAC
+      tags:
+      - analytics
   /analytics/timeline/bac:
     get:
       consumes:

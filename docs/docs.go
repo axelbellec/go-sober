@@ -21,6 +21,64 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/analytics/current/bac": {
+            "get": {
+                "description": "Get current Blood Alcohol Content for a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "summary": "Get Current BAC",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Weight in kg",
+                        "name": "weight_kg",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gender",
+                        "name": "gender",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.CurrentBACResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
         "/analytics/timeline/bac": {
             "get": {
                 "description": "Calculate BAC for a user",
@@ -603,6 +661,26 @@ const docTemplate = `{
                 }
             }
         },
+        "dtos.CurrentBACResponse": {
+            "type": "object",
+            "properties": {
+                "bac_status": {
+                    "$ref": "#/definitions/models.BACStatus"
+                },
+                "current_bac": {
+                    "type": "number"
+                },
+                "estimated_sober_time": {
+                    "type": "string"
+                },
+                "is_sober": {
+                    "type": "boolean"
+                },
+                "last_calculated": {
+                    "type": "string"
+                }
+            }
+        },
         "dtos.DrinkLogsResponse": {
             "type": "object",
             "properties": {
@@ -777,6 +855,9 @@ const docTemplate = `{
                 },
                 "duration_over_bac": {
                     "type": "integer"
+                },
+                "estimated_sober_time": {
+                    "type": "string"
                 },
                 "max_bac": {
                     "type": "number"

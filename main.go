@@ -78,6 +78,7 @@ func main() {
 
 	// Analytics
 	mux.HandleFunc("GET /api/v1/analytics/timeline/bac", authMiddleware.RequireAuth(analyticsController.GetBAC))
+	mux.HandleFunc("GET /api/v1/analytics/current/bac", authMiddleware.RequireAuth(analyticsController.GetCurrentBAC))
 
 	// Drink logging
 	mux.HandleFunc("GET /api/v1/drink-logs", authMiddleware.RequireAuth(drinkController.GetDrinkLogs))

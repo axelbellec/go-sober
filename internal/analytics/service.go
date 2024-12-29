@@ -145,9 +145,9 @@ func (s *Service) calculateAbsorptionFactor(timeElapsed float64) float64 {
 	// // That's why the beta distribution (which creates an S-curve)
 	// // is preferred for more accurate BAC calculations.
 	// betaAbsorption := s.betaCurve(normalizedTime)
+	// return betaAbsorption
 
 	return normalizedTime
-
 }
 
 // func (s *Service) betaCurve(t float64) float64 {
@@ -247,13 +247,28 @@ func (s *Service) calculateBACSummary(timeline []models.BACPoint, totalDrinksCon
 		soberSinceTime = timeline[lastNonZeroIndex+1].Time
 	}
 
+	// Calculate time to sober
+	var timeToSober int64
+	var estimatedSoberTime time.Time
+	if len(timeline) > 0 {
+		lastPoint := timeline[len(timeline)-1]
+		if lastPoint.BAC > 0 {
+			// Calculate how many minutes until BAC reaches 0
+			minutesToSober := lastPoint.BAC / metabolismRatePerMin
+			// Convert to seconds for the JSON response
+			timeToSober = int64(time.Duration(minutesToSober * float64(time.Minute)).Seconds())
+		}
+		estimatedSoberTime = lastPoint.Time.Add(time.Duration(timeToSober) * time.Second)
+	}
+
 	return models.BACSummary{
-		MaxBAC:            maxBAC,
-		MaxBACTime:        maxBACTime,
-		SoberSinceTime:    soberSinceTime,
-		TotalDrinks:       totalDrinksConsumed,
-		DrinkingSinceTime: drinkingSinceTime,
-		DurationOverBAC:   durationOverBAC,
+		MaxBAC:             maxBAC,
+		MaxBACTime:         maxBACTime,
+		SoberSinceTime:     soberSinceTime,
+		TotalDrinks:        totalDrinksConsumed,
+		DrinkingSinceTime:  drinkingSinceTime,
+		DurationOverBAC:    durationOverBAC,
+		EstimatedSoberTime: estimatedSoberTime,
 	}
 }
 

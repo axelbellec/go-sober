@@ -19,3 +19,11 @@ type BACCalculationResponse struct {
 	Timeline []models.BACPoint `json:"timeline"`
 	Summary  models.BACSummary `json:"summary,omitempty"`
 }
+
+type CurrentBACResponse struct {
+	CurrentBAC         float64          `json:"current_bac"`
+	BACStatus          models.BACStatus `json:"bac_status"`
+	LastCalculated     time.Time        `json:"last_calculated"`
+	IsSober            bool             `json:"is_sober"`
+	EstimatedSoberTime time.Time        `json:"estimated_sober_time"`
+}

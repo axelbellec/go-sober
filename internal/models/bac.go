@@ -32,12 +32,13 @@ type BACPoint struct {
 
 // BACSummary provides summary statistics for the BAC calculation
 type BACSummary struct {
-	MaxBAC            float64   `json:"max_bac"`
-	MaxBACTime        time.Time `json:"max_bac_time"`
-	SoberSinceTime    time.Time `json:"sober_since_time"`
-	TotalDrinks       int       `json:"total_drinks"`
-	DrinkingSinceTime time.Time `json:"drinking_since_time"`
-	DurationOverBAC   int       `json:"duration_over_bac"`
+	MaxBAC             float64   `json:"max_bac"`
+	MaxBACTime         time.Time `json:"max_bac_time"`
+	SoberSinceTime     time.Time `json:"sober_since_time"`
+	TotalDrinks        int       `json:"total_drinks"`
+	DrinkingSinceTime  time.Time `json:"drinking_since_time"`
+	DurationOverBAC    int       `json:"duration_over_bac"`
+	EstimatedSoberTime time.Time `json:"estimated_sober_time"`
 }
 
 type BACCalculation struct {
