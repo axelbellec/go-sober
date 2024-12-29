@@ -16,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
 import { toast } from "sonner";
+import { apiService } from "@/lib/api";
 
 // Define the form validation schema
 const loginSchema = z.object({
@@ -41,31 +42,16 @@ export function LoginForm() {
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
+      const response = await apiService.login(data.email, data.password);
+      localStorage.setItem(
+        process.env.NEXT_PUBLIC_LOCALSTORAGE_TOKEN_KEY!,
+        response.token
       );
-
-      if (response.ok) {
-        const responseData = await response.json();
-        localStorage.setItem(
-          process.env.NEXT_PUBLIC_LOCALSTORAGE_TOKEN_KEY!,
-          responseData.token
-        );
-        toast.success("Login successful!");
-        router.push("/drinks/log");
-      } else {
-        toast.error("Invalid email or password");
-      }
+      toast.success("Login successful!");
+      router.push("/drinks/log");
     } catch (error) {
       console.error("Login failed:", error);
-      toast.error("Login failed. Please try again.");
+      toast.error("Invalid email or password");
     } finally {
       setIsLoading(false);
     }

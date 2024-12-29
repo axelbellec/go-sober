@@ -11,7 +11,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { fetchWithAuth } from "@/lib/utils";
 import { BACCalculationResponse } from "@/lib/types/api";
 import {
   Card,
@@ -20,6 +19,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { apiService } from "@/lib/api";
 
 export function BACTimelineView() {
   const [data, setData] = useState<BACCalculationResponse | null>(null);
@@ -30,28 +30,17 @@ export function BACTimelineView() {
       try {
         // Now - 2hours
         const startTime = new Date(Date.now() - 2 * 60 * 60 * 1000);
-
         // Now + 2 hours
         const endTime = new Date(Date.now() + 4 * 60 * 60 * 1000);
 
-        // Default parameters
-        const params = new URLSearchParams({
-          start_time: startTime.toISOString(),
-          end_time: endTime.toISOString(),
-          weight_kg: "70", // Default weight, should be fetched from user profile
-          gender: "male", // Default gender, should be fetched from user profile
-          time_step_mins: "2", // 15-minute intervals
-        });
-
-        const response = await fetchWithAuth(
-          `${
-            process.env.NEXT_PUBLIC_API_URL
-          }/api/v1/analytics/timeline/bac?${params.toString()}`
+        const data = await apiService.getBACTimeline(
+          startTime.toISOString(),
+          endTime.toISOString(),
+          70, // Default weight, should be fetched from user profile
+          "male", // Default gender, should be fetched from user profile
+          2 // 2-minute intervals
         );
-        if (response.ok) {
-          const data = await response.json();
-          setData(data);
-        }
+        setData(data);
       } catch (error) {
         console.error("Failed to fetch BAC timeline:", error);
       } finally {

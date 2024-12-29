@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { DrinkLog } from "@/lib/types/api";
-import { fetchWithAuth } from "@/lib/utils";
+import { apiService } from "@/lib/api";
 
 interface DrinkLogsContextType {
   drinkLogs: DrinkLog[];
@@ -19,11 +19,8 @@ export function DrinkLogsProvider({ children }: { children: React.ReactNode }) {
 
   const refreshDrinkLogs = useCallback(async () => {
     try {
-      const response = await fetchWithAuth(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/drink-logs`
-      );
-      const data = await response.json();
-      setDrinkLogs(data.drink_logs || []);
+      const response = await apiService.getDrinkLogs();
+      setDrinkLogs(response.drink_logs || []);
     } catch (error) {
       console.error("Failed to fetch drink logs:", error);
       setDrinkLogs([]);

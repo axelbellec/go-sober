@@ -17,6 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
 import { toast } from "sonner";
+import { apiService } from "@/lib/api";
 
 const signupSchema = z
   .object({
@@ -47,32 +48,12 @@ export function SignupForm() {
   async function onSubmit(data: SignupFormValues) {
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/signup`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: data.email,
-            password: data.password,
-          }),
-        }
-      );
-
-      if (response.ok) {
-        const responseData = await response.json();
-        localStorage.setItem("token", responseData.token);
-        toast.success("Account created successfully!");
-        router.push("/drinks/log");
-      } else {
-        const errorData = await response.json();
-        toast.error(errorData.message || "Failed to create account");
-      }
+      const response = await apiService.signup(data.email, data.password);
+      toast.success("Account created successfully!");
+      router.push("/drinks/log");
     } catch (error) {
       console.error("Signup failed:", error);
-      toast.error("Something went wrong. Please try again.");
+      toast.error("Failed to create account");
     } finally {
       setIsLoading(false);
     }

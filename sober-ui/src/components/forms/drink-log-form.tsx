@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetchWithAuth } from "@/lib/utils";
+import { apiService } from "@/lib/api";
 import { useDrinkLogs } from "@/contexts/drink-logs-context";
 import { toast } from "sonner";
 
@@ -54,8 +54,8 @@ export function DrinkLogForm() {
   const { addDrinkLog, refreshDrinkLogs } = useDrinkLogs();
 
   useEffect(() => {
-    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/drink-options`)
-      .then((res) => res.json())
+    apiService
+      .getDrinkOptions()
       .then((data) => {
         const options = Array.isArray(data.drink_options)
           ? data.drink_options
@@ -85,27 +85,16 @@ export function DrinkLogForm() {
 
     setIsLoading(true);
     try {
-      const response = await fetchWithAuth(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/drink-logs`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            drink_option_id: data.drinkOptionId,
-            logged_at: new Date().toISOString(),
-          }),
-        }
-      );
+      const newLog = {
+        drink_option_id: data.drinkOptionId,
+        logged_at: new Date().toISOString(),
+      };
+      await apiService.createDrinkLog(newLog.drink_option_id, newLog.logged_at);
 
-      if (response.ok) {
-        const newLog = await response.json();
-        addDrinkLog(newLog);
-        form.reset();
-        toast.success("Drink logged successfully");
-        refreshDrinkLogs();
-      }
+      // addDrinkLog(newLog);
+      form.reset();
+      toast.success("Drink logged successfully");
+      refreshDrinkLogs();
     } catch (error) {
       console.error("Failed to log drink:", error);
       toast.error("Failed to log drink");
