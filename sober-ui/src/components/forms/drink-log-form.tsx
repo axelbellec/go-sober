@@ -31,7 +31,9 @@ const drinkLogSchema = z.object({
   drinkOptionId: z.number().min(1, "Please select a drink"),
   abv: z.number().min(0.01, "ABV must be greater than 0").max(100),
   sizeValue: z.number().min(1, "Size must be greater than 0"),
-  sizeUnit: z.string().min(1, "Unit is required"),
+  sizeUnit: z.enum(["cl", "ml"], {
+    errorMap: () => ({ message: "Please select a valid unit" }),
+  }),
 });
 
 type DrinkLogFormValues = z.infer<typeof drinkLogSchema>;
@@ -190,9 +192,17 @@ export function DrinkLogForm() {
             render={({ field }) => (
               <FormItem className="w-24">
                 <FormLabel>Unit</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Unit" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="cl">cl</SelectItem>
+                    <SelectItem value="ml">ml</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
