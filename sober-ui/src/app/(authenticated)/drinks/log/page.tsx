@@ -15,16 +15,16 @@ export default function DrinkLogPage() {
     >
       <DrinkLogForm />
       <Separator className="my-4" />
-      <div className="flex-1 overflow-y-auto">
-        <DrinkHistoryView />
-      </div>
-      <Separator className="my-4" />
       <Link href="/analytics" className="block">
         <Button variant="outline" className="w-full">
           <BarChart3 className="mr-2 h-4 w-4" />
           View Analytics
         </Button>
       </Link>
+      <Separator className="my-4" />
+      <div className="flex-1 overflow-y-auto">
+        <DrinkHistoryView />
+      </div>
     </PageLayout>
   );
 }

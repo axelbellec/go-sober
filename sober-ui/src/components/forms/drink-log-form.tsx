@@ -131,6 +131,9 @@ export function DrinkLogForm({
             };
           }
           case "edit": {
+            if (!initialDrinkLog?.id) {
+              throw new Error("No drink log ID provided for edit");
+            }
             return {
               id: initialDrinkLog.id,
               name: data.name,
