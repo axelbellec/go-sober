@@ -15,7 +15,7 @@ func NewRepository(db *sql.DB) *Repository {
 	return &Repository{db: db}
 }
 
-func (r *Repository) StoreEmbedding(drinkOptionID int, embedding []float64) error {
+func (r *Repository) StoreEmbedding(drinkTemplateID int, embedding []float64) error {
 	// Convert embedding to JSON string
 	embeddingJSON, err := json.Marshal(embedding)
 	if err != nil {
@@ -23,13 +23,13 @@ func (r *Repository) StoreEmbedding(drinkOptionID int, embedding []float64) erro
 	}
 
 	// First try to update existing record
-	slog.Info("attempting to update embedding", "drink_option_id", drinkOptionID)
+	slog.Info("attempting to update embedding", "drink_template_id", drinkTemplateID)
 	query := `
         UPDATE drink_embeddings 
         SET embedding_data = ?
-        WHERE drink_option_id = ?
+        WHERE drink_template_id = ?
     `
-	result, err := r.db.Exec(query, string(embeddingJSON), drinkOptionID)
+	result, err := r.db.Exec(query, string(embeddingJSON), drinkTemplateID)
 	if err != nil {
 		return fmt.Errorf("error updating embedding: %w", err)
 	}
@@ -41,12 +41,12 @@ func (r *Repository) StoreEmbedding(drinkOptionID int, embedding []float64) erro
 	}
 
 	if rowsAffected == 0 {
-		slog.Info("no existing record found, inserting new embedding", "drink_option_id", drinkOptionID)
+		slog.Info("no existing record found, inserting new embedding", "drink_template_id", drinkTemplateID)
 		query = `
-            INSERT INTO drink_embeddings (drink_option_id, embedding_data)
+            INSERT INTO drink_embeddings (drink_template_id, embedding_data)
             VALUES (?, ?)
         `
-		_, err = r.db.Exec(query, drinkOptionID, string(embeddingJSON))
+		_, err = r.db.Exec(query, drinkTemplateID, string(embeddingJSON))
 		if err != nil {
 			return fmt.Errorf("error inserting embedding: %w", err)
 		}
@@ -55,15 +55,15 @@ func (r *Repository) StoreEmbedding(drinkOptionID int, embedding []float64) erro
 	return nil
 }
 
-func (r *Repository) GetEmbedding(drinkOptionID int) ([]float64, error) {
+func (r *Repository) GetEmbedding(drinkTemplateID int) ([]float64, error) {
 	var embeddingJSON string
 	query := `
         SELECT embedding_data 
         FROM drink_embeddings 
-        WHERE drink_option_id = ?
+        WHERE drink_template_id = ?
     `
 
-	err := r.db.QueryRow(query, drinkOptionID).Scan(&embeddingJSON)
+	err := r.db.QueryRow(query, drinkTemplateID).Scan(&embeddingJSON)
 	if err != nil {
 		return nil, err
 	}

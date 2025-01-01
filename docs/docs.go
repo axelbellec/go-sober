@@ -373,7 +373,7 @@ const docTemplate = `{
         },
         "/drink-logs/parse": {
             "post": {
-                "description": "Parse a drink log and return the drink option and confidence",
+                "description": "Parse a drink log and return the drink template and confidence",
                 "consumes": [
                     "application/json"
                 ],
@@ -424,9 +424,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/drink-options": {
-            "get": {
-                "description": "Retrieve all drink options",
+        "/drink-logs/{id}": {
+            "put": {
+                "description": "Update a specific drink log for the current user",
                 "consumes": [
                     "application/json"
                 ],
@@ -436,12 +436,110 @@ const docTemplate = `{
                 "tags": [
                     "drinks"
                 ],
-                "summary": "Get all drink options",
-                "responses": {
-                    "200": {
-                        "description": "OK",
+                "summary": "Update a drink log",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Drink log ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update drink log request",
+                        "name": "drinkLog",
+                        "in": "body",
+                        "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dtos.DrinkOptionsResponse"
+                            "$ref": "#/definitions/dtos.UpdateDrinkLogRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a specific drink log for the current user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "drinks"
+                ],
+                "summary": "Delete a drink log",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Drink log ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
                         }
                     },
                     "500": {
@@ -453,9 +551,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/drink-options/{id}": {
+        "/drink-templates": {
             "get": {
-                "description": "Retrieve a specific drink option by ID",
+                "description": "Retrieve all drink templates",
                 "consumes": [
                     "application/json"
                 ],
@@ -465,11 +563,91 @@ const docTemplate = `{
                 "tags": [
                     "drinks"
                 ],
-                "summary": "Get a specific drink option",
+                "summary": "Get all drink templates",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.DrinkTemplatesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new drink template",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "drinks"
+                ],
+                "summary": "Create a drink template",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Drink option ID",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "New drink template",
+                        "name": "drinkTemplate",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dtos.CreateDrinkTemplateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.DrinkTemplateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/drink-templates/{id}": {
+            "get": {
+                "description": "Retrieve a specific drink template by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "drinks"
+                ],
+                "summary": "Get a specific drink template",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Drink template ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -479,7 +657,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dtos.DrinkOptionResponse"
+                            "$ref": "#/definitions/dtos.DrinkTemplateResponse"
                         }
                     },
                     "404": {
@@ -491,7 +669,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Update a specific drink option by ID",
+                "description": "Update a specific drink template by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -501,22 +679,22 @@ const docTemplate = `{
                 "tags": [
                     "drinks"
                 ],
-                "summary": "Update a drink option",
+                "summary": "Update a drink template",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Drink option ID",
+                        "description": "Drink template ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Updated drink option",
-                        "name": "drinkOption",
+                        "description": "Updated drink template",
+                        "name": "drinkTemplate",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dtos.UpdateDrinkOptionRequest"
+                            "$ref": "#/definitions/dtos.UpdateDrinkTemplateRequest"
                         }
                     }
                 ],
@@ -545,7 +723,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete a specific drink option by ID",
+                "description": "Delete a specific drink template by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -555,11 +733,11 @@ const docTemplate = `{
                 "tags": [
                     "drinks"
                 ],
-                "summary": "Delete a drink option",
+                "summary": "Delete a drink template",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Drink option ID",
+                        "description": "Drink template ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -644,11 +822,30 @@ const docTemplate = `{
         },
         "dtos.CreateDrinkLogRequest": {
             "type": "object",
+            "required": [
+                "abv",
+                "name",
+                "size_unit",
+                "size_value",
+                "type"
+            ],
             "properties": {
-                "drink_option_id": {
-                    "type": "integer"
+                "abv": {
+                    "type": "number"
                 },
                 "logged_at": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "size_unit": {
+                    "type": "string"
+                },
+                "size_value": {
+                    "type": "integer"
+                },
+                "type": {
                     "type": "string"
                 }
             }
@@ -658,6 +855,33 @@ const docTemplate = `{
             "properties": {
                 "id": {
                     "type": "integer"
+                }
+            }
+        },
+        "dtos.CreateDrinkTemplateRequest": {
+            "type": "object",
+            "required": [
+                "abv",
+                "name",
+                "size_unit",
+                "size_value",
+                "type"
+            ],
+            "properties": {
+                "abv": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "size_unit": {
+                    "type": "string"
+                },
+                "size_value": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
                 }
             }
         },
@@ -692,21 +916,21 @@ const docTemplate = `{
                 }
             }
         },
-        "dtos.DrinkOptionResponse": {
+        "dtos.DrinkTemplateResponse": {
             "type": "object",
             "properties": {
-                "drink_option": {
-                    "$ref": "#/definitions/models.DrinkOption"
+                "drink_template": {
+                    "$ref": "#/definitions/models.DrinkTemplate"
                 }
             }
         },
-        "dtos.DrinkOptionsResponse": {
+        "dtos.DrinkTemplatesResponse": {
             "type": "object",
             "properties": {
-                "drink_options": {
+                "drink_templates": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.DrinkOption"
+                        "$ref": "#/definitions/models.DrinkTemplate"
                     }
                 }
             }
@@ -725,12 +949,42 @@ const docTemplate = `{
                 "confidence": {
                     "type": "number"
                 },
-                "drink_option": {
-                    "$ref": "#/definitions/models.DrinkOption"
+                "drink_template": {
+                    "$ref": "#/definitions/models.DrinkTemplate"
                 }
             }
         },
-        "dtos.UpdateDrinkOptionRequest": {
+        "dtos.UpdateDrinkLogRequest": {
+            "type": "object",
+            "required": [
+                "abv",
+                "name",
+                "size_unit",
+                "size_value",
+                "type"
+            ],
+            "properties": {
+                "abv": {
+                    "type": "number"
+                },
+                "logged_at": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "size_unit": {
+                    "type": "string"
+                },
+                "size_value": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "dtos.UpdateDrinkTemplateRequest": {
             "type": "object",
             "required": [
                 "abv",
@@ -882,7 +1136,7 @@ const docTemplate = `{
                 "drink_name": {
                     "type": "string"
                 },
-                "drink_option_id": {
+                "drink_template_id": {
                     "type": "integer"
                 },
                 "id": {
@@ -897,12 +1151,15 @@ const docTemplate = `{
                 "size_value": {
                     "type": "integer"
                 },
+                "type": {
+                    "type": "string"
+                },
                 "user_id": {
                     "type": "integer"
                 }
             }
         },
-        "models.DrinkOption": {
+        "models.DrinkTemplate": {
             "type": "object",
             "properties": {
                 "abv": {

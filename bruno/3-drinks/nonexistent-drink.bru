@@ -1,15 +1,15 @@
 meta {
-  name: Get Nonexistent Drink Option
+  name: Get Nonexistent Drink Template
   type: http
   seq: 4
 }
 
 get {
-  url: {{host}}/drink-options/999999
+  url: {{host}}/drink-templates/999999
 }
 
 tests {
-  test("should return 404 for non-existent drink option", function() {
+  test("should return 404 for non-existent drink template", function() {
     expect(res.status).to.equal(404);
   });
 } 

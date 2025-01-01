@@ -26,8 +26,8 @@ type User struct {
 }
 
 type DrinkLog struct {
-	DrinkOptionID int       `json:"drink_option_id"`
-	LoggedAt      time.Time `json:"logged_at"`
+	DrinkTemplateID int       `json:"drink_template_id"`
+	LoggedAt        time.Time `json:"logged_at"`
 }
 
 func createUserAndLogin(email, password string) (string, error) {
@@ -73,8 +73,8 @@ func addDrinkLogs(token string, baseTime time.Time) error {
 		fmt.Printf("Adding drink for timestamp: %v\n", timestamp)
 
 		drinkLog := DrinkLog{
-			DrinkOptionID: rand.Intn(5) + 1, // Random drink option (1-5)
-			LoggedAt:      timestamp,
+			DrinkTemplateID: rand.Intn(5) + 1, // Random drink template (1-5)
+			LoggedAt:        timestamp,
 		}
 
 		drinkLogJSON, _ := json.Marshal(drinkLog)

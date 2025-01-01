@@ -1,11 +1,11 @@
 meta {
-  name: Update Drink Option
+  name: Update Drink Template
   type: http
   seq: 5
 }
 
 put {
-  url: {{host}}/drink-options/3
+  url: {{host}}/drink-templates/3
 }
 
 headers {
@@ -24,7 +24,7 @@ body {
 }
 
 tests {
-  test("should update drink option successfully", function() {
+  test("should update drink template successfully", function() {
     expect(res.status).to.equal(204);
   });
 }

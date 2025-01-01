@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"go-sober/internal/dtos"
 	"go-sober/internal/models"
 )
 
@@ -22,10 +23,10 @@ func NewRepository(db *sql.DB) *Repository {
 	return &Repository{db: db}
 }
 
-func (r *Repository) GetDrinkOptions() ([]models.DrinkOption, error) {
+func (r *Repository) GetDrinkTemplates() ([]models.DrinkTemplate, error) {
 	query := `
         SELECT id, name, type, size_value, size_unit, abv
-        FROM drink_options
+        FROM drink_templates
     `
 
 	rows, err := r.db.Query(query)
@@ -34,58 +35,76 @@ func (r *Repository) GetDrinkOptions() ([]models.DrinkOption, error) {
 	}
 	defer rows.Close()
 
-	var drinkOptions []models.DrinkOption
+	var drinkTemplates []models.DrinkTemplate
 	for rows.Next() {
-		var option models.DrinkOption
+		var template models.DrinkTemplate
 		err := rows.Scan(
-			&option.ID,
-			&option.Name,
-			&option.Type,
-			&option.SizeValue,
-			&option.SizeUnit,
-			&option.ABV,
+			&template.ID,
+			&template.Name,
+			&template.Type,
+			&template.SizeValue,
+			&template.SizeUnit,
+			&template.ABV,
 		)
 		if err != nil {
 			return nil, err
 		}
-		drinkOptions = append(drinkOptions, option)
+		drinkTemplates = append(drinkTemplates, template)
 	}
 
-	return drinkOptions, nil
+	return drinkTemplates, nil
 }
 
-func (r *Repository) GetDrinkOption(id int) (*models.DrinkOption, error) {
-	var drinkOption models.DrinkOption
-	err := r.db.QueryRow("SELECT id, name, type, size_value, size_unit, abv FROM drink_options WHERE id = ?", id).
-		Scan(&drinkOption.ID, &drinkOption.Name, &drinkOption.Type, &drinkOption.SizeValue, &drinkOption.SizeUnit, &drinkOption.ABV)
+func (r *Repository) GetDrinkTemplate(id int) (*models.DrinkTemplate, error) {
+	var drinkTemplate models.DrinkTemplate
+	err := r.db.QueryRow("SELECT id, name, type, size_value, size_unit, abv FROM drink_templates WHERE id = ?", id).
+		Scan(&drinkTemplate.ID, &drinkTemplate.Name, &drinkTemplate.Type, &drinkTemplate.SizeValue, &drinkTemplate.SizeUnit, &drinkTemplate.ABV)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("drink option not found")
+			return nil, fmt.Errorf("drink template not found")
 		}
 		return nil, err
 	}
-	return &drinkOption, nil
+	return &drinkTemplate, nil
 }
 
-// Add after GetDrinkOption method
-
-func (r *Repository) UpdateDrinkOption(id int, option *models.DrinkOption) error {
+func (r *Repository) CreateDrinkTemplate(template *models.DrinkTemplate) error {
 	query := `
-        UPDATE drink_options 
+        INSERT INTO drink_templates (name, type, size_value, size_unit, abv)
+        VALUES (?, ?, ?, ?, ?)
+    `
+
+	result, err := r.db.Exec(query, template.Name, template.Type, template.SizeValue, template.SizeUnit, template.ABV)
+	if err != nil {
+		return fmt.Errorf("failed to create drink template: %w", err)
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return fmt.Errorf("failed to get last insert id: %w", err)
+	}
+
+	template.ID = int(id)
+	return nil
+}
+
+func (r *Repository) UpdateDrinkTemplate(id int, template *models.DrinkTemplate) error {
+	query := `
+        UPDATE drink_templates 
         SET name = ?, type = ?, size_value = ?, size_unit = ?, abv = ?
         WHERE id = ?
     `
 
 	result, err := r.db.Exec(query,
-		option.Name,
-		option.Type,
-		option.SizeValue,
-		option.SizeUnit,
-		option.ABV,
+		template.Name,
+		template.Type,
+		template.SizeValue,
+		template.SizeUnit,
+		template.ABV,
 		id,
 	)
 	if err != nil {
-		return fmt.Errorf("failed to update drink option: %w", err)
+		return fmt.Errorf("failed to update drink template: %w", err)
 	}
 
 	rowsAffected, err := result.RowsAffected()
@@ -94,16 +113,16 @@ func (r *Repository) UpdateDrinkOption(id int, option *models.DrinkOption) error
 	}
 
 	if rowsAffected == 0 {
-		return fmt.Errorf("drink option not found")
+		return fmt.Errorf("drink template not found")
 	}
 
 	return nil
 }
 
-func (r *Repository) DeleteDrinkOption(id int) error {
-	result, err := r.db.Exec("DELETE FROM drink_options WHERE id = ?", id)
+func (r *Repository) DeleteDrinkTemplate(id int) error {
+	result, err := r.db.Exec("DELETE FROM drink_templates WHERE id = ?", id)
 	if err != nil {
-		return fmt.Errorf("failed to delete drink option: %w", err)
+		return fmt.Errorf("failed to delete drink template: %w", err)
 	}
 
 	rowsAffected, err := result.RowsAffected()
@@ -112,37 +131,68 @@ func (r *Repository) DeleteDrinkOption(id int) error {
 	}
 
 	if rowsAffected == 0 {
-		return fmt.Errorf("drink option not found")
+		return fmt.Errorf("drink template not found")
 	}
 
 	return nil
 }
 
-func (r *Repository) CreateDrinkLog(userID int64, drinkOptionID int64, loggedAt *time.Time) (int64, error) {
-	var timestamp time.Time
-	if loggedAt == nil {
-		timestamp = time.Now().UTC()
+func (r *Repository) CreateDrinkLog(userID int64, params dtos.CreateDrinkLogRequest) (int64, error) {
+	// Start transaction
+	tx, err := r.db.Begin()
+	if err != nil {
+		return 0, fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback() // Rollback if we return early due to an error
+
+	// hash all the CreateDrinkLogRequest
+	hashKey := fmt.Sprintf("%s-%s-%d-%s-%f", params.Name, params.Type, params.SizeValue, params.SizeUnit, params.ABV)
+
+	// check if the hashKey is in drink_log_details
+	query := `SELECT id FROM drink_log_details WHERE hash_key = ?`
+	var drinkLogDetailID int64
+	err = tx.QueryRow(query, hashKey).Scan(&drinkLogDetailID)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, fmt.Errorf("failed to check if drink log detail exists: %w", err)
+	}
+
+	var loggedAt time.Time
+	if params.LoggedAt == nil {
+		loggedAt = time.Now().UTC()
 	} else {
-		timestamp = loggedAt.UTC()
+		loggedAt = params.LoggedAt.UTC()
 	}
 
-	query := `
-        INSERT INTO drink_logs (user_id, drink_option_id, logged_at)
-        VALUES (?, ?, ?)
-    `
+	// if the hashKey is not in drink_log_details, create a new drink_log_details
+	if err == sql.ErrNoRows {
+		query = `INSERT INTO drink_log_details (name, type, size_value, size_unit, abv, hash_key, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`
+		result, err := tx.Exec(query, params.Name, params.Type, params.SizeValue, params.SizeUnit, params.ABV, hashKey, loggedAt)
+		if err != nil {
+			return 0, fmt.Errorf("failed to create drink log detail: %w", err)
+		}
+		drinkLogDetailID, err = result.LastInsertId()
+		if err != nil {
+			return 0, fmt.Errorf("failed to get last insert id: %w", err)
+		}
+	}
 
-	result, err := r.db.Exec(query, userID, drinkOptionID, timestamp)
+	// create a new drink_log
+	query = `INSERT INTO drink_logs (user_id, drink_details_id, logged_at) VALUES (?, ?, ?)`
+	result, err := tx.Exec(query, userID, drinkLogDetailID, loggedAt)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create drink log: %w", err)
 	}
-
-	// Get the last inserted ID
-	id, err := result.LastInsertId()
+	drinkLogID, err := result.LastInsertId()
 	if err != nil {
 		return 0, fmt.Errorf("failed to get last insert id: %w", err)
 	}
 
-	return id, nil
+	// Commit the transaction
+	if err = tx.Commit(); err != nil {
+		return 0, fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return drinkLogID, nil
 }
 
 func (r *Repository) GetDrinkLogs(userID int64) ([]models.DrinkLog, error) {
@@ -154,14 +204,14 @@ func (r *Repository) GetDrinkLogsBetweenDates(userID int64, startTime, endTime t
 		SELECT 
 			dl.id as id, 
 			dl.user_id as user_id, 
-			dl.drink_option_id as drink_option_id, 
 			dl.logged_at as logged_at,
-			do.name as drink_name, 
-			do.abv as abv,
-			do.size_value as size_value,
-			do.size_unit as size_unit
+			dld.name as drink_name, 
+			dld.type as type,
+			dld.size_value as size_value,
+			dld.size_unit as size_unit,
+			dld.abv as abv
 		FROM drink_logs dl
-		JOIN drink_options do ON dl.drink_option_id = do.id
+		JOIN drink_log_details dld ON dl.drink_details_id = dld.id
 		WHERE dl.user_id = ? 
 		AND dl.logged_at >= ? 
 		AND dl.logged_at < ?
@@ -182,12 +232,12 @@ func (r *Repository) GetDrinkLogsBetweenDates(userID int64, startTime, endTime t
 		err := rows.Scan(
 			&log.ID,
 			&log.UserID,
-			&log.DrinkOptionID,
 			&log.LoggedAt,
 			&log.DrinkName,
-			&log.ABV,
+			&log.Type,
 			&log.SizeValue,
 			&log.SizeUnit,
+			&log.ABV,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning drink log: %w", err)
@@ -200,4 +250,98 @@ func (r *Repository) GetDrinkLogsBetweenDates(userID int64, startTime, endTime t
 	}
 
 	return drinkLogs, nil
+}
+
+func (r *Repository) UpdateDrinkLog(logID int64, userID int64, params dtos.UpdateDrinkLogRequest) error {
+	// Start transaction
+	tx, err := r.db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	// Verify the log exists and belongs to the user
+	var oldDetailsID int64
+	err = tx.QueryRow("SELECT drink_details_id FROM drink_logs WHERE id = ? AND user_id = ?", logID, userID).Scan(&oldDetailsID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return fmt.Errorf("drink log not found or unauthorized")
+		}
+		return fmt.Errorf("failed to fetch drink log: %w", err)
+	}
+
+	// Create hash key for the new details
+	hashKey := fmt.Sprintf("%s-%s-%d-%s-%f", params.Name, params.Type, params.SizeValue, params.SizeUnit, params.ABV)
+
+	// Check if the new details already exist
+	var newDetailsID int64
+	err = tx.QueryRow("SELECT id FROM drink_log_details WHERE hash_key = ?", hashKey).Scan(&newDetailsID)
+	if err != nil && err != sql.ErrNoRows {
+		return fmt.Errorf("failed to check drink log details: %w", err)
+	}
+
+	// If details don't exist, create them
+	if err == sql.ErrNoRows {
+		query := `INSERT INTO drink_log_details (name, type, size_value, size_unit, abv, hash_key, created_at) 
+				 VALUES (?, ?, ?, ?, ?, ?, ?)`
+		result, err := tx.Exec(query, params.Name, params.Type, params.SizeValue, params.SizeUnit, params.ABV, hashKey, time.Now().UTC())
+		if err != nil {
+			return fmt.Errorf("failed to create drink log details: %w", err)
+		}
+		newDetailsID, err = result.LastInsertId()
+		if err != nil {
+			return fmt.Errorf("failed to get last insert id: %w", err)
+		}
+	}
+
+	// Update the drink log with new details and timestamp
+	loggedAt := time.Now().UTC()
+	if params.LoggedAt != nil {
+		loggedAt = params.LoggedAt.UTC()
+	}
+
+	_, err = tx.Exec("UPDATE drink_logs SET drink_details_id = ?, logged_at = ? WHERE id = ? AND user_id = ?",
+		newDetailsID, loggedAt, logID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to update drink log: %w", err)
+	}
+
+	// Commit the transaction
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
+}
+
+func (r *Repository) DeleteDrinkLog(logID int64, userID int64) error {
+	// Start transaction
+	tx, err := r.db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	// Delete the log only if it belongs to the user
+	result, err := tx.Exec("DELETE FROM drink_logs WHERE id = ? AND user_id = ?", logID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to delete drink log: %w", err)
+	}
+
+	// Check if any row was actually deleted
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("error checking rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("drink log not found or unauthorized")
+	}
+
+	// Commit the transaction
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
 }

@@ -23,14 +23,14 @@ tests {
   test("Should parse drink log text successfully", function() {
     expect(res.status).to.equal(200);
     expect(res.body).to.be.an("object");
-    expect(res.body).to.have.property("drink_option");
-    expect(res.body.drink_option).to.be.an("object");
-    expect(res.body.drink_option).to.have.property("id");
-    expect(res.body.drink_option).to.have.property("name");
-    expect(res.body.drink_option.type).to.equal("beer");
-    expect(res.body.drink_option.size_value).to.equal(25);
-    expect(res.body.drink_option.size_unit).to.equal("cl");
-    expect(res.body.drink_option.abv).to.equal(0.05);
+    expect(res.body).to.have.property("drink_template");
+    expect(res.body.drink_template).to.be.an("object");
+    expect(res.body.drink_template).to.have.property("id");
+    expect(res.body.drink_template).to.have.property("name");
+    expect(res.body.drink_template.type).to.equal("beer");
+    expect(res.body.drink_template.size_value).to.equal(25);
+    expect(res.body.drink_template.size_unit).to.equal("cl");
+    expect(res.body.drink_template.abv).to.equal(0.05);
   });
 }
 
@@ -44,14 +44,14 @@ tests {
   test("Should parse drink log text successfully", function() {
     expect(res.status).to.equal(200);
     expect(res.body).to.be.an("object");
-    expect(res.body).to.have.property("drink_option");
-    expect(res.body.drink_option).to.be.an("object");
-    expect(res.body.drink_option).to.have.property("id");
-    expect(res.body.drink_option).to.have.property("name");
-    expect(res.body.drink_option.type).to.equal("beer");
-    expect(res.body.drink_option.size_value).to.equal(25);
-    expect(res.body.drink_option.size_unit).to.equal("cl");
-    expect(res.body.drink_option.abv).to.equal(0.05);
+    expect(res.body).to.have.property("drink_template");
+    expect(res.body.drink_template).to.be.an("object");
+    expect(res.body.drink_template).to.have.property("id");
+    expect(res.body.drink_template).to.have.property("name");
+    expect(res.body.drink_template.type).to.equal("beer");
+    expect(res.body.drink_template.size_value).to.equal(25);
+    expect(res.body.drink_template.size_unit).to.equal("cl");
+    expect(res.body.drink_template.abv).to.equal(0.05);
   });
 }
 
@@ -65,14 +65,14 @@ tests {
   test("Should parse drink log text successfully", function() {
     expect(res.status).to.equal(200);
     expect(res.body).to.be.an("object");
-    expect(res.body).to.have.property("drink_option");
-    expect(res.body.drink_option).to.be.an("object");
-    expect(res.body.drink_option).to.have.property("id");
-    expect(res.body.drink_option).to.have.property("name");
-    expect(res.body.drink_option.type).to.equal("wine");
-    expect(res.body.drink_option.size_value).to.equal(12);
-    expect(res.body.drink_option.size_unit).to.equal("cl");
-    expect(res.body.drink_option.abv).to.equal(0.12);
+    expect(res.body).to.have.property("drink_template");
+    expect(res.body.drink_template).to.be.an("object");
+    expect(res.body.drink_template).to.have.property("id");
+    expect(res.body.drink_template).to.have.property("name");
+    expect(res.body.drink_template.type).to.equal("wine");
+    expect(res.body.drink_template.size_value).to.equal(12);
+    expect(res.body.drink_template.size_unit).to.equal("cl");
+    expect(res.body.drink_template.abv).to.equal(0.12);
   });
 }
 
@@ -86,14 +86,15 @@ tests {
   test("Should parse drink log text successfully", function() {
     expect(res.status).to.equal(200);
     expect(res.body).to.be.an("object");
-    expect(res.body).to.have.property("drink_option");
-    expect(res.body.drink_option).to.be.an("object");
-    expect(res.body.drink_option).to.have.property("id");
-    expect(res.body.drink_option).to.have.property("name");
-    expect(res.body.drink_option.type).to.equal("shot");
-    expect(res.body.drink_option.size_value).to.equal(3);
-    expect(res.body.drink_option.size_unit).to.equal("cl");
-    expect(res.body.drink_option.abv).to.equal(0.4);
+    expect(res.body).to.have.property("drink_template");
+    expect(res.body.drink_template).to.be.an("object");
+    expect(res.body.drink_template).to.have.property("id");
+    expect(res.body.drink_template).to.have.property("name");
+    expect(res.body.drink_template.type).to.equal("shot");
+    expect(res.body.drink_template.size_value).to.equal(3);
+    expect(res.body.drink_template.size_unit).to.equal("cl");
+    expect(res.body.drink_template.abv).to.equal(0.4);
   });
 }
+
 

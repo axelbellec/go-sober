@@ -30,23 +30,23 @@ func NewController(service *Service, embeddingService embedding.EmbeddingService
 	}
 }
 
-// @Summary Get all drink options
-// @Description Retrieve all drink options
+// @Summary Get all drink templates
+// @Description Retrieve all drink templates
 // @Tags drinks
 // @Accept json
 // @Produce json
-// @Success 200 {object} dtos.DrinkOptionsResponse
+// @Success 200 {object} dtos.DrinkTemplatesResponse
 // @Failure 500 {object} dtos.ClientError
-// @Router /drink-options [get]
-func (c *Controller) GetDrinkOptions(w http.ResponseWriter, r *http.Request) {
-	drinkOptions, err := c.service.GetDrinkOptions()
+// @Router /drink-templates [get]
+func (c *Controller) GetDrinkTemplates(w http.ResponseWriter, r *http.Request) {
+	drinkTemplates, err := c.service.GetDrinkTemplates()
 	if err != nil {
-		http.Error(w, "Could not fetch drink options", http.StatusInternalServerError)
+		http.Error(w, "Could not fetch drink templates", http.StatusInternalServerError)
 		return
 	}
 
-	response := dtos.DrinkOptionsResponse{
-		DrinkOptions: drinkOptions,
+	response := dtos.DrinkTemplatesResponse{
+		DrinkTemplates: drinkTemplates,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -54,36 +54,36 @@ func (c *Controller) GetDrinkOptions(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// @Summary Get a specific drink option
-// @Description Retrieve a specific drink option by ID
+// @Summary Get a specific drink template
+// @Description Retrieve a specific drink template by ID
 // @Tags drinks
 // @Accept json
 // @Produce json
-// @Param id path string true "Drink option ID"
-// @Success 200 {object} dtos.DrinkOptionResponse
+// @Param id path string true "Drink template ID"
+// @Success 200 {object} dtos.DrinkTemplateResponse
 // @Failure 404 {object} dtos.ClientError
-// @Router /drink-options/{id} [get]
-func (c *Controller) GetDrinkOption(w http.ResponseWriter, r *http.Request) {
+// @Router /drink-templates/{id} [get]
+func (c *Controller) GetDrinkTemplate(w http.ResponseWriter, r *http.Request) {
 	// Extract the ID from the URL path
-	// The URL pattern "/drink-options/{id}" needs to be handled with a URL router
+	// The URL pattern "/drink-templates/{id}" needs to be handled with a URL router
 	// Since we're using net/http directly, we need to parse the path manually
 
 	// Get the last part of the path
-	drinkOptionID, err := strconv.Atoi(r.PathValue("id"))
+	drinkTemplateID, err := strconv.Atoi(r.PathValue("id"))
 
 	if err != nil {
 		http.Error(w, "Invalid ID format", http.StatusBadRequest)
 		return
 	}
 
-	drinkOption, err := c.service.GetDrinkOption(drinkOptionID)
+	drinkTemplate, err := c.service.GetDrinkTemplate(drinkTemplateID)
 	if err != nil {
-		http.Error(w, "Drink option not found", http.StatusNotFound)
+		http.Error(w, "Drink template not found", http.StatusNotFound)
 		return
 	}
 
-	response := dtos.DrinkOptionResponse{
-		DrinkOption: *drinkOption,
+	response := dtos.DrinkTemplateResponse{
+		DrinkTemplate: *drinkTemplate,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -91,35 +91,27 @@ func (c *Controller) GetDrinkOption(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// @Summary Update a drink option
-// @Description Update a specific drink option by ID
+// @Summary Create a drink template
+// @Description Create a new drink template
 // @Tags drinks
 // @Accept json
 // @Produce json
-// @Param id path string true "Drink option ID"
-// @Param drinkOption body dtos.UpdateDrinkOptionRequest true "Updated drink option"
-// @Success 204
+// @Param Authorization header string true "Bearer token"
+// @Param drinkTemplate body dtos.CreateDrinkTemplateRequest true "New drink template"
+// @Success 201 {object} dtos.DrinkTemplateResponse
 // @Failure 400 {object} dtos.ClientError
-// @Failure 404 {object} dtos.ClientError
 // @Failure 500 {object} dtos.ClientError
-// @Router /drink-options/{id} [put]
-func (c *Controller) UpdateDrinkOption(w http.ResponseWriter, r *http.Request) {
-
-	drinkOptionID, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil {
-		http.Error(w, "Invalid ID format", http.StatusBadRequest)
-		return
-	}
-
+// @Router /drink-templates [post]
+func (c *Controller) CreateDrinkTemplate(w http.ResponseWriter, r *http.Request) {
 	// Parse request body
-	var req dtos.UpdateDrinkOptionRequest
+	var req dtos.CreateDrinkTemplateRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	// Convert DTO to model
-	drinkOption := &models.DrinkOption{
+	drinkTemplate := &models.DrinkTemplate{
 		Name:      req.Name,
 		Type:      req.Type,
 		SizeValue: req.SizeValue,
@@ -127,44 +119,91 @@ func (c *Controller) UpdateDrinkOption(w http.ResponseWriter, r *http.Request) {
 		ABV:       req.ABV,
 	}
 
-	// Update drink option
-	if err := c.service.UpdateDrinkOption(drinkOptionID, drinkOption); err != nil {
-		if err.Error() == "drink option not found" {
+	// Create drink template
+	err := c.service.CreateDrinkTemplate(drinkTemplate)
+	if err != nil {
+		http.Error(w, "Failed to create drink template", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+}
+
+// @Summary Update a drink template
+// @Description Update a specific drink template by ID
+// @Tags drinks
+// @Accept json
+// @Produce json
+// @Param id path string true "Drink template ID"
+// @Param drinkTemplate body dtos.UpdateDrinkTemplateRequest true "Updated drink template"
+// @Success 204
+// @Failure 400 {object} dtos.ClientError
+// @Failure 404 {object} dtos.ClientError
+// @Failure 500 {object} dtos.ClientError
+// @Router /drink-templates/{id} [put]
+func (c *Controller) UpdateDrinkTemplate(w http.ResponseWriter, r *http.Request) {
+
+	drinkTemplateID, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		http.Error(w, "Invalid ID format", http.StatusBadRequest)
+		return
+	}
+
+	// Parse request body
+	var req dtos.UpdateDrinkTemplateRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Convert DTO to model
+	drinkTemplate := &models.DrinkTemplate{
+		Name:      req.Name,
+		Type:      req.Type,
+		SizeValue: req.SizeValue,
+		SizeUnit:  req.SizeUnit,
+		ABV:       req.ABV,
+	}
+
+	// Update drink template
+	if err := c.service.UpdateDrinkTemplate(drinkTemplateID, drinkTemplate); err != nil {
+		if err.Error() == "drink template not found" {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
-		http.Error(w, "Failed to update drink option", http.StatusInternalServerError)
+		http.Error(w, "Failed to update drink template", http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// @Summary Delete a drink option
-// @Description Delete a specific drink option by ID
+// @Summary Delete a drink template
+// @Description Delete a specific drink template by ID
 // @Tags drinks
 // @Accept json
 // @Produce json
-// @Param id path string true "Drink option ID"
+// @Param id path string true "Drink template ID"
 // @Success 204
 // @Failure 404 {object} dtos.ClientError
 // @Failure 500 {object} dtos.ClientError
-// @Router /drink-options/{id} [delete]
-func (c *Controller) DeleteDrinkOption(w http.ResponseWriter, r *http.Request) {
+// @Router /drink-templates/{id} [delete]
+func (c *Controller) DeleteDrinkTemplate(w http.ResponseWriter, r *http.Request) {
 
-	drinkOptionID, err := strconv.Atoi(r.PathValue("id"))
+	drinkTemplateID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		http.Error(w, "Invalid ID format", http.StatusBadRequest)
 		return
 	}
 
-	// Delete drink option
-	if err := c.service.DeleteDrinkOption(drinkOptionID); err != nil {
-		if err.Error() == "drink option not found" {
+	// Delete drink template
+	if err := c.service.DeleteDrinkTemplate(drinkTemplateID); err != nil {
+		if err.Error() == "drink template not found" {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
-		http.Error(w, "Failed to delete drink option", http.StatusInternalServerError)
+		http.Error(w, "Failed to delete drink template", http.StatusInternalServerError)
 		return
 	}
 
@@ -197,12 +236,6 @@ func (c *Controller) CreateDrinkLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate drink_option_id
-	if req.DrinkOptionID <= 0 {
-		http.Error(w, "Invalid drink_option_id", http.StatusBadRequest)
-		return
-	}
-
 	// Validate logged_at if provided
 	if req.LoggedAt != nil {
 		// Ensure logged_at is not in the future
@@ -213,7 +246,7 @@ func (c *Controller) CreateDrinkLog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the drink log and get the ID
-	id, err := c.service.CreateDrinkLog(claims.UserID, req.DrinkOptionID, req.LoggedAt)
+	id, err := c.service.CreateDrinkLog(claims.UserID, req)
 	if err != nil {
 		http.Error(w, "Failed to create drink log: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -269,7 +302,7 @@ func (c *Controller) GetDrinkLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 // @Summary Parse a drink log
-// @Description Parse a drink log and return the drink option and confidence
+// @Description Parse a drink log and return the drink template and confidence
 // @Tags drinks
 // @Accept json
 // @Produce json
@@ -292,13 +325,13 @@ func (c *Controller) ParseDrinkLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	drinkOptions, err := c.service.GetDrinkOptions()
+	drinkTemplates, err := c.service.GetDrinkTemplates()
 	if err != nil {
-		http.Error(w, "Could not fetch drink options", http.StatusInternalServerError)
+		http.Error(w, "Could not fetch drink templates", http.StatusInternalServerError)
 		return
 	}
 
-	parser := parser.NewDrinkParser(drinkOptions, c.embeddingService, c.db)
+	parser := parser.NewDrinkParser(drinkTemplates, c.embeddingService, c.db)
 	match, err := parser.Parse(req.Text)
 	if err != nil {
 		http.Error(w, "Could not parse drink description", http.StatusBadRequest)
@@ -306,11 +339,109 @@ func (c *Controller) ParseDrinkLog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := dtos.ParseDrinkLogResponse{
-		DrinkOption: match.DrinkOption,
-		Confidence:  match.Confidence,
+		DrinkTemplate: match.DrinkTemplate,
+		Confidence:    match.Confidence,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
+}
+
+// @Summary Update a drink log
+// @Description Update a specific drink log for the current user
+// @Tags drinks
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param id path string true "Drink log ID"
+// @Param drinkLog body dtos.UpdateDrinkLogRequest true "Update drink log request"
+// @Success 204
+// @Failure 400 {object} dtos.ClientError
+// @Failure 401 {object} dtos.ClientError
+// @Failure 404 {object} dtos.ClientError
+// @Failure 500 {object} dtos.ClientError
+// @Router /drink-logs/{id} [put]
+func (c *Controller) UpdateDrinkLog(w http.ResponseWriter, r *http.Request) {
+	// Get user from context
+	claims := r.Context().Value(constants.UserContextKey).(*models.Claims)
+	if claims == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Parse log ID from path
+	logID, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid log ID", http.StatusBadRequest)
+		return
+	}
+
+	// Parse request body
+	var req dtos.UpdateDrinkLogRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate logged_at if provided
+	if req.LoggedAt != nil && req.LoggedAt.After(time.Now()) {
+		http.Error(w, "logged_at cannot be in the future", http.StatusBadRequest)
+		return
+	}
+
+	// Update the drink log
+	err = c.service.UpdateDrinkLog(claims.UserID, logID, req)
+	if err != nil {
+		if err.Error() == "drink log not found or unauthorized" {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Failed to update drink log: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// @Summary Delete a drink log
+// @Description Delete a specific drink log for the current user
+// @Tags drinks
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param id path string true "Drink log ID"
+// @Success 204
+// @Failure 400 {object} dtos.ClientError
+// @Failure 401 {object} dtos.ClientError
+// @Failure 404 {object} dtos.ClientError
+// @Failure 500 {object} dtos.ClientError
+// @Router /drink-logs/{id} [delete]
+func (c *Controller) DeleteDrinkLog(w http.ResponseWriter, r *http.Request) {
+	// Get user from context
+	claims := r.Context().Value(constants.UserContextKey).(*models.Claims)
+	if claims == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Parse log ID from path
+	logID, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid log ID", http.StatusBadRequest)
+		return
+	}
+
+	// Delete the drink log
+	err = c.service.DeleteDrinkLog(claims.UserID, logID)
+	if err != nil {
+		if err.Error() == "drink log not found or unauthorized" {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Failed to delete drink log: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

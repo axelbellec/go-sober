@@ -66,11 +66,11 @@ func main() {
 	mux.HandleFunc("POST /api/v1/auth/signup", authController.SignUp)
 	mux.HandleFunc("POST /api/v1/auth/login", authController.Login)
 
-	// Drink options
-	mux.HandleFunc("GET /api/v1/drink-options", drinkController.GetDrinkOptions)
-	mux.HandleFunc("GET /api/v1/drink-options/{id}", drinkController.GetDrinkOption)
-	mux.HandleFunc("PUT /api/v1/drink-options/{id}", drinkController.UpdateDrinkOption)
-	mux.HandleFunc("DELETE /api/v1/drink-options/{id}", drinkController.DeleteDrinkOption)
+	// Drink templates
+	mux.HandleFunc("GET /api/v1/drink-templates", drinkController.GetDrinkTemplates)
+	mux.HandleFunc("GET /api/v1/drink-templates/{id}", drinkController.GetDrinkTemplate)
+	mux.HandleFunc("PUT /api/v1/drink-templates/{id}", drinkController.UpdateDrinkTemplate)
+	mux.HandleFunc("DELETE /api/v1/drink-templates/{id}", drinkController.DeleteDrinkTemplate)
 
 	// [Protected routes]
 	// Auth

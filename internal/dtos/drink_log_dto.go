@@ -6,8 +6,21 @@ import (
 )
 
 type CreateDrinkLogRequest struct {
-	DrinkOptionID int64      `json:"drink_option_id"`
-	LoggedAt      *time.Time `json:"logged_at,omitempty"`
+	Name      string     `json:"name" validate:"required"`
+	Type      string     `json:"type" validate:"required"`
+	SizeValue int        `json:"size_value" validate:"required,gt=0"`
+	SizeUnit  string     `json:"size_unit" validate:"required"`
+	ABV       float64    `json:"abv" validate:"required,gt=0"`
+	LoggedAt  *time.Time `json:"logged_at,omitempty"`
+}
+
+type UpdateDrinkLogRequest struct {
+	Name      string     `json:"name" validate:"required"`
+	Type      string     `json:"type" validate:"required"`
+	SizeValue int        `json:"size_value" validate:"required,gt=0"`
+	SizeUnit  string     `json:"size_unit" validate:"required"`
+	ABV       float64    `json:"abv" validate:"required,gt=0"`
+	LoggedAt  *time.Time `json:"logged_at,omitempty"`
 }
 
 type CreateDrinkLogResponse struct {
@@ -23,6 +36,6 @@ type ParseDrinkLogRequest struct {
 }
 
 type ParseDrinkLogResponse struct {
-	DrinkOption models.DrinkOption `json:"drink_option"`
-	Confidence  float64            `json:"confidence"`
+	DrinkTemplate models.DrinkTemplate `json:"drink_template"`
+	Confidence    float64              `json:"confidence"`
 }

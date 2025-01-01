@@ -46,15 +46,48 @@ definitions:
     type: object
   dtos.CreateDrinkLogRequest:
     properties:
-      drink_option_id:
-        type: integer
+      abv:
+        type: number
       logged_at:
         type: string
+      name:
+        type: string
+      size_unit:
+        type: string
+      size_value:
+        type: integer
+      type:
+        type: string
+    required:
+    - abv
+    - name
+    - size_unit
+    - size_value
+    - type
     type: object
   dtos.CreateDrinkLogResponse:
     properties:
       id:
         type: integer
+    type: object
+  dtos.CreateDrinkTemplateRequest:
+    properties:
+      abv:
+        type: number
+      name:
+        type: string
+      size_unit:
+        type: string
+      size_value:
+        type: integer
+      type:
+        type: string
+    required:
+    - abv
+    - name
+    - size_unit
+    - size_value
+    - type
     type: object
   dtos.CurrentBACResponse:
     properties:
@@ -76,16 +109,16 @@ definitions:
           $ref: '#/definitions/models.DrinkLog'
         type: array
     type: object
-  dtos.DrinkOptionResponse:
+  dtos.DrinkTemplateResponse:
     properties:
-      drink_option:
-        $ref: '#/definitions/models.DrinkOption'
+      drink_template:
+        $ref: '#/definitions/models.DrinkTemplate'
     type: object
-  dtos.DrinkOptionsResponse:
+  dtos.DrinkTemplatesResponse:
     properties:
-      drink_options:
+      drink_templates:
         items:
-          $ref: '#/definitions/models.DrinkOption'
+          $ref: '#/definitions/models.DrinkTemplate'
         type: array
     type: object
   dtos.ParseDrinkLogRequest:
@@ -97,10 +130,31 @@ definitions:
     properties:
       confidence:
         type: number
-      drink_option:
-        $ref: '#/definitions/models.DrinkOption'
+      drink_template:
+        $ref: '#/definitions/models.DrinkTemplate'
     type: object
-  dtos.UpdateDrinkOptionRequest:
+  dtos.UpdateDrinkLogRequest:
+    properties:
+      abv:
+        type: number
+      logged_at:
+        type: string
+      name:
+        type: string
+      size_unit:
+        type: string
+      size_value:
+        type: integer
+      type:
+        type: string
+    required:
+    - abv
+    - name
+    - size_unit
+    - size_value
+    - type
+    type: object
+  dtos.UpdateDrinkTemplateRequest:
     properties:
       abv:
         type: number
@@ -204,7 +258,7 @@ definitions:
         type: number
       drink_name:
         type: string
-      drink_option_id:
+      drink_template_id:
         type: integer
       id:
         type: integer
@@ -214,10 +268,12 @@ definitions:
         type: string
       size_value:
         type: integer
+      type:
+        type: string
       user_id:
         type: integer
     type: object
-  models.DrinkOption:
+  models.DrinkTemplate:
     properties:
       abv:
         type: number
@@ -472,11 +528,96 @@ paths:
       summary: Create a drink log
       tags:
       - drinks
+  /drink-logs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific drink log for the current user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Drink log ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Delete a drink log
+      tags:
+      - drinks
+    put:
+      consumes:
+      - application/json
+      description: Update a specific drink log for the current user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Drink log ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update drink log request
+        in: body
+        name: drinkLog
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.UpdateDrinkLogRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Update a drink log
+      tags:
+      - drinks
   /drink-logs/parse:
     post:
       consumes:
       - application/json
-      description: Parse a drink log and return the drink option and confidence
+      description: Parse a drink log and return the drink template and confidence
       parameters:
       - description: Bearer token
         in: header
@@ -507,32 +648,66 @@ paths:
       summary: Parse a drink log
       tags:
       - drinks
-  /drink-options:
+  /drink-templates:
     get:
       consumes:
       - application/json
-      description: Retrieve all drink options
+      description: Retrieve all drink templates
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dtos.DrinkOptionsResponse'
+            $ref: '#/definitions/dtos.DrinkTemplatesResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/Error'
-      summary: Get all drink options
+      summary: Get all drink templates
       tags:
       - drinks
-  /drink-options/{id}:
+    post:
+      consumes:
+      - application/json
+      description: Create a new drink template
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: New drink template
+        in: body
+        name: drinkTemplate
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.CreateDrinkTemplateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.DrinkTemplateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Create a drink template
+      tags:
+      - drinks
+  /drink-templates/{id}:
     delete:
       consumes:
       - application/json
-      description: Delete a specific drink option by ID
+      description: Delete a specific drink template by ID
       parameters:
-      - description: Drink option ID
+      - description: Drink template ID
         in: path
         name: id
         required: true
@@ -550,15 +725,15 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/Error'
-      summary: Delete a drink option
+      summary: Delete a drink template
       tags:
       - drinks
     get:
       consumes:
       - application/json
-      description: Retrieve a specific drink option by ID
+      description: Retrieve a specific drink template by ID
       parameters:
-      - description: Drink option ID
+      - description: Drink template ID
         in: path
         name: id
         required: true
@@ -569,30 +744,30 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dtos.DrinkOptionResponse'
+            $ref: '#/definitions/dtos.DrinkTemplateResponse'
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/Error'
-      summary: Get a specific drink option
+      summary: Get a specific drink template
       tags:
       - drinks
     put:
       consumes:
       - application/json
-      description: Update a specific drink option by ID
+      description: Update a specific drink template by ID
       parameters:
-      - description: Drink option ID
+      - description: Drink template ID
         in: path
         name: id
         required: true
         type: string
-      - description: Updated drink option
+      - description: Updated drink template
         in: body
-        name: drinkOption
+        name: drinkTemplate
         required: true
         schema:
-          $ref: '#/definitions/dtos.UpdateDrinkOptionRequest'
+          $ref: '#/definitions/dtos.UpdateDrinkTemplateRequest'
       produces:
       - application/json
       responses:
@@ -610,7 +785,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/Error'
-      summary: Update a drink option
+      summary: Update a drink template
       tags:
       - drinks
 produces:

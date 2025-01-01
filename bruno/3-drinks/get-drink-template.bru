@@ -1,0 +1,28 @@
+meta {
+  name: Get Drink Template
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/drink-templates/2
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+}
+
+tests {
+  test("should get drink template successfully", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.property("drink_template");
+    const drinkTemplate = res.body.drink_template;
+    expect(drinkTemplate).to.have.property("id");
+    expect(drinkTemplate).to.have.property("name");
+    expect(drinkTemplate).to.have.property("type");
+    expect(drinkTemplate).to.have.property("size_value");
+    expect(drinkTemplate).to.have.property("size_unit");
+    expect(drinkTemplate).to.have.property("abv");
+  });
+}

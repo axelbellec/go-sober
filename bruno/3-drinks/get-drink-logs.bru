@@ -23,7 +23,7 @@ tests {
       const log = res.body.drink_logs[0];
       expect(log).to.have.property("id");
       expect(log).to.have.property("user_id");
-      expect(log).to.have.property("drink_option_id");
+      expect(log).to.have.property("drink_template_id");
       expect(log).to.have.property("logged_at");
       expect(log).to.have.property("drink_name");
       expect(log).to.have.property("abv");

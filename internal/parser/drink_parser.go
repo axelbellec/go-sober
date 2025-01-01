@@ -13,24 +13,24 @@ import (
 	"strings"
 )
 
-// DrinkMatch represents a matched drink option with its confidence score
+// DrinkMatch represents a matched drink template with its confidence score
 type DrinkMatch struct {
-	DrinkOption models.DrinkOption
-	Confidence  float64
+	DrinkTemplate models.DrinkTemplate
+	Confidence    float64
 }
 
 // DrinkParser handles the parsing and matching of drink descriptions
 type DrinkParser struct {
-	drinkOptions     []models.DrinkOption
+	drinkTemplates   []models.DrinkTemplate
 	drinkEmbeddings  [][]float64
 	embeddingService embedding.EmbeddingService
 	repository       *embedding.Repository
 }
 
-// NewDrinkParser creates a new DrinkParser instance with the given drink options and services
-func NewDrinkParser(drinkOptions []models.DrinkOption, embeddingService embedding.EmbeddingService, db *sql.DB) *DrinkParser {
+// NewDrinkParser creates a new DrinkParser instance with the given drink templates and services
+func NewDrinkParser(drinkTemplates []models.DrinkTemplate, embeddingService embedding.EmbeddingService, db *sql.DB) *DrinkParser {
 	parser := &DrinkParser{
-		drinkOptions:     drinkOptions,
+		drinkTemplates:   drinkTemplates,
 		embeddingService: embeddingService,
 		repository:       embedding.NewRepository(db),
 	}
@@ -40,41 +40,41 @@ func NewDrinkParser(drinkOptions []models.DrinkOption, embeddingService embeddin
 }
 
 // loadOrComputeEmbeddings loads existing embeddings from the database or computes new ones
-// for each drink option if they don't exist
+// for each drink template if they don't exist
 func (p *DrinkParser) loadOrComputeEmbeddings() {
-	p.drinkEmbeddings = make([][]float64, len(p.drinkOptions))
-	for i, option := range p.drinkOptions {
+	p.drinkEmbeddings = make([][]float64, len(p.drinkTemplates))
+	for i, template := range p.drinkTemplates {
 		// Try to load from database first
-		embedding, err := p.repository.GetEmbedding(option.ID)
+		embedding, err := p.repository.GetEmbedding(template.ID)
 		if err == nil {
 			p.drinkEmbeddings[i] = embedding
 			continue
 		}
 
 		// If not found in database, compute and store
-		description := p.formatDrinkDescription(option)
+		description := p.formatDrinkDescription(template)
 
 		fmt.Println("Getting embedding for", description)
 		embedding, err = p.embeddingService.GetEmbedding(description)
 		if err != nil {
-			log.Printf("Error computing embedding for drink option %d: %v", option.ID, err)
+			log.Printf("Error computing embedding for drink template %d: %v", template.ID, err)
 			continue
 		}
 
 		// Store in database
 		fmt.Println("Storing embedding for", description)
-		err = p.repository.StoreEmbedding(option.ID, embedding)
+		err = p.repository.StoreEmbedding(template.ID, embedding)
 		if err != nil {
-			log.Printf("Error storing embedding for drink option %d: %v", option.ID, err)
+			log.Printf("Error storing embedding for drink template %d: %v", template.ID, err)
 		}
 
 		p.drinkEmbeddings[i] = embedding
 	}
 }
 
-// formatDrinkDescription creates a standardized string description of a drink option
-func (p *DrinkParser) formatDrinkDescription(option models.DrinkOption) string {
-	return fmt.Sprintf("%s %s %d%s", option.Name, option.Type, option.SizeValue, option.SizeUnit)
+// formatDrinkDescription creates a standardized string description of a drink template
+func (p *DrinkParser) formatDrinkDescription(template models.DrinkTemplate) string {
+	return fmt.Sprintf("%s %s %d%s", template.Name, template.Type, template.SizeValue, template.SizeUnit)
 }
 
 // extractABV attempts to extract an alcohol by volume value from a text string
@@ -131,7 +131,7 @@ func (p *DrinkParser) extractQuantity(text string) (models.Quantity, error) {
 	return models.Quantity{Value: int(value), Unit: matches[2]}, nil
 }
 
-// Parse takes a drink description text and returns the best matching drink option
+// Parse takes a drink description text and returns the best matching drink template
 // It also attempts to extract and update the ABV and quantity if present in the text
 func (p *DrinkParser) Parse(text string) (*DrinkMatch, error) {
 	text = strings.ToLower(strings.TrimSpace(text))
@@ -151,8 +151,8 @@ func (p *DrinkParser) Parse(text string) (*DrinkMatch, error) {
 	if err != nil {
 		slog.Warn("Could not extract ABV", "text", text)
 	} else {
-		slog.Debug("Extracted ABV", "text", text, "abvBefore", abv, "abvAfter", bestMatch.DrinkOption.ABV)
-		bestMatch.DrinkOption.ABV = abv
+		slog.Debug("Extracted ABV", "text", text, "abvBefore", abv, "abvAfter", bestMatch.DrinkTemplate.ABV)
+		bestMatch.DrinkTemplate.ABV = abv
 	}
 
 	// Try to also parse the size and unit
@@ -162,30 +162,30 @@ func (p *DrinkParser) Parse(text string) (*DrinkMatch, error) {
 		slog.Warn("Could not extract size and unit", "text", text)
 	} else {
 		slog.Debug("Extracted size and unit", "text", text, "quantity", quantity.Value, "unit", quantity.Unit)
-		bestMatch.DrinkOption.SizeValue = quantity.Value
-		bestMatch.DrinkOption.SizeUnit = quantity.Unit
+		bestMatch.DrinkTemplate.SizeValue = quantity.Value
+		bestMatch.DrinkTemplate.SizeUnit = quantity.Unit
 	}
 
 	return bestMatch, nil
 }
 
-// findBestMatch finds the drink option with the highest cosine similarity to the input embedding
+// findBestMatch finds the drink template with the highest cosine similarity to the input embedding
 func (p *DrinkParser) findBestMatch(inputEmbedding []float64) *DrinkMatch {
-	if len(p.drinkOptions) == 0 {
+	if len(p.drinkTemplates) == 0 {
 		return nil
 	}
 
 	// Pre-allocate bestMatch to avoid nil checks
 	bestMatch := &DrinkMatch{
-		DrinkOption: p.drinkOptions[0],
-		Confidence:  cosineSimilarity(inputEmbedding, p.drinkEmbeddings[0]),
+		DrinkTemplate: p.drinkTemplates[0],
+		Confidence:    cosineSimilarity(inputEmbedding, p.drinkEmbeddings[0]),
 	}
 
 	// Start from index 1 since we've already processed index 0
-	for i := 1; i < len(p.drinkOptions); i++ {
+	for i := 1; i < len(p.drinkTemplates); i++ {
 		similarity := cosineSimilarity(inputEmbedding, p.drinkEmbeddings[i])
 		if similarity > bestMatch.Confidence {
-			bestMatch.DrinkOption = p.drinkOptions[i]
+			bestMatch.DrinkTemplate = p.drinkTemplates[i]
 			bestMatch.Confidence = similarity
 		}
 	}

@@ -1,6 +1,6 @@
-
--- Let's seed some drink options
-INSERT INTO drink_options (name, type, size_value, size_unit, abv) VALUES
+-- Rename file to 000002_seed_drink_templates.up.sql
+-- Update table name from drink_options to drink_templates
+INSERT INTO drink_templates (name, type, size_value, size_unit, abv) VALUES
 
 -- Beers
 ('Beer Pint', 'beer', 50, 'cl', 0.05),

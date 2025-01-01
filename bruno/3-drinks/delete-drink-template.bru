@@ -1,11 +1,11 @@
 meta {
-  name: Delete Drink Option
+  name: Delete Drink Template
   type: http
   seq: 6
 }
 
 delete {
-  url: {{host}}/drink-options/6
+  url: {{host}}/drink-templates/6
 }
 
 headers {
@@ -13,7 +13,7 @@ headers {
 }
 
 tests {
-  test("should delete drink option successfully", function() {
+  test("should delete drink template successfully", function() {
     expect(res.status).to.equal(204);
   });
 } 

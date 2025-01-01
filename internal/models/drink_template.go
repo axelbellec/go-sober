@@ -1,7 +1,6 @@
-// internal/models/drink_option.go
 package models
 
-type DrinkOption struct {
+type DrinkTemplate struct {
 	ID        int     `json:"id"`
 	Name      string  `json:"name"`
 	Type      string  `json:"type"`

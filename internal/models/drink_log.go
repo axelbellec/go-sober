@@ -6,14 +6,15 @@ import (
 )
 
 type DrinkLog struct {
-	ID            int       `json:"id"`
-	UserID        int       `json:"user_id"`
-	DrinkOptionID int       `json:"drink_option_id"`
-	LoggedAt      time.Time `json:"logged_at"`
-	DrinkName     string    `json:"drink_name"`
-	ABV           float64   `json:"abv"`
-	SizeValue     int       `json:"size_value"`
-	SizeUnit      string    `json:"size_unit"`
+	ID              int       `json:"id"`
+	UserID          int       `json:"user_id"`
+	DrinkTemplateID int       `json:"drink_template_id"`
+	LoggedAt        time.Time `json:"logged_at"`
+	DrinkName       string    `json:"drink_name"`
+	Type            string    `json:"type"`
+	ABV             float64   `json:"abv"`
+	SizeValue       int       `json:"size_value"`
+	SizeUnit        string    `json:"size_unit"`
 }
 
 func (d *DrinkLog) GetVolumeInMl() float64 {
