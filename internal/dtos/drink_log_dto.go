@@ -15,6 +15,7 @@ type CreateDrinkLogRequest struct {
 }
 
 type UpdateDrinkLogRequest struct {
+	ID        int64      `json:"id" validate:"required"`
 	Name      string     `json:"name" validate:"required"`
 	Type      string     `json:"type" validate:"required"`
 	SizeValue int        `json:"size_value" validate:"required,gt=0"`

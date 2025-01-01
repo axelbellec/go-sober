@@ -252,7 +252,7 @@ func (r *Repository) GetDrinkLogsBetweenDates(userID int64, startTime, endTime t
 	return drinkLogs, nil
 }
 
-func (r *Repository) UpdateDrinkLog(logID int64, userID int64, params dtos.UpdateDrinkLogRequest) error {
+func (r *Repository) UpdateDrinkLog(userID int64, params dtos.UpdateDrinkLogRequest) error {
 	// Start transaction
 	tx, err := r.db.Begin()
 	if err != nil {
@@ -261,6 +261,8 @@ func (r *Repository) UpdateDrinkLog(logID int64, userID int64, params dtos.Updat
 	defer tx.Rollback()
 
 	// Verify the log exists and belongs to the user
+	logID := params.ID
+
 	var oldDetailsID int64
 	err = tx.QueryRow("SELECT drink_details_id FROM drink_logs WHERE id = ? AND user_id = ?", logID, userID).Scan(&oldDetailsID)
 	if err != nil {

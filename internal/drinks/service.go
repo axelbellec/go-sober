@@ -38,8 +38,8 @@ func (s *Service) CreateDrinkLog(userID int64, createDrinkLogRequest dtos.Create
 	return s.repo.CreateDrinkLog(userID, createDrinkLogRequest)
 }
 
-func (s *Service) UpdateDrinkLog(userID int64, logID int64, updateDrinkLogRequest dtos.UpdateDrinkLogRequest) error {
-	return s.repo.UpdateDrinkLog(userID, logID, updateDrinkLogRequest)
+func (s *Service) UpdateDrinkLog(userID int64, updateDrinkLogRequest dtos.UpdateDrinkLogRequest) error {
+	return s.repo.UpdateDrinkLog(userID, updateDrinkLogRequest)
 }
 
 func (s *Service) DeleteDrinkLog(userID int64, logID int64) error {

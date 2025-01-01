@@ -958,6 +958,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "abv",
+                "id",
                 "name",
                 "size_unit",
                 "size_value",
@@ -966,6 +967,9 @@ const docTemplate = `{
             "properties": {
                 "abv": {
                     "type": "number"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "logged_at": {
                     "type": "string"
@@ -1135,9 +1139,6 @@ const docTemplate = `{
                 },
                 "drink_name": {
                     "type": "string"
-                },
-                "drink_template_id": {
-                    "type": "integer"
                 },
                 "id": {
                     "type": "integer"

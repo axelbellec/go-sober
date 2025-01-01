@@ -370,13 +370,6 @@ func (c *Controller) UpdateDrinkLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse log ID from path
-	logID, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
-	if err != nil {
-		http.Error(w, "Invalid log ID", http.StatusBadRequest)
-		return
-	}
-
 	// Parse request body
 	var req dtos.UpdateDrinkLogRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -391,13 +384,9 @@ func (c *Controller) UpdateDrinkLog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the drink log
-	err = c.service.UpdateDrinkLog(claims.UserID, logID, req)
+	err := c.service.UpdateDrinkLog(claims.UserID, req)
 	if err != nil {
-		if err.Error() == "drink log not found or unauthorized" {
-			http.Error(w, err.Error(), http.StatusNotFound)
-			return
-		}
-		http.Error(w, "Failed to update drink log: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to update drink log", http.StatusInternalServerError)
 		return
 	}
 

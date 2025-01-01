@@ -7,9 +7,8 @@ import type {
     UserSignupResponse,
     UserMeResponse,
     // Drink options types
-    DrinkOptionsResponse,
-    DrinkOptionResponse,
-    UpdateDrinkOptionRequest,
+    DrinkTemplatesResponse,
+    DrinkTemplateResponse,
     // Drink logs types
     DrinkLogsResponse,
     CreateDrinkLogRequest,
@@ -97,38 +96,16 @@ export class ApiService {
     }
 
     // Drink Options API
-    async getDrinkOptions(): Promise<DrinkOptionsResponse> {
-        const response = await fetch(`${this.baseUrl}/drink-options`);
-        return this.handleResponse<DrinkOptionsResponse>(response);
+    async getDrinkTemplates(): Promise<DrinkTemplatesResponse> {
+        const response = await fetch(`${this.baseUrl}/drink-templates`);
+        return this.handleResponse<DrinkTemplatesResponse>(response);
     }
 
-    async getDrinkOption(id: number): Promise<DrinkOptionResponse> {
-        const response = await fetch(`${this.baseUrl}/drink-options/${id}`);
-        return this.handleResponse<DrinkOptionResponse>(response);
+    async getDrinkTemplate(id: number): Promise<DrinkTemplateResponse> {
+        const response = await fetch(`${this.baseUrl}/drink-templates/${id}`);
+        return this.handleResponse<DrinkTemplateResponse>(response);
     }
 
-    async updateDrinkOption(
-        id: number,
-        data: UpdateDrinkOptionRequest
-    ): Promise<void> {
-        const response = await this.fetchWithAuth(`${this.baseUrl}/drink-options/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        });
-
-        return this.handleResponse<void>(response);
-    }
-
-    async deleteDrinkOption(id: number) {
-        const response = await this.fetchWithAuth(`${this.baseUrl}/drink-options/${id}`, {
-            method: 'DELETE',
-        });
-
-        return this.handleResponse(response);
-    }
 
     // Drink Logs API
     async getDrinkLogs(): Promise<DrinkLogsResponse> {
@@ -137,36 +114,37 @@ export class ApiService {
     }
 
     async createDrinkLog(
-        drinkOptionId: number,
-        loggedAt: string
+        data: CreateDrinkLogRequest
     ): Promise<CreateDrinkLogResponse> {
-        const request: CreateDrinkLogRequest = {
-            drink_option_id: drinkOptionId,
-            logged_at: loggedAt,
-        };
-
         const response = await this.fetchWithAuth(`${this.baseUrl}/drink-logs`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(request),
+            body: JSON.stringify(data),
         });
-
         return this.handleResponse<CreateDrinkLogResponse>(response);
     }
 
+
     async updateDrinkLog(
-        id: number,
         data: UpdateDrinkLogRequest
     ): Promise<void> {
-        const response = await this.fetchWithAuth(`${this.baseUrl}/drink-logs/${id}`, {
+        const response = await this.fetchWithAuth(`${this.baseUrl}/drink-logs`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(data),
         });
+        return this.handleResponse<void>(response);
+    }
+
+    async deleteDrinkLog(id: number): Promise<void> {
+        const response = await this.fetchWithAuth(`${this.baseUrl}/drink-logs/${id}`, {
+            method: 'DELETE',
+        });
+        return this.handleResponse<void>(response);
     }
 
     async parseDrinkLog(text: string): Promise<ParseDrinkLogResponse> {

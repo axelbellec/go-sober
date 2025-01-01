@@ -137,6 +137,8 @@ definitions:
     properties:
       abv:
         type: number
+      id:
+        type: integer
       logged_at:
         type: string
       name:
@@ -149,6 +151,7 @@ definitions:
         type: string
     required:
     - abv
+    - id
     - name
     - size_unit
     - size_value
@@ -258,8 +261,6 @@ definitions:
         type: number
       drink_name:
         type: string
-      drink_template_id:
-        type: integer
       id:
         type: integer
       logged_at:

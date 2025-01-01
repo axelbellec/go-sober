@@ -32,40 +32,26 @@ export interface UserMeResponse {
     user_id: number;
 }
 
-// Drink types
-export interface DrinkOption {
+
+export interface DrinkTemplate {
     id: number;
     name: string;
     type: string;
-    abv: number;
     size_value: number;
     size_unit: string;
-}
-
-export interface DrinkOptionsResponse {
-    drink_options: DrinkOption[];
-}
-
-export interface DrinkOptionResponse {
-    drink_option: DrinkOption;
-}
-
-export interface UpdateDrinkOptionRequest {
-    name: string;
-    type: string;
     abv: number;
-    size_value: number;
-    size_unit: string;
 }
 
-export interface DrinkLog {
-    id: number;
-    user_id: number;
-    drink_option_id: number;
-    drink_name: string;
-    abv: number;
-    size_value: number;
-    size_unit: string;
+
+export interface DrinkTemplatesResponse {
+    drink_templates: DrinkTemplate[];
+}
+
+export interface DrinkTemplateResponse {
+    drink_template: DrinkTemplate;
+}
+
+export interface DrinkLog extends DrinkTemplate {
     logged_at: string;
 }
 
@@ -74,21 +60,30 @@ export interface DrinkLogsResponse {
 }
 
 export interface CreateDrinkLogRequest {
-    drink_option_id: number;
-    logged_at: string;
+    name: string;
+    type: string;
+    size_value: number;
+    size_unit: string;
+    abv: number;
+    logged_at?: string;
 }
 
+export interface UpdateDrinkLogRequest extends CreateDrinkLogRequest {
+    id: number;
+}
 
 export interface CreateDrinkLogResponse {
     id: number;
 }
+
+
 
 export interface ParseDrinkLogRequest {
     text: string;
 }
 
 export interface ParseDrinkLogResponse {
-    drink_option: DrinkOption;
+    drink_template: DrinkTemplate;
     confidence: number;
 }
 
@@ -110,17 +105,18 @@ export interface BACPoint {
 }
 
 export interface BACSummary {
-    drinking_since_time: string;
-    sober_since_time: string;
     max_bac: number;
     max_bac_time: string;
-    duration_over_bac: number;
+    sober_since_time: string;
     total_drinks: number;
+    drinking_since_time: string;
+    duration_over_bac: number;
+    estimated_sober_time: string;
 }
 
 export interface BACCalculationResponse {
-    summary: BACSummary;
     timeline: BACPoint[];
+    summary: BACSummary;
 }
 
 export interface CurrentBACResponse {
@@ -130,3 +126,4 @@ export interface CurrentBACResponse {
     estimated_sober_time: string;
     last_calculated: string;
 }
+

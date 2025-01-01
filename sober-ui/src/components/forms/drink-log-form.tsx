@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { DrinkOption, DrinkLog } from "@/lib/types/api";
+import { DrinkTemplate, DrinkLog } from "@/lib/types/api";
 import {
   Select,
   SelectContent,
@@ -28,7 +28,7 @@ import { useDrinkLogs } from "@/contexts/drink-logs-context";
 import { toast } from "sonner";
 
 const drinkLogSchema = z.object({
-  drinkOptionId: z.number().min(1, "Please select a drink"),
+  drinkTemplateId: z.string().min(1, "Please select a drink"),
   abv: z.number().min(0.01, "ABV must be greater than 0").max(100),
   sizeValue: z.number().min(1, "Size must be greater than 0"),
   sizeUnit: z.enum(["cl", "ml"], {
@@ -49,13 +49,13 @@ export function DrinkLogForm({
   onCancel,
   mode = "create",
 }: DrinkLogFormProps) {
-  const [drinkOptions, setDrinkOptions] = useState<DrinkOption[]>([]);
+  const [drinkTemplates, setDrinkTemplates] = useState<DrinkTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<DrinkLogFormValues>({
     resolver: zodResolver(drinkLogSchema),
     defaultValues: {
-      drinkOptionId: initialDrinkLog?.drink_option_id ?? 0,
+      drinkTemplateId: initialDrinkLog?.id?.toString() ?? "",
       abv: initialDrinkLog ? initialDrinkLog.abv * 100 : 0,
       sizeValue: initialDrinkLog?.size_value ?? 0,
       sizeUnit: (initialDrinkLog?.size_unit as "cl" | "ml") ?? "cl",
@@ -67,23 +67,24 @@ export function DrinkLogForm({
 
   useEffect(() => {
     apiService
-      .getDrinkOptions()
+      .getDrinkTemplates()
       .then((data) => {
-        const options = Array.isArray(data.drink_options)
-          ? data.drink_options
+        const templates = Array.isArray(data.drink_templates)
+          ? data.drink_templates
           : [];
-        setDrinkOptions(options);
+        setDrinkTemplates(templates);
       })
       .catch((error) => {
-        console.error("Failed to fetch drink options:", error);
-        setDrinkOptions([]);
+        console.error("Failed to fetch drink templates:", error);
+        setDrinkTemplates([]);
       });
   }, []);
 
   const onDrinkSelect = (drinkId: string) => {
-    const drink = drinkOptions.find((d) => d.id === parseInt(drinkId));
+    const drink = drinkTemplates.find((d) => d.id === parseInt(drinkId));
     if (drink) {
-      form.setValue("drinkOptionId", drink.id, { shouldValidate: true });
+      console.log({ drink });
+      form.setValue("drinkTemplateId", drink.id.toString());
       form.setValue("abv", drink.abv * 100, { shouldValidate: true });
       form.setValue("sizeValue", drink.size_value, { shouldValidate: true });
       form.setValue("sizeUnit", drink.size_unit as "cl" | "ml", {
@@ -93,28 +94,34 @@ export function DrinkLogForm({
   };
 
   async function onSubmit(data: DrinkLogFormValues) {
-    if (!form.formState.isValid) {
-      return;
-    }
+    // if (!form.formState.isValid) return;
 
     setIsLoading(true);
     try {
+      const selectedTemplate = drinkTemplates.find(
+        (d) => d.id.toString() === data.drinkTemplateId
+      );
+
+      if (!selectedTemplate) {
+        throw new Error("No drink template selected");
+      }
+
+      const drinkData = {
+        id: parseInt(data.drinkTemplateId),
+        name: selectedTemplate.name,
+        type: selectedTemplate.type,
+        size_value: data.sizeValue,
+        size_unit: data.sizeUnit,
+        abv: data.abv / 100,
+      };
+
       if (mode === "edit" && initialDrinkLog) {
-        // Add update API call here
-        await apiService.updateDrinkLog(initialDrinkLog.id, {
-          drink_option_id: data.drinkOptionId,
-          logged_at: initialDrinkLog.logged_at,
+        await apiService.updateDrinkLog({
+          ...drinkData,
         });
         toast.success("Drink updated successfully");
       } else {
-        const newLog = {
-          drink_option_id: data.drinkOptionId,
-          logged_at: new Date().toISOString(),
-        };
-        await apiService.createDrinkLog(
-          newLog.drink_option_id,
-          newLog.logged_at
-        );
+        await apiService.createDrinkLog(drinkData);
         toast.success("Drink logged successfully");
       }
 
@@ -134,7 +141,7 @@ export function DrinkLogForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="drinkOptionId"
+          name="drinkTemplateId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Select Drink</FormLabel>
@@ -148,7 +155,7 @@ export function DrinkLogForm({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {drinkOptions.map((drink) => (
+                  {drinkTemplates.map((drink) => (
                     <SelectItem key={drink.id} value={drink.id.toString()}>
                       {drink.name}
                     </SelectItem>

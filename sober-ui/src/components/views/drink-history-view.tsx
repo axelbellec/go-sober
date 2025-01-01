@@ -91,7 +91,7 @@ function DrinkLogItem({ drink }: { drink: DrinkLog }) {
     >
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="font-medium">{drink.drink_name}</h3>
+          <h3 className="font-medium">{drink.name}</h3>
           <p className="text-sm text-muted-foreground">
             {drink.size_value}
             {drink.size_unit}, {drink.abv * 100}% ABV
