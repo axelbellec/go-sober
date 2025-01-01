@@ -40,3 +40,7 @@ type ParseDrinkLogResponse struct {
 	DrinkTemplate models.DrinkTemplate `json:"drink_template"`
 	Confidence    float64              `json:"confidence"`
 }
+
+type UpdateDrinkLogResponse struct {
+	ID int64 `json:"id"`
+}

@@ -157,6 +157,11 @@ definitions:
     - size_value
     - type
     type: object
+  dtos.UpdateDrinkLogResponse:
+    properties:
+      id:
+        type: integer
+    type: object
   dtos.UpdateDrinkTemplateRequest:
     properties:
       abv:
@@ -259,11 +264,11 @@ definitions:
     properties:
       abv:
         type: number
-      drink_name:
-        type: string
       id:
         type: integer
       logged_at:
+        type: string
+      name:
         type: string
       size_unit:
         type: string
@@ -529,6 +534,53 @@ paths:
       summary: Create a drink log
       tags:
       - drinks
+    put:
+      consumes:
+      - application/json
+      description: Update a specific drink log for the current user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Drink log ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update drink log request
+        in: body
+        name: drinkLog
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.UpdateDrinkLogRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.UpdateDrinkLogResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Update a drink log
+      tags:
+      - drinks
   /drink-logs/{id}:
     delete:
       consumes:
@@ -567,51 +619,6 @@ paths:
           schema:
             $ref: '#/definitions/Error'
       summary: Delete a drink log
-      tags:
-      - drinks
-    put:
-      consumes:
-      - application/json
-      description: Update a specific drink log for the current user
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Drink log ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Update drink log request
-        in: body
-        name: drinkLog
-        required: true
-        schema:
-          $ref: '#/definitions/dtos.UpdateDrinkLogRequest'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/Error'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/Error'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/Error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/Error'
-      summary: Update a drink log
       tags:
       - drinks
   /drink-logs/parse:

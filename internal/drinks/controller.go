@@ -356,12 +356,12 @@ func (c *Controller) ParseDrinkLog(w http.ResponseWriter, r *http.Request) {
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Drink log ID"
 // @Param drinkLog body dtos.UpdateDrinkLogRequest true "Update drink log request"
-// @Success 204
+// @Success 200 {object} dtos.UpdateDrinkLogResponse
 // @Failure 400 {object} dtos.ClientError
 // @Failure 401 {object} dtos.ClientError
 // @Failure 404 {object} dtos.ClientError
 // @Failure 500 {object} dtos.ClientError
-// @Router /drink-logs/{id} [put]
+// @Router /drink-logs [put]
 func (c *Controller) UpdateDrinkLog(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	claims := r.Context().Value(constants.UserContextKey).(*models.Claims)
@@ -390,7 +390,13 @@ func (c *Controller) UpdateDrinkLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	response := dtos.UpdateDrinkLogResponse{
+		ID: req.ID,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
 }
 
 // @Summary Delete a drink log

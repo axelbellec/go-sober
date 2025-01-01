@@ -30,7 +30,7 @@ export class ApiService {
     }
 
     // Helper function to handle API responses
-    private async handleResponse<T>(response: Response): Promise<T> {
+    private async handleJsonResponse<T>(response: Response): Promise<T> {
         const data = await response.json();
 
         if (!response.ok) {
@@ -74,7 +74,7 @@ export class ApiService {
             body: JSON.stringify(request),
         });
 
-        return this.handleResponse<UserLoginResponse>(response);
+        return this.handleJsonResponse<UserLoginResponse>(response);
     }
 
     async signup(email: string, password: string): Promise<UserSignupResponse> {
@@ -87,30 +87,30 @@ export class ApiService {
             body: JSON.stringify(request),
         });
 
-        return this.handleResponse<UserSignupResponse>(response);
+        return this.handleJsonResponse<UserSignupResponse>(response);
     }
 
     async getCurrentUser(): Promise<UserMeResponse> {
         const response = await this.fetchWithAuth(`${this.baseUrl}/auth/me`);
-        return this.handleResponse<UserMeResponse>(response);
+        return this.handleJsonResponse<UserMeResponse>(response);
     }
 
     // Drink Options API
     async getDrinkTemplates(): Promise<DrinkTemplatesResponse> {
         const response = await fetch(`${this.baseUrl}/drink-templates`);
-        return this.handleResponse<DrinkTemplatesResponse>(response);
+        return this.handleJsonResponse<DrinkTemplatesResponse>(response);
     }
 
     async getDrinkTemplate(id: number): Promise<DrinkTemplateResponse> {
         const response = await fetch(`${this.baseUrl}/drink-templates/${id}`);
-        return this.handleResponse<DrinkTemplateResponse>(response);
+        return this.handleJsonResponse<DrinkTemplateResponse>(response);
     }
 
 
     // Drink Logs API
     async getDrinkLogs(): Promise<DrinkLogsResponse> {
         const response = await this.fetchWithAuth(`${this.baseUrl}/drink-logs`);
-        return this.handleResponse<DrinkLogsResponse>(response);
+        return this.handleJsonResponse<DrinkLogsResponse>(response);
     }
 
     async createDrinkLog(
@@ -123,7 +123,7 @@ export class ApiService {
             },
             body: JSON.stringify(data),
         });
-        return this.handleResponse<CreateDrinkLogResponse>(response);
+        return this.handleJsonResponse<CreateDrinkLogResponse>(response);
     }
 
 
@@ -137,14 +137,14 @@ export class ApiService {
             },
             body: JSON.stringify(data),
         });
-        return this.handleResponse<void>(response);
+        return this.handleJsonResponse<void>(response);
     }
 
     async deleteDrinkLog(id: number): Promise<void> {
         const response = await this.fetchWithAuth(`${this.baseUrl}/drink-logs/${id}`, {
             method: 'DELETE',
         });
-        return this.handleResponse<void>(response);
+        return this.handleJsonResponse<void>(response);
     }
 
     async parseDrinkLog(text: string): Promise<ParseDrinkLogResponse> {
@@ -158,7 +158,7 @@ export class ApiService {
             body: JSON.stringify(request),
         });
 
-        return this.handleResponse<ParseDrinkLogResponse>(response);
+        return this.handleJsonResponse<ParseDrinkLogResponse>(response);
     }
 
     // Analytics API
@@ -172,7 +172,7 @@ export class ApiService {
             `${this.baseUrl}/analytics/current/bac?${params.toString()}`
         );
 
-        return this.handleResponse<CurrentBACResponse>(response);
+        return this.handleJsonResponse<CurrentBACResponse>(response);
     }
 
     async getBACTimeline(
@@ -194,7 +194,7 @@ export class ApiService {
             `${this.baseUrl}/analytics/timeline/bac?${params.toString()}`
         );
 
-        return this.handleResponse<BACCalculationResponse>(response);
+        return this.handleJsonResponse<BACCalculationResponse>(response);
     }
 }
 

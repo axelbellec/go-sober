@@ -199,8 +199,8 @@ func TestGetDrinkLogs(t *testing.T) {
 		logs, err := repo.GetDrinkLogs(userID)
 		assert.NoError(t, err)
 		assert.Len(t, logs, 2)
-		assert.Equal(t, "Beer", logs[0].DrinkName)
-		assert.Equal(t, "Wine", logs[1].DrinkName)
+		assert.Equal(t, "Beer", logs[0].Name)
+		assert.Equal(t, "Wine", logs[1].Name)
 	})
 
 	t.Run("get logs between dates", func(t *testing.T) {
@@ -210,7 +210,7 @@ func TestGetDrinkLogs(t *testing.T) {
 		logs, err := repo.GetDrinkLogsBetweenDates(userID, startTime, endTime)
 		assert.NoError(t, err)
 		assert.Len(t, logs, 1)
-		assert.Equal(t, "Beer", logs[0].DrinkName)
+		assert.Equal(t, "Beer", logs[0].Name)
 	})
 
 	t.Run("get logs for different user", func(t *testing.T) {

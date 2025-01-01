@@ -83,6 +83,8 @@ func main() {
 	// Drink logging
 	mux.HandleFunc("GET /api/v1/drink-logs", authMiddleware.RequireAuth(drinkController.GetDrinkLogs))
 	mux.HandleFunc("POST /api/v1/drink-logs", authMiddleware.RequireAuth(drinkController.CreateDrinkLog))
+	mux.HandleFunc("PUT /api/v1/drink-logs", authMiddleware.RequireAuth(drinkController.UpdateDrinkLog))
+	mux.HandleFunc("DELETE /api/v1/drink-logs/{id}", authMiddleware.RequireAuth(drinkController.DeleteDrinkLog))
 	mux.HandleFunc("POST /api/v1/drink-logs/parse", authMiddleware.RequireAuth(drinkController.ParseDrinkLog))
 
 	// Swagger documentation

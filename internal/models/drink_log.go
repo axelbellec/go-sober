@@ -9,7 +9,7 @@ type DrinkLog struct {
 	ID        int       `json:"id"`
 	UserID    int       `json:"user_id"`
 	LoggedAt  time.Time `json:"logged_at"`
-	DrinkName string    `json:"drink_name"`
+	Name      string    `json:"name"`
 	Type      string    `json:"type"`
 	ABV       float64   `json:"abv"`
 	SizeValue int       `json:"size_value"`

@@ -319,6 +319,76 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "description": "Update a specific drink log for the current user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "drinks"
+                ],
+                "summary": "Update a drink log",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Drink log ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update drink log request",
+                        "name": "drinkLog",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dtos.UpdateDrinkLogRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.UpdateDrinkLogResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create a new drink log for the current user",
                 "consumes": [
@@ -425,73 +495,6 @@ const docTemplate = `{
             }
         },
         "/drink-logs/{id}": {
-            "put": {
-                "description": "Update a specific drink log for the current user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "drinks"
-                ],
-                "summary": "Update a drink log",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Drink log ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Update drink log request",
-                        "name": "drinkLog",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dtos.UpdateDrinkLogRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    }
-                }
-            },
             "delete": {
                 "description": "Delete a specific drink log for the current user",
                 "consumes": [
@@ -988,6 +991,14 @@ const docTemplate = `{
                 }
             }
         },
+        "dtos.UpdateDrinkLogResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
         "dtos.UpdateDrinkTemplateRequest": {
             "type": "object",
             "required": [
@@ -1137,13 +1148,13 @@ const docTemplate = `{
                 "abv": {
                     "type": "number"
                 },
-                "drink_name": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
                 "logged_at": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 },
                 "size_unit": {

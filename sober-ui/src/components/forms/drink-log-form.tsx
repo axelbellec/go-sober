@@ -27,7 +27,7 @@ import { apiService } from "@/lib/api";
 import { useDrinkLogs } from "@/contexts/drink-logs-context";
 import { toast } from "sonner";
 
-const drinkLogSchema = z.object({
+const createDrinkLogSchema = z.object({
   drinkTemplateId: z.string().min(1, "Please select a drink"),
   abv: z.number().min(0.01, "ABV must be greater than 0").max(100),
   sizeValue: z.number().min(1, "Size must be greater than 0"),
@@ -36,7 +36,17 @@ const drinkLogSchema = z.object({
   }),
 });
 
-type DrinkLogFormValues = z.infer<typeof drinkLogSchema>;
+const editDrinkLogSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  abv: z.number().min(0.01, "ABV must be greater than 0").max(100),
+  sizeValue: z.number().min(1, "Size must be greater than 0"),
+  sizeUnit: z.enum(["cl", "ml"], {
+    errorMap: () => ({ message: "Please select a valid unit" }),
+  }),
+});
+
+type DrinkLogFormValues = z.infer<typeof createDrinkLogSchema> &
+  z.infer<typeof editDrinkLogSchema>;
 
 interface DrinkLogFormProps {
   initialDrinkLog?: DrinkLog;
@@ -53,9 +63,13 @@ export function DrinkLogForm({
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<DrinkLogFormValues>({
-    resolver: zodResolver(drinkLogSchema),
+    resolver: zodResolver(
+      mode === "create" ? createDrinkLogSchema : editDrinkLogSchema
+    ),
     defaultValues: {
-      drinkTemplateId: initialDrinkLog?.id?.toString() ?? "",
+      drinkTemplateId:
+        mode === "create" ? initialDrinkLog?.id?.toString() : undefined,
+      name: mode === "edit" ? initialDrinkLog?.name ?? "" : undefined,
       abv: initialDrinkLog ? initialDrinkLog.abv * 100 : 0,
       sizeValue: initialDrinkLog?.size_value ?? 0,
       sizeUnit: (initialDrinkLog?.size_unit as "cl" | "ml") ?? "cl",
@@ -94,31 +108,43 @@ export function DrinkLogForm({
   };
 
   async function onSubmit(data: DrinkLogFormValues) {
-    // if (!form.formState.isValid) return;
+    if (!form.formState.isValid) return;
 
     setIsLoading(true);
     try {
-      const selectedTemplate = drinkTemplates.find(
-        (d) => d.id.toString() === data.drinkTemplateId
-      );
-
-      if (!selectedTemplate) {
-        throw new Error("No drink template selected");
-      }
-
-      const drinkData = {
-        id: parseInt(data.drinkTemplateId),
-        name: selectedTemplate.name,
-        type: selectedTemplate.type,
-        size_value: data.sizeValue,
-        size_unit: data.sizeUnit,
-        abv: data.abv / 100,
-      };
+      const drinkData = (() => {
+        switch (mode) {
+          case "create": {
+            const selectedTemplate = drinkTemplates.find(
+              (d) => d.id.toString() === data.drinkTemplateId
+            );
+            if (!selectedTemplate) {
+              throw new Error("No drink template selected");
+            }
+            return {
+              id: selectedTemplate.id,
+              name: selectedTemplate.name,
+              type: selectedTemplate.type,
+              size_value: data.sizeValue,
+              size_unit: data.sizeUnit,
+              abv: data.abv / 100,
+            };
+          }
+          case "edit": {
+            return {
+              id: initialDrinkLog.id,
+              name: data.name,
+              type: initialDrinkLog?.type || "custom",
+              size_value: data.sizeValue,
+              size_unit: data.sizeUnit,
+              abv: data.abv / 100,
+            };
+          }
+        }
+      })();
 
       if (mode === "edit" && initialDrinkLog) {
-        await apiService.updateDrinkLog({
-          ...drinkData,
-        });
+        await apiService.updateDrinkLog(drinkData);
         toast.success("Drink updated successfully");
       } else {
         await apiService.createDrinkLog(drinkData);
@@ -139,33 +165,49 @@ export function DrinkLogForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="drinkTemplateId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Select Drink</FormLabel>
-              <Select
-                onValueChange={onDrinkSelect}
-                value={field.value?.toString() || ""}
-              >
+        {mode === "create" ? (
+          <FormField
+            control={form.control}
+            name="drinkTemplateId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Select Drink</FormLabel>
+                <Select
+                  onValueChange={onDrinkSelect}
+                  value={field.value?.toString() || ""}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a drink" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {drinkTemplates.map((drink) => (
+                      <SelectItem key={drink.id} value={drink.id.toString()}>
+                        {drink.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ) : (
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Drink Name</FormLabel>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a drink" />
-                  </SelectTrigger>
+                  <Input {...field} />
                 </FormControl>
-                <SelectContent>
-                  {drinkTemplates.map((drink) => (
-                    <SelectItem key={drink.id} value={drink.id.toString()}>
-                      {drink.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}
