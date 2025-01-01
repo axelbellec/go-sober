@@ -13,6 +13,7 @@ import type {
     // Drink logs types
     DrinkLogsResponse,
     CreateDrinkLogRequest,
+    UpdateDrinkLogRequest,
     CreateDrinkLogResponse,
     ParseDrinkLogRequest,
     ParseDrinkLogResponse,
@@ -153,6 +154,19 @@ export class ApiService {
         });
 
         return this.handleResponse<CreateDrinkLogResponse>(response);
+    }
+
+    async updateDrinkLog(
+        id: number,
+        data: UpdateDrinkLogRequest
+    ): Promise<void> {
+        const response = await this.fetchWithAuth(`${this.baseUrl}/drink-logs/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
     }
 
     async parseDrinkLog(text: string): Promise<ParseDrinkLogResponse> {

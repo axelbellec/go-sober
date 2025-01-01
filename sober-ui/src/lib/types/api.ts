@@ -78,6 +78,7 @@ export interface CreateDrinkLogRequest {
     logged_at: string;
 }
 
+
 export interface CreateDrinkLogResponse {
     id: number;
 }

@@ -4,6 +4,9 @@ import { useEffect } from "react";
 import { useDrinkLogs } from "@/contexts/drink-logs-context";
 import { format, formatDistanceToNow } from "date-fns";
 import { DrinkLog } from "@/lib/types/api";
+import { Button } from "@/components/ui/button";
+import { DrinkLogForm } from "@/components/forms/drink-log-form";
+import { useState } from "react";
 
 export function DrinkHistoryView() {
   const { drinkLogs, refreshDrinkLogs } = useDrinkLogs();
@@ -59,14 +62,33 @@ export function DrinkHistoryView() {
 }
 
 function DrinkLogItem({ drink }: { drink: DrinkLog }) {
+  const [isEditing, setIsEditing] = useState(false);
+
   // Safely parse the date and handle invalid dates
   const loggedDate = new Date(drink.logged_at);
   const timeAgo = !isNaN(loggedDate.getTime())
     ? formatDistanceToNow(loggedDate, { addSuffix: true })
     : "Invalid date";
 
+  if (isEditing) {
+    return (
+      <div className="rounded-lg border p-4">
+        <DrinkLogForm
+          initialDrinkLog={drink}
+          onCancel={() => setIsEditing(false)}
+          mode="edit"
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className="rounded-lg border p-4 hover:bg-muted/50">
+    <div
+      className="rounded-lg border p-4 hover:bg-muted/50"
+      onClick={() => setIsEditing(true)}
+      role="button"
+      tabIndex={0}
+    >
       <div className="flex justify-between items-start">
         <div>
           <h3 className="font-medium">{drink.drink_name}</h3>

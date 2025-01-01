@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { DrinkOption } from "@/lib/types/api";
+import { DrinkOption, DrinkLog } from "@/lib/types/api";
 import {
   Select,
   SelectContent,
@@ -38,17 +38,27 @@ const drinkLogSchema = z.object({
 
 type DrinkLogFormValues = z.infer<typeof drinkLogSchema>;
 
-export function DrinkLogForm() {
+interface DrinkLogFormProps {
+  initialDrinkLog?: DrinkLog;
+  onCancel?: () => void;
+  mode?: "create" | "edit";
+}
+
+export function DrinkLogForm({
+  initialDrinkLog,
+  onCancel,
+  mode = "create",
+}: DrinkLogFormProps) {
   const [drinkOptions, setDrinkOptions] = useState<DrinkOption[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<DrinkLogFormValues>({
     resolver: zodResolver(drinkLogSchema),
     defaultValues: {
-      drinkOptionId: 0,
-      abv: 0,
-      sizeValue: 0,
-      sizeUnit: "cl",
+      drinkOptionId: initialDrinkLog?.drink_option_id ?? 0,
+      abv: initialDrinkLog ? initialDrinkLog.abv * 100 : 0,
+      sizeValue: initialDrinkLog?.size_value ?? 0,
+      sizeUnit: (initialDrinkLog?.size_unit as "cl" | "ml") ?? "cl",
     },
     mode: "onChange",
   });
@@ -76,7 +86,9 @@ export function DrinkLogForm() {
       form.setValue("drinkOptionId", drink.id, { shouldValidate: true });
       form.setValue("abv", drink.abv * 100, { shouldValidate: true });
       form.setValue("sizeValue", drink.size_value, { shouldValidate: true });
-      form.setValue("sizeUnit", drink.size_unit, { shouldValidate: true });
+      form.setValue("sizeUnit", drink.size_unit as "cl" | "ml", {
+        shouldValidate: true,
+      });
     }
   };
 
@@ -87,19 +99,31 @@ export function DrinkLogForm() {
 
     setIsLoading(true);
     try {
-      const newLog = {
-        drink_option_id: data.drinkOptionId,
-        logged_at: new Date().toISOString(),
-      };
-      await apiService.createDrinkLog(newLog.drink_option_id, newLog.logged_at);
+      if (mode === "edit" && initialDrinkLog) {
+        // Add update API call here
+        await apiService.updateDrinkLog(initialDrinkLog.id, {
+          drink_option_id: data.drinkOptionId,
+          logged_at: initialDrinkLog.logged_at,
+        });
+        toast.success("Drink updated successfully");
+      } else {
+        const newLog = {
+          drink_option_id: data.drinkOptionId,
+          logged_at: new Date().toISOString(),
+        };
+        await apiService.createDrinkLog(
+          newLog.drink_option_id,
+          newLog.logged_at
+        );
+        toast.success("Drink logged successfully");
+      }
 
-      // addDrinkLog(newLog);
       form.reset();
-      toast.success("Drink logged successfully");
       refreshDrinkLogs();
+      if (onCancel) onCancel();
     } catch (error) {
-      console.error("Failed to log drink:", error);
-      toast.error("Failed to log drink");
+      console.error(`Failed to ${mode} drink:`, error);
+      toast.error(`Failed to ${mode} drink`);
     } finally {
       setIsLoading(false);
     }
@@ -209,13 +233,22 @@ export function DrinkLogForm() {
           />
         </div>
 
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={isLoading || !form.formState.isValid}
-        >
-          {isLoading ? "Logging..." : "Log Drink"}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            type="submit"
+            className="flex-1"
+            disabled={isLoading || !form.formState.isValid}
+          >
+            {isLoading
+              ? `${mode === "edit" ? "Updating..." : "Logging..."}`
+              : `${mode === "edit" ? "Update" : "Log"} Drink`}
+          </Button>
+          {mode === "edit" && onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+          )}
+        </div>
       </form>
     </Form>
   );
