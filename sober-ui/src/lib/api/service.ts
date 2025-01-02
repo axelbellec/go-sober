@@ -108,8 +108,28 @@ export class ApiService {
 
 
     // Drink Logs API
-    async getDrinkLogs(): Promise<DrinkLogsResponse> {
-        const response = await this.fetchWithAuth(`${this.baseUrl}/drink-logs`);
+    async getDrinkLogs(params?: {
+        page?: number;
+        page_size?: number;
+        start_date?: string;
+        end_date?: string;
+        drink_type?: string;
+        min_abv?: number;
+        max_abv?: number;
+        sort_by?: 'logged_at' | 'abv' | 'size_value' | 'name' | 'type';
+        sort_order?: 'asc' | 'desc';
+    }): Promise<DrinkLogsResponse> {
+        const queryParams = new URLSearchParams();
+        if (params) {
+            Object.entries(params).forEach(([key, value]) => {
+                if (value !== undefined) {
+                    queryParams.append(key, value.toString());
+                }
+            });
+        }
+
+        const url = `${this.baseUrl}/drink-logs${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+        const response = await this.fetchWithAuth(url);
         return this.handleJsonResponse<DrinkLogsResponse>(response);
     }
 

@@ -1,5 +1,4 @@
--- Rename file to 000002_seed_drink_templates.up.sql
--- Update table name from drink_options to drink_templates
+-- Seed drink_templates table
 INSERT INTO drink_templates (name, type, size_value, size_unit, abv) VALUES
 
 -- Beers

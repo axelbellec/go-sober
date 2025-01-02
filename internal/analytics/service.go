@@ -6,11 +6,13 @@ import (
 	"sort"
 	"time"
 
+	"go-sober/internal/constants"
+	"go-sober/internal/dtos"
 	"go-sober/internal/models"
 )
 
 type DrinkLogRepository interface {
-	GetDrinkLogsBetweenDates(userID int64, startTime, endTime time.Time) ([]models.DrinkLog, error)
+	GetDrinkLogs(userID int64, page, pageSize int, filters dtos.DrinkLogFilters) ([]models.DrinkLog, int, error)
 }
 
 type Service struct {
@@ -45,7 +47,11 @@ func NewService(drinkLogRepo DrinkLogRepository) *Service {
 // Update the CalculateBAC method signature and implementation
 func (s *Service) CalculateBAC(userID int64, params models.BACCalculationParams) (models.BACCalculation, error) {
 
-	drinks, err := s.drinkLogRepo.GetDrinkLogsBetweenDates(userID, params.StartTime, params.EndTime)
+	filters := dtos.DrinkLogFilters{
+		StartDate: &params.StartTime,
+		EndDate:   &params.EndTime,
+	}
+	drinks, _, err := s.drinkLogRepo.GetDrinkLogs(userID, 1, constants.MaxPageSize, filters)
 	if err != nil {
 		return models.BACCalculation{}, err
 	}

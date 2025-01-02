@@ -195,44 +195,109 @@ func (r *Repository) CreateDrinkLog(userID int64, params dtos.CreateDrinkLogRequ
 	return drinkLogID, nil
 }
 
-func (r *Repository) GetDrinkLogs(userID int64) ([]models.DrinkLog, error) {
-	return r.GetDrinkLogsBetweenDates(userID, MinTime, MaxTime)
-}
+func (r *Repository) GetDrinkLogs(userID int64, page, pageSize int, filters dtos.DrinkLogFilters) ([]models.DrinkLog, int, error) {
+	// Build the base query with filters
+	baseQuery := `
+        SELECT 
+            dl.id, dl.user_id, dl.logged_at, dl.updated_at,
+            dld.name, dld.type, dld.size_value,
+            dld.size_unit, dld.abv
+        FROM drink_logs dl
+        JOIN drink_log_details dld ON dl.drink_details_id = dld.id
+        WHERE dl.user_id = ?
+    `
+	countQuery := `
+        SELECT COUNT(*)
+        FROM drink_logs dl
+        JOIN drink_log_details dld ON dl.drink_details_id = dld.id
+        WHERE dl.user_id = ?
+    `
 
-func (r *Repository) GetDrinkLogsBetweenDates(userID int64, startTime, endTime time.Time) ([]models.DrinkLog, error) {
-	query := `
-		SELECT 
-			dl.id as id, 
-			dl.user_id as user_id, 
-			dl.logged_at as logged_at,
-			dld.name as name, 
-			dld.type as type,
-			dld.size_value as size_value,
-			dld.size_unit as size_unit,
-			dld.abv as abv
-		FROM drink_logs dl
-		JOIN drink_log_details dld ON dl.drink_details_id = dld.id
-		WHERE dl.user_id = ? 
-		AND dl.logged_at >= ? 
-		AND dl.logged_at < ?
-		ORDER BY dl.logged_at ASC`
+	args := []interface{}{userID}
+	filterClauses := []string{}
 
-	utcStartTime := startTime.UTC().Format(time.DateTime)
-	utcEndTime := endTime.UTC().Format(time.DateTime)
+	// Add date range filters
+	if filters.StartDate != nil {
+		filterClauses = append(filterClauses, "dl.logged_at >= ?")
+		args = append(args, filters.StartDate.UTC())
+	}
+	if filters.EndDate != nil {
+		filterClauses = append(filterClauses, "dl.logged_at <= ?")
+		args = append(args, filters.EndDate.UTC())
+	}
 
-	rows, err := r.db.Query(query, userID, utcStartTime, utcEndTime)
+	// Add drink type filter
+	if filters.DrinkType != "" {
+		filterClauses = append(filterClauses, "dld.type = ?")
+		args = append(args, filters.DrinkType)
+	}
+
+	// Add ABV range filters
+	if filters.MinABV != nil {
+		filterClauses = append(filterClauses, "dld.abv >= ?")
+		args = append(args, *filters.MinABV)
+	}
+	if filters.MaxABV != nil {
+		filterClauses = append(filterClauses, "dld.abv <= ?")
+		args = append(args, *filters.MaxABV)
+	}
+
+	// Add filter clauses to queries
+	for _, clause := range filterClauses {
+		baseQuery += " AND " + clause
+		countQuery += " AND " + clause
+	}
+
+	// Add sorting
+	if filters.SortBy != "" {
+		sortOrder := "ASC"
+		if filters.SortOrder == "desc" {
+			sortOrder = "DESC"
+		}
+
+		// Validate sort column to prevent SQL injection
+		validSortColumns := map[string]string{
+			"logged_at":  "dl.logged_at",
+			"updated_at": "dl.updated_at",
+			"abv":        "dld.abv",
+			"size_value": "dld.size_value",
+			"name":       "dld.name",
+			"type":       "dld.type",
+		}
+
+		if sortCol, valid := validSortColumns[filters.SortBy]; valid {
+			baseQuery += fmt.Sprintf(" ORDER BY %s %s", sortCol, sortOrder)
+		}
+	} else {
+		baseQuery += " ORDER BY dl.logged_at DESC"
+	}
+
+	// Add pagination
+	baseQuery += " LIMIT ? OFFSET ?"
+	args = append(args, pageSize, (page-1)*pageSize)
+
+	// Get total count first
+	var total int
+	err := r.db.QueryRow(countQuery, args...).Scan(&total)
 	if err != nil {
-		return nil, fmt.Errorf("error querying drink logs: %w", err)
+		return nil, 0, fmt.Errorf("error counting drink logs: %w", err)
+	}
+
+	rows, err := r.db.Query(baseQuery, args...)
+	if err != nil {
+		return nil, 0, fmt.Errorf("error querying drink logs: %w", err)
 	}
 	defer rows.Close()
 
 	var drinkLogs []models.DrinkLog
 	for rows.Next() {
 		var log models.DrinkLog
+		var updatedAt sql.NullTime
 		err := rows.Scan(
 			&log.ID,
 			&log.UserID,
 			&log.LoggedAt,
+			&updatedAt,
 			&log.Name,
 			&log.Type,
 			&log.SizeValue,
@@ -240,16 +305,26 @@ func (r *Repository) GetDrinkLogsBetweenDates(userID int64, startTime, endTime t
 			&log.ABV,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("error scanning drink log: %w", err)
+			return nil, 0, fmt.Errorf("error scanning drink log: %w", err)
 		}
+
+		fmt.Printf("updatedAt: %v\n", updatedAt)
+		fmt.Printf("updatedAt.Valid: %v\n", updatedAt.Valid)
+		fmt.Printf("updatedAt.Time: %v\n", updatedAt.Time)
+
+		// if updatedAt is not null, set log.UpdatedAt to updatedAt.Time
+		if updatedAt.Valid {
+			log.UpdatedAt = &updatedAt.Time
+		}
+
 		drinkLogs = append(drinkLogs, log)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("error iterating drink logs: %w", err)
+		return nil, 0, fmt.Errorf("error iterating drink logs: %w", err)
 	}
 
-	return drinkLogs, nil
+	return drinkLogs, total, nil
 }
 
 func (r *Repository) UpdateDrinkLog(userID int64, params dtos.UpdateDrinkLogRequest) error {
@@ -297,13 +372,13 @@ func (r *Repository) UpdateDrinkLog(userID int64, params dtos.UpdateDrinkLogRequ
 	}
 
 	// Update the drink log with new details and timestamp
-	loggedAt := time.Now().UTC()
-	if params.LoggedAt != nil {
-		loggedAt = params.LoggedAt.UTC()
+	updatedAt := time.Now().UTC()
+	if params.UpdatedAt != nil {
+		updatedAt = params.UpdatedAt.UTC()
 	}
 
-	_, err = tx.Exec("UPDATE drink_logs SET drink_details_id = ?, logged_at = ? WHERE id = ? AND user_id = ?",
-		newDetailsID, loggedAt, logID, userID)
+	_, err = tx.Exec("UPDATE drink_logs SET drink_details_id = ?, updated_at = ? WHERE id = ? AND user_id = ?",
+		newDetailsID, updatedAt, logID, userID)
 	if err != nil {
 		return fmt.Errorf("failed to update drink log: %w", err)
 	}

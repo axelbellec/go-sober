@@ -102,13 +102,6 @@ definitions:
       last_calculated:
         type: string
     type: object
-  dtos.DrinkLogsResponse:
-    properties:
-      drink_logs:
-        items:
-          $ref: '#/definitions/models.DrinkLog'
-        type: array
-    type: object
   dtos.DrinkTemplateResponse:
     properties:
       drink_template:
@@ -120,6 +113,19 @@ definitions:
         items:
           $ref: '#/definitions/models.DrinkTemplate'
         type: array
+    type: object
+  dtos.GetDrinkLogsResponse:
+    properties:
+      drink_logs:
+        items:
+          $ref: '#/definitions/models.DrinkLog'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
     type: object
   dtos.ParseDrinkLogRequest:
     properties:
@@ -139,8 +145,6 @@ definitions:
         type: number
       id:
         type: integer
-      logged_at:
-        type: string
       name:
         type: string
       size_unit:
@@ -148,6 +152,8 @@ definitions:
       size_value:
         type: integer
       type:
+        type: string
+      updated_at:
         type: string
     required:
     - abv
@@ -275,6 +281,8 @@ definitions:
       size_value:
         type: integer
       type:
+        type: string
+      updated_at:
         type: string
       user_id:
         type: integer
@@ -479,12 +487,51 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieve all drink logs for the current user
+      description: Retrieve all drink logs for the current user with optional filters
       parameters:
       - description: Bearer token
         in: header
         name: Authorization
         required: true
+        type: string
+      - description: 'Page number (default: 1)'
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: 'Page size (default: 20, max: 100)'
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - description: Start date (RFC3339 format)
+        in: query
+        name: start_date
+        type: string
+      - description: End date (RFC3339 format)
+        in: query
+        name: end_date
+        type: string
+      - description: Filter by drink type
+        in: query
+        name: drink_type
+        type: string
+      - description: Minimum ABV
+        in: query
+        name: min_abv
+        type: number
+      - description: Maximum ABV
+        in: query
+        name: max_abv
+        type: number
+      - description: Sort by field (logged_at, abv, size_value, name, type)
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order (asc or desc)
+        in: query
+        name: sort_order
         type: string
       produces:
       - application/json
@@ -492,7 +539,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dtos.DrinkLogsResponse'
+            $ref: '#/definitions/dtos.GetDrinkLogsResponse'
         "500":
           description: Internal Server Error
           schema:

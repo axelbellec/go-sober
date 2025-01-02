@@ -46,6 +46,6 @@ func (s *Service) DeleteDrinkLog(userID int64, logID int64) error {
 	return s.repo.DeleteDrinkLog(logID, userID)
 }
 
-func (s *Service) GetDrinkLogs(userID int64) ([]models.DrinkLog, error) {
-	return s.repo.GetDrinkLogs(userID)
+func (s *Service) GetDrinkLogs(userID int64, page, pageSize int, filters dtos.DrinkLogFilters) ([]models.DrinkLog, int, error) {
+	return s.repo.GetDrinkLogs(userID, page, pageSize, filters)
 }

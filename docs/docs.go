@@ -284,7 +284,7 @@ const docTemplate = `{
         },
         "/drink-logs": {
             "get": {
-                "description": "Retrieve all drink logs for the current user",
+                "description": "Retrieve all drink logs for the current user with optional filters",
                 "consumes": [
                     "application/json"
                 ],
@@ -302,13 +302,70 @@ const docTemplate = `{
                         "name": "Authorization",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Page number (default: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Page size (default: 20, max: 100)",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (RFC3339 format)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (RFC3339 format)",
+                        "name": "end_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by drink type",
+                        "name": "drink_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Minimum ABV",
+                        "name": "min_abv",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Maximum ABV",
+                        "name": "max_abv",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort by field (logged_at, abv, size_value, name, type)",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order (asc or desc)",
+                        "name": "sort_order",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dtos.DrinkLogsResponse"
+                            "$ref": "#/definitions/dtos.GetDrinkLogsResponse"
                         }
                     },
                     "500": {
@@ -908,17 +965,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dtos.DrinkLogsResponse": {
-            "type": "object",
-            "properties": {
-                "drink_logs": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.DrinkLog"
-                    }
-                }
-            }
-        },
         "dtos.DrinkTemplateResponse": {
             "type": "object",
             "properties": {
@@ -935,6 +981,26 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.DrinkTemplate"
                     }
+                }
+            }
+        },
+        "dtos.GetDrinkLogsResponse": {
+            "type": "object",
+            "properties": {
+                "drink_logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DrinkLog"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -974,9 +1040,6 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "logged_at": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },
@@ -987,6 +1050,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "type": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -1164,6 +1230,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "type": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 },
                 "user_id": {

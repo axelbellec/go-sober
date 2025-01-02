@@ -10,6 +10,7 @@ import (
 	"go-sober/internal/dtos"
 	"go-sober/internal/mappers"
 	"go-sober/internal/models"
+	"go-sober/internal/params"
 )
 
 type Controller struct {
@@ -45,19 +46,19 @@ func (c *Controller) GetBAC(w http.ResponseWriter, r *http.Request) {
 	// Parse query parameters
 	query := r.URL.Query()
 
-	startTime, err := time.Parse(time.RFC3339, query.Get("start_time"))
-	if err != nil {
+	startTime := params.ParseTimeParam(query.Get("start_time"))
+	if startTime == nil {
 		http.Error(w, "Invalid start_time parameter", http.StatusBadRequest)
 		return
 	}
 
-	endTime, err := time.Parse(time.RFC3339, query.Get("end_time"))
-	if err != nil {
+	endTime := params.ParseTimeParam(query.Get("end_time"))
+	if endTime == nil {
 		http.Error(w, "Invalid end_time parameter", http.StatusBadRequest)
 		return
 	}
 
-	if endTime.Before(startTime) {
+	if endTime.Before(*startTime) {
 		http.Error(w, "End time must be after start time", http.StatusBadRequest)
 		return
 	}
@@ -87,8 +88,8 @@ func (c *Controller) GetBAC(w http.ResponseWriter, r *http.Request) {
 	}
 
 	req := dtos.BACCalculationRequest{
-		StartTime:    startTime,
-		EndTime:      endTime,
+		StartTime:    *startTime,
+		EndTime:      *endTime,
 		WeightKg:     weightKg,
 		Gender:       gender,
 		TimeStepMins: timeStepMins,

@@ -13,6 +13,7 @@ import (
 	"go-sober/internal/dtos"
 	"go-sober/internal/embedding"
 	"go-sober/internal/models"
+	"go-sober/internal/params"
 	"go-sober/internal/parser"
 )
 
@@ -263,12 +264,21 @@ func (c *Controller) CreateDrinkLog(w http.ResponseWriter, r *http.Request) {
 }
 
 // @Summary Get drink logs for the current user
-// @Description Retrieve all drink logs for the current user
+// @Description Retrieve all drink logs for the current user with optional filters
 // @Tags drinks
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} dtos.DrinkLogsResponse
+// @Param page query int false "Page number (default: 1)" minimum(1)
+// @Param page_size query int false "Page size (default: 20, max: 100)" minimum(1) maximum(100)
+// @Param start_date query string false "Start date (RFC3339 format)"
+// @Param end_date query string false "End date (RFC3339 format)"
+// @Param drink_type query string false "Filter by drink type"
+// @Param min_abv query number false "Minimum ABV"
+// @Param max_abv query number false "Maximum ABV"
+// @Param sort_by query string false "Sort by field (logged_at, abv, size_value, name, type)"
+// @Param sort_order query string false "Sort order (asc or desc)"
+// @Success 200 {object} dtos.GetDrinkLogsResponse
 // @Failure 500 {object} dtos.ClientError
 // @Router /drink-logs [get]
 func (c *Controller) GetDrinkLogs(w http.ResponseWriter, r *http.Request) {
@@ -284,15 +294,32 @@ func (c *Controller) GetDrinkLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Parse pagination parameters
+	page, pageSize := params.ParsePaginationParams(r)
+
+	// Parse filter parameters
+	filters := dtos.DrinkLogFilters{
+		StartDate: params.ParseTimeParam(r.URL.Query().Get("start_date")),
+		EndDate:   params.ParseTimeParam(r.URL.Query().Get("end_date")),
+		DrinkType: r.URL.Query().Get("drink_type"),
+		MinABV:    params.ParseFloatParam(r.URL.Query().Get("min_abv")),
+		MaxABV:    params.ParseFloatParam(r.URL.Query().Get("max_abv")),
+		SortBy:    r.URL.Query().Get("sort_by"),
+		SortOrder: r.URL.Query().Get("sort_order"),
+	}
+
 	// Get drink logs from service
-	drinkLogs, err := c.service.GetDrinkLogs(claims.UserID)
+	drinkLogs, total, err := c.service.GetDrinkLogs(claims.UserID, page, pageSize, filters)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error getting drink logs: %v", err), http.StatusInternalServerError)
 		return
 	}
 
-	response := dtos.DrinkLogsResponse{
+	response := dtos.GetDrinkLogsResponse{
 		DrinkLogs: drinkLogs,
+		Total:     total,
+		Page:      page,
+		PageSize:  pageSize,
 	}
 
 	// Return drink logs as JSON
@@ -377,9 +404,9 @@ func (c *Controller) UpdateDrinkLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate logged_at if provided
-	if req.LoggedAt != nil && req.LoggedAt.After(time.Now()) {
-		http.Error(w, "logged_at cannot be in the future", http.StatusBadRequest)
+	// Validate updated_at if provided
+	if req.UpdatedAt != nil && req.UpdatedAt.After(time.Now()) {
+		http.Error(w, "updated_at cannot be in the future", http.StatusBadRequest)
 		return
 	}
 

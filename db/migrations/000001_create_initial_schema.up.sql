@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS drink_templates (
     size_unit TEXT NOT NULL,
     abv REAL NOT NULL CHECK (abv >= 0 AND abv <= 1),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT NULL
 );
 
 -- Create the drink_log_details table (actual drink information)
@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS drink_log_details (
     template_id INTEGER NULL,
     hash_key TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT NULL,
     FOREIGN KEY (template_id) REFERENCES drink_templates(id)
 );
 
@@ -47,7 +48,7 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    updated_at DATETIME DEFAULT NULL
 );
 
 CREATE INDEX idx_users_email ON users(email);
@@ -64,6 +65,7 @@ CREATE TABLE IF NOT EXISTS drink_logs (
     user_id INTEGER NOT NULL,
     drink_details_id INTEGER NOT NULL,
     logged_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL, 
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (drink_details_id) REFERENCES drink_log_details(id)
 );
