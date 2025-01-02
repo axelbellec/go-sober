@@ -308,10 +308,6 @@ func (r *Repository) GetDrinkLogs(userID int64, page, pageSize int, filters dtos
 			return nil, 0, fmt.Errorf("error scanning drink log: %w", err)
 		}
 
-		fmt.Printf("updatedAt: %v\n", updatedAt)
-		fmt.Printf("updatedAt.Valid: %v\n", updatedAt.Valid)
-		fmt.Printf("updatedAt.Time: %v\n", updatedAt.Time)
-
 		// if updatedAt is not null, set log.UpdatedAt to updatedAt.Time
 		if updatedAt.Valid {
 			log.UpdatedAt = &updatedAt.Time
