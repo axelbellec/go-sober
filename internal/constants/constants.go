@@ -1,5 +1,7 @@
 package constants
 
+import "time"
+
 type contextKey string
 
 const (
@@ -11,4 +13,9 @@ const (
 const (
 	DefaultPageSize = 20
 	MaxPageSize     = 50
+)
+
+var (
+	DefaultStartDate = time.Unix(0, 0)
+	DefaultEndDate   = time.Now()
 )

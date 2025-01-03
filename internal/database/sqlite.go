@@ -46,41 +46,63 @@ func NewSQLiteDB(dbConfig platform.DatabaseConfig) (*sql.DB, error) {
 		slog.Error("Failed to list database schema", "error", err)
 		return nil, err
 	}
-	slog.Debug("Database schema", "schemas", schemas)
+	slog.Debug("Database schema")
+	for _, schema := range schemas {
+		slog.Debug(schema)
+	}
 
 	return db, nil
 }
 
-// ListDBSchema returns the schema of all tables in the SQLite database
+// TableInfo holds information about a database table
+type TableInfo struct {
+	Name     string
+	RowCount int
+}
+
 func ListDBSchema(db *sql.DB) ([]string, error) {
-	// Query to get all table schemas
+	// Query to get all table names first
 	query := `
-		SELECT sql 
+		SELECT name
 		FROM sqlite_master 
 		WHERE type='table' AND name NOT LIKE 'sqlite_%';
 	`
 
 	rows, err := db.Query(query)
 	if err != nil {
-		slog.Error("Failed to query database schema", "error", err)
+		slog.Error("Failed to query database tables", "error", err)
 		return nil, err
 	}
 	defer rows.Close()
 
-	var schemas []string
+	var tables []TableInfo
 	for rows.Next() {
-		var schema string
-		if err := rows.Scan(&schema); err != nil {
-			slog.Error("Failed to scan schema row", "error", err)
+		var info TableInfo
+		if err := rows.Scan(&info.Name); err != nil {
+			slog.Error("Failed to scan table info", "error", err)
 			return nil, err
 		}
-		schemas = append(schemas, schema)
+
+		// Get row count for each table using a separate query
+		countQuery := fmt.Sprintf("SELECT COUNT(*) FROM %q", info.Name)
+		if err := db.QueryRow(countQuery).Scan(&info.RowCount); err != nil {
+			slog.Error("Failed to get row count", "table", info.Name, "error", err)
+			return nil, err
+		}
+
+		tables = append(tables, info)
 	}
 
 	if err = rows.Err(); err != nil {
-		slog.Error("Error iterating over schema rows", "error", err)
+		slog.Error("Error iterating over table rows", "error", err)
 		return nil, err
 	}
 
-	return schemas, nil
+	// Convert TableInfo slice to string slice for backward compatibility
+	results := make([]string, len(tables))
+	for i, table := range tables {
+		results[i] = fmt.Sprintf("%s: %d rows", table.Name, table.RowCount)
+	}
+
+	return results, nil
 }

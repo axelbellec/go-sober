@@ -9,6 +9,7 @@ import (
 	_ "go-sober/docs" // swagger docs
 	"go-sober/internal/analytics"
 	"go-sober/internal/auth"
+	"go-sober/internal/bac"
 	"go-sober/internal/database"
 	"go-sober/internal/drinks"
 	"go-sober/internal/embedding"
@@ -59,8 +60,13 @@ func main() {
 	drinkController := drinks.NewController(drinkService, embeddingService, db)
 
 	// Initialize analytics components
-	analyticsService := analytics.NewService(drinkRepo)
-	analyticsController := analytics.NewController(analyticsService)
+	drinkStatsRepo := analytics.NewRepository(db)
+	drinkStatsService := analytics.NewService(drinkStatsRepo)
+	drinkStatsController := analytics.NewController(drinkStatsService)
+
+	// Initialize realtime components
+	bacService := bac.NewService(drinkRepo)
+	bacController := bac.NewController(bacService)
 
 	// Create a new ServeMux to use with the logging middleware
 	mux := http.NewServeMux()
@@ -82,9 +88,9 @@ func main() {
 	// Auth
 	mux.HandleFunc("GET /api/v1/auth/me", authMiddleware.RequireAuth(authController.Me))
 
-	// Analytics
-	mux.HandleFunc("GET /api/v1/analytics/timeline/bac", authMiddleware.RequireAuth(analyticsController.GetBAC))
-	mux.HandleFunc("GET /api/v1/analytics/current/bac", authMiddleware.RequireAuth(analyticsController.GetCurrentBAC))
+	// Blood Alcohol Content (BAC)
+	mux.HandleFunc("GET /api/v1/bac/timeline", authMiddleware.RequireAuth(bacController.GetBAC))
+	mux.HandleFunc("GET /api/v1/bac/current", authMiddleware.RequireAuth(bacController.GetCurrentBAC))
 
 	// Drink logging
 	mux.HandleFunc("GET /api/v1/drink-logs", authMiddleware.RequireAuth(drinkController.GetDrinkLogs))
@@ -92,6 +98,9 @@ func main() {
 	mux.HandleFunc("PUT /api/v1/drink-logs", authMiddleware.RequireAuth(drinkController.UpdateDrinkLog))
 	mux.HandleFunc("DELETE /api/v1/drink-logs/{id}", authMiddleware.RequireAuth(drinkController.DeleteDrinkLog))
 	mux.HandleFunc("POST /api/v1/drink-logs/parse", authMiddleware.RequireAuth(drinkController.ParseDrinkLog))
+
+	// Analytics
+	mux.HandleFunc("GET /api/v1/analytics/drink-stats", authMiddleware.RequireAuth(drinkStatsController.GetDrinkStats))
 
 	// Swagger documentation
 	mux.HandleFunc("GET /api/v1/swagger/doc.json", httpSwagger.WrapHandler)

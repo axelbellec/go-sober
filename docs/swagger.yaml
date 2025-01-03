@@ -280,12 +280,23 @@ definitions:
         type: string
       size_value:
         type: integer
+      standard_drinks:
+        type: number
       type:
         type: string
       updated_at:
         type: string
       user_id:
         type: integer
+    type: object
+  models.DrinkStats:
+    properties:
+      drink_count:
+        type: integer
+      time_period:
+        type: string
+      total_standard_drinks:
+        type: number
     type: object
   models.DrinkTemplate:
     properties:
@@ -322,26 +333,34 @@ info:
   title: Sober API
   version: "1.0"
 paths:
-  /analytics/current/bac:
+  /analytics/drink-stats:
     get:
       consumes:
       - application/json
-      description: Get current Blood Alcohol Content for a user
+      description: Get drink statistics for a user
       parameters:
       - description: Bearer token
         in: header
         name: Authorization
         required: true
         type: string
-      - description: Weight in kg
+      - description: Time period
+        enum:
+        - daily
+        - weekly
+        - monthly
+        - yearly
         in: query
-        name: weight_kg
+        name: period
         required: true
-        type: number
-      - description: Gender
+        type: string
+      - description: Start date
         in: query
-        name: gender
-        required: true
+        name: start_date
+        type: string
+      - description: End date
+        in: query
+        name: end_date
         type: string
       produces:
       - application/json
@@ -349,7 +368,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dtos.CurrentBACResponse'
+            items:
+              $ref: '#/definitions/models.DrinkStats'
+            type: array
         "400":
           description: Bad Request
           schema:
@@ -358,61 +379,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/Error'
-      summary: Get Current BAC
-      tags:
-      - analytics
-  /analytics/timeline/bac:
-    get:
-      consumes:
-      - application/json
-      description: Calculate BAC for a user
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Start time
-        in: query
-        name: start_time
-        required: true
-        type: string
-      - description: End time
-        in: query
-        name: end_time
-        required: true
-        type: string
-      - description: Weight in kg
-        in: query
-        name: weight_kg
-        required: true
-        type: number
-      - description: Gender
-        in: query
-        name: gender
-        required: true
-        type: string
-      - description: Time step in minutes
-        in: query
-        name: time_step_mins
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dtos.BACCalculationResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/Error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/Error'
-      summary: Get BAC calculation
+      summary: Get drink statistics
       tags:
       - analytics
   /auth/login:
@@ -496,6 +463,99 @@ paths:
       summary: Sign up a new user
       tags:
       - auth
+  /bac/current:
+    get:
+      consumes:
+      - application/json
+      description: Get current Blood Alcohol Content for a user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Weight in kg
+        in: query
+        name: weight_kg
+        required: true
+        type: number
+      - description: Gender
+        in: query
+        name: gender
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.CurrentBACResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Get Current BAC
+      tags:
+      - bac
+  /bac/timeline:
+    get:
+      consumes:
+      - application/json
+      description: Calculate BAC for a user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Start time
+        in: query
+        name: start_time
+        required: true
+        type: string
+      - description: End time
+        in: query
+        name: end_time
+        required: true
+        type: string
+      - description: Weight in kg
+        in: query
+        name: weight_kg
+        required: true
+        type: number
+      - description: Gender
+        in: query
+        name: gender
+        required: true
+        type: string
+      - description: Time step in minutes
+        in: query
+        name: time_step_mins
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.BACCalculationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Get BAC calculation
+      tags:
+      - bac
   /drink-logs:
     get:
       consumes:
