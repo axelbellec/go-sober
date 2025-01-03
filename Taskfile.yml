@@ -88,9 +88,15 @@ tasks:
 
   docker:run:
     desc: Run Docker container
-    deps: [docker:build]
+    preconditions:
+      - docker images -q {{.BINARY_NAME}} | grep -q .
     cmds:
-      - docker run --name {{.BINARY_NAME}} -p 8080:8080 --env-file .env {{.BINARY_NAME}}
+      - docker run --rm --name {{.BINARY_NAME}} -p 8080:8080 --env-file .env {{.BINARY_NAME}}
+
+  docker:run:prod:all:
+    desc: Run all services in production mode
+    cmds:
+      - docker compose down && docker compose build --no-cache && docker compose up -d
 
   docs:
     desc: Generate Swagger documentation

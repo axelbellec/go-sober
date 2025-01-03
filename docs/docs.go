@@ -821,6 +821,29 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/health": {
+            "get": {
+                "description": "Get API health status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Health check endpoint",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Health"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1262,6 +1285,25 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "models.Health": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "$ref": "#/definitions/models.HealthStatus"
+                }
+            }
+        },
+        "models.HealthStatus": {
+            "type": "string",
+            "enum": [
+                "OK",
+                "Error"
+            ],
+            "x-enum-varnames": [
+                "HealthStatusOK",
+                "HealthStatusError"
+            ]
         }
     }
 }`

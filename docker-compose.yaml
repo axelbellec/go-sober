@@ -1,0 +1,90 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - APP_NAME=go-sober
+      - ENVIRONMENT=prod
+      - PORT=8080
+      - LOG_LEVEL=DEBUG
+      - LOG_FORMAT=text
+      - DB_FILE_PATH=/db/sober.db
+      - DB_MAX_OPEN_CONNS=25
+      - DB_MAX_IDLE_CONNS=5
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=nomic-embed-text
+      - JWT_SECRET=test
+    volumes:
+      - sober_data:/db
+    ports:
+      - "8080:8080"
+    # depends_on:
+    #   - ollama
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      init-db:
+        condition: service_completed_successfully
+
+  frontend:
+    build:
+      context: ./sober-ui
+      dockerfile: Dockerfile
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8080/api/v1
+      - NEXT_PUBLIC_LOCALSTORAGE_TOKEN_KEY=sober_token
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   ports:
+  #     - "11434:11434"
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:11434/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+
+  # Add init service to create directory and database file
+  init-db:
+    image: golang:1.22-alpine
+    volumes:
+      - sober_data:/db
+      - .:/app
+    working_dir: /app
+    command: >
+      sh -c "
+      apk add --no-cache curl gcc musl-dev &&
+      CGO_ENABLED=1 go install -tags 'sqlite3' github.com/golang-migrate/migrate/v4/cmd/migrate@latest &&
+      echo 'Starting database migration...' &&
+      migrate -source file:///app/db/migrations -database sqlite3:///db/sober.db up &&
+      echo 'Database migration completed successfully'
+      "
+    restart: "no"
+
+volumes:
+  sober_data:
+    driver: local
+  # ollama_data:
+  #   driver: local
+
+networks:
+  default:
+    driver: bridge

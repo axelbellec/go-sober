@@ -12,6 +12,7 @@ import (
 	"go-sober/internal/database"
 	"go-sober/internal/drinks"
 	"go-sober/internal/embedding"
+	"go-sober/internal/health"
 	"go-sober/internal/middleware"
 	"go-sober/platform"
 )
@@ -45,6 +46,9 @@ func main() {
 	authController := auth.NewController(authService)
 	authMiddleware := middleware.NewAuthMiddleware(authService)
 
+	// Initialize the health components
+	healthController := health.NewController()
+
 	// Initialize the drinks components
 	drinkRepo := drinks.NewRepository(db)
 	drinkService := drinks.NewService(drinkRepo)
@@ -60,6 +64,8 @@ func main() {
 
 	// Create a new ServeMux to use with the logging middleware
 	mux := http.NewServeMux()
+
+	mux.HandleFunc("GET /api/v1/health", healthController.Health)
 
 	// [Public routes]
 	// Auth

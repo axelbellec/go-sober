@@ -77,7 +77,7 @@ export function DrinkLogForm({
     mode: "onChange",
   });
 
-  const { addDrinkLog, refreshDrinkLogs } = useDrinkLogs();
+  const { refreshDrinkLogs } = useDrinkLogs();
 
   useEffect(() => {
     apiService

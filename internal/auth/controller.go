@@ -2,6 +2,7 @@ package auth
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 
 	"go-sober/internal/constants"
@@ -53,6 +54,7 @@ func (c *Controller) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := c.service.repo.CreateUser(user.Email, user.Password); err != nil {
+		slog.Error("Could not create user", "error", err)
 		http.Error(w, "Could not create user", http.StatusInternalServerError)
 		return
 	}

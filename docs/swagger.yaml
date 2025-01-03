@@ -302,6 +302,19 @@ definitions:
       type:
         type: string
     type: object
+  models.Health:
+    properties:
+      status:
+        $ref: '#/definitions/models.HealthStatus'
+    type: object
+  models.HealthStatus:
+    enum:
+    - OK
+    - Error
+    type: string
+    x-enum-varnames:
+    - HealthStatusOK
+    - HealthStatusError
 host: localhost:8080
 info:
   contact: {}
@@ -843,6 +856,21 @@ paths:
       summary: Update a drink template
       tags:
       - drinks
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Get API health status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Health'
+      summary: Health check endpoint
+      tags:
+      - health
 produces:
 - application/json
 swagger: "2.0"

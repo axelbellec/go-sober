@@ -2,6 +2,7 @@ package auth
 
 import (
 	"database/sql"
+	"log/slog"
 
 	"go-sober/internal/models"
 
@@ -20,6 +21,7 @@ func (r *Repository) CreateUser(email, password string) error {
 	// Hash the password with bcrypt
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
+		slog.Error("Could not hash password", "error", err)
 		return err
 	}
 
@@ -45,6 +47,7 @@ func (r *Repository) GetUserByEmail(email string) (*models.User, error) {
 		&user.CreatedAt,
 	)
 	if err != nil {
+		slog.Error("Could not get user by email", "error", err)
 		return nil, err
 	}
 	return user, nil

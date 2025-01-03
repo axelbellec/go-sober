@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useDrinkLogs } from "@/contexts/drink-logs-context";
 import { format, formatDistanceToNow } from "date-fns";
 import { DrinkLog } from "@/lib/types/api";
-import { Button } from "@/components/ui/button";
 import { DrinkLogForm } from "@/components/forms/drink-log-form";
 import { useState } from "react";
 

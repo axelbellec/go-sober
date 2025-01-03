@@ -48,7 +48,7 @@ export function SignupForm() {
   async function onSubmit(data: SignupFormValues) {
     setIsLoading(true);
     try {
-      const response = await apiService.signup(data.email, data.password);
+      await apiService.signup(data.email, data.password);
       toast.success("Account created successfully!");
       router.push("/drinks/log");
     } catch (error) {
