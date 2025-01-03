@@ -102,6 +102,13 @@ definitions:
       last_calculated:
         type: string
     type: object
+  dtos.DrinkStatsResponse:
+    properties:
+      stats:
+        items:
+          $ref: '#/definitions/models.DrinkStatsPoint'
+        type: array
+    type: object
   dtos.DrinkTemplateResponse:
     properties:
       drink_template:
@@ -289,13 +296,16 @@ definitions:
       user_id:
         type: integer
     type: object
-  models.DrinkStats:
+  models.DrinkStatsPoint:
     properties:
       drink_count:
+        description: Number of drinks in this period
         type: integer
       time_period:
+        description: The time period this stat represents
         type: string
       total_standard_drinks:
+        description: Total standard drinks in this period
         type: number
     type: object
   models.DrinkTemplate:
@@ -368,9 +378,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.DrinkStats'
-            type: array
+            $ref: '#/definitions/dtos.DrinkStatsResponse'
         "400":
           description: Bad Request
           schema:

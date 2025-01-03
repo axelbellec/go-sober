@@ -44,6 +44,7 @@ func setupTestDB(t *testing.T) *Repository {
 			hash_key TEXT NOT NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT NULL,
+			standard_drinks REAL DEFAULT 0 CHECK (standard_drinks >= 0),
 			FOREIGN KEY (template_id) REFERENCES drink_templates(id)
 		);
 

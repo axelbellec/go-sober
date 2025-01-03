@@ -15,7 +15,7 @@ func NewRepository(db *sql.DB) *Repository {
 	return &Repository{db: db}
 }
 
-func (r *Repository) GetDrinkStats(userID int64, period models.TimePeriod, startDate time.Time, endDate time.Time) ([]models.DrinkStats, error) {
+func (r *Repository) GetDrinkStats(userID int64, period models.TimePeriod, startDate time.Time, endDate time.Time) ([]models.DrinkStatsPoint, error) {
 	query := `
         SELECT 
             strftime(?, dl.logged_at) as time_period,
@@ -37,9 +37,9 @@ func (r *Repository) GetDrinkStats(userID int64, period models.TimePeriod, start
 	}
 	defer rows.Close()
 
-	var stats []models.DrinkStats
+	var stats []models.DrinkStatsPoint
 	for rows.Next() {
-		var stat models.DrinkStats
+		var stat models.DrinkStatsPoint
 		var drinkCount int64
 		var totalStandardDrinks float64
 

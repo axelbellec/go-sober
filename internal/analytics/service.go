@@ -2,12 +2,13 @@ package analytics
 
 import (
 	"go-sober/internal/constants"
+	"go-sober/internal/dtos"
 	"go-sober/internal/models"
 	"time"
 )
 
 type DrinkStatsRepository interface {
-	GetDrinkStats(userID int64, period models.TimePeriod, startDate time.Time, endDate time.Time) ([]models.DrinkStats, error)
+	GetDrinkStats(userID int64, period models.TimePeriod, startDate time.Time, endDate time.Time) ([]models.DrinkStatsPoint, error)
 }
 
 type Service struct {
@@ -18,13 +19,13 @@ func NewService(drinkStatsRepo DrinkStatsRepository) *Service {
 	return &Service{drinkStatsRepo: drinkStatsRepo}
 }
 
-func (s *Service) GetDrinkStats(userID int64, period models.TimePeriod, startDate *time.Time, endDate *time.Time) ([]models.DrinkStats, error) {
-	if startDate == nil {
-		startDate = &constants.DefaultStartDate
+func (s *Service) GetDrinkStats(userID int64, filters dtos.DrinkStatsFilters) ([]models.DrinkStatsPoint, error) {
+	if filters.StartDate == nil {
+		filters.StartDate = &constants.DefaultStartDate
 	}
-	if endDate == nil {
-		endDate = &constants.DefaultEndDate
+	if filters.EndDate == nil {
+		filters.EndDate = &constants.DefaultEndDate
 	}
 
-	return s.drinkStatsRepo.GetDrinkStats(userID, period, *startDate, *endDate)
+	return s.drinkStatsRepo.GetDrinkStats(userID, filters.Period, *filters.StartDate, *filters.EndDate)
 }

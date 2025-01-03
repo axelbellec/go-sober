@@ -66,10 +66,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.DrinkStats"
-                            }
+                            "$ref": "#/definitions/dtos.DrinkStatsResponse"
                         }
                     },
                     "400": {
@@ -1054,6 +1051,17 @@
                 }
             }
         },
+        "dtos.DrinkStatsResponse": {
+            "type": "object",
+            "properties": {
+                "stats": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DrinkStatsPoint"
+                    }
+                }
+            }
+        },
         "dtos.DrinkTemplateResponse": {
             "type": "object",
             "properties": {
@@ -1332,16 +1340,19 @@
                 }
             }
         },
-        "models.DrinkStats": {
+        "models.DrinkStatsPoint": {
             "type": "object",
             "properties": {
                 "drink_count": {
+                    "description": "Number of drinks in this period",
                     "type": "integer"
                 },
                 "time_period": {
+                    "description": "The time period this stat represents",
                     "type": "string"
                 },
                 "total_standard_drinks": {
+                    "description": "Total standard drinks in this period",
                     "type": "number"
                 }
             }

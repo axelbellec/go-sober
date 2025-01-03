@@ -3,6 +3,7 @@ package analytics
 import (
 	"encoding/json"
 	"go-sober/internal/constants"
+	"go-sober/internal/dtos"
 	"go-sober/internal/models"
 	"go-sober/internal/params"
 	"net/http"
@@ -25,7 +26,7 @@ func NewController(service *Service) *Controller {
 // @Param period query string true "Time period" Enums(daily, weekly, monthly, yearly)
 // @Param start_date query string false "Start date"
 // @Param end_date query string false "End date"
-// @Success 200 {array} models.DrinkStats
+// @Success 200 {object} dtos.DrinkStatsResponse
 // @Failure 400 {object} dtos.ClientError
 // @Failure 500 {object} dtos.ClientError
 // @Router /analytics/drink-stats [get]
@@ -52,13 +53,23 @@ func (c *Controller) GetDrinkStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stats, err := c.service.GetDrinkStats(claims.UserID, period, startDate, endDate)
+	filters := dtos.DrinkStatsFilters{
+		Period:    period,
+		StartDate: startDate,
+		EndDate:   endDate,
+	}
+
+	stats, err := c.service.GetDrinkStats(claims.UserID, filters)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	response := dtos.DrinkStatsResponse{
+		Stats: stats,
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(stats)
+	json.NewEncoder(w).Encode(response)
 }

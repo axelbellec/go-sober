@@ -4,10 +4,10 @@ package models
 type TimePeriod string
 
 const (
-	Daily             TimePeriod = "daily"
-	Weekly            TimePeriod = "weekly"
-	Monthly           TimePeriod = "monthly"
-	Yearly            TimePeriod = "yearly"
+	TimePeriodDaily   TimePeriod = "daily"
+	TimePeriodWeekly  TimePeriod = "weekly"
+	TimePeriodMonthly TimePeriod = "monthly"
+	TimePeriodYearly  TimePeriod = "yearly"
 	TimePeriodUnknown TimePeriod = "unknown"
 )
 
@@ -20,36 +20,36 @@ const (
 	YearlyDateFormatter  TimePeriodDateFormatter = "%Y"       // 2025
 )
 
-// DrinkStats represents generic drink statistics for any time period
-type DrinkStats struct {
-	TimePeriod          string  `json:"time_period"`
-	DrinkCount          int     `json:"drink_count"`
-	TotalStandardDrinks float64 `json:"total_standard_drinks"`
+// DrinkStatsPoint represents a single data point in the statistics
+type DrinkStatsPoint struct {
+	TimePeriod          string  `json:"time_period"`           // The time period this stat represents
+	DrinkCount          int     `json:"drink_count"`           // Number of drinks in this period
+	TotalStandardDrinks float64 `json:"total_standard_drinks"` // Total standard drinks in this period
 }
 
 func ToTimePeriod(period string) TimePeriod {
 	switch period {
 	case "daily":
-		return Daily
+		return TimePeriodDaily
 	case "weekly":
-		return Weekly
+		return TimePeriodWeekly
 	case "monthly":
-		return Monthly
+		return TimePeriodMonthly
 	case "yearly":
-		return Yearly
+		return TimePeriodYearly
 	}
 	return TimePeriodUnknown
 }
 
 func ToTimePeriodDateFormatter(period TimePeriod) TimePeriodDateFormatter {
 	switch period {
-	case Daily:
+	case TimePeriodDaily:
 		return DailyDateFormatter
-	case Weekly:
+	case TimePeriodWeekly:
 		return WeeklyDateFormatter
-	case Monthly:
+	case TimePeriodMonthly:
 		return MonthlyDateFormatter
-	case Yearly:
+	case TimePeriodYearly:
 		return YearlyDateFormatter
 	}
 	return DailyDateFormatter
