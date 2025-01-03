@@ -73,3 +73,46 @@ func (c *Controller) GetDrinkStats(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }
+
+// @Summary Get monthly BAC statistics
+// @Tags analytics
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Param start_date query string false "Start date"
+// @Param end_date query string false "End date"
+// @Success 200 {object} dtos.MonthlyBACStatsResponse
+// @Failure 400 {object} dtos.ClientError
+// @Router /analytics/monthly-bac [get]
+func (c *Controller) GetMonthlyBACStats(w http.ResponseWriter, r *http.Request) {
+	claims := r.Context().Value(constants.UserContextKey).(*models.Claims)
+	query := r.URL.Query()
+
+	startDate := params.ParseTimeParam(query.Get("start_date"))
+	endDate := params.ParseTimeParam(query.Get("end_date"))
+
+	if startDate != nil && endDate != nil && endDate.Before(*startDate) {
+		http.Error(w, "End date must be after start date", http.StatusBadRequest)
+		return
+	}
+
+	filters := dtos.DrinkStatsFilters{
+		StartDate: startDate,
+		EndDate:   endDate,
+	}
+
+	stats, err := c.service.GetMonthlyBACStats(claims.UserID, filters)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := dtos.MonthlyBACStatsResponse{
+		Stats:      stats,
+		Categories: []models.BACCategory{models.BACCategorySober, models.BACCategoryLight, models.BACCategoryHeavy},
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}

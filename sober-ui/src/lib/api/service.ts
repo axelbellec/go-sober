@@ -16,9 +16,13 @@ import type {
     CreateDrinkLogResponse,
     ParseDrinkLogRequest,
     ParseDrinkLogResponse,
-    // Analytics types
+    // BAC types
     BACCalculationResponse,
     CurrentBACResponse,
+    // Analytics types
+    DrinkStatsResponse,
+    DrinkStatsPeriod,
+    MonthlyBACStatsResponse,
 } from '../types/api';
 
 
@@ -189,7 +193,7 @@ export class ApiService {
         });
 
         const response = await this.fetchWithAuth(
-            `${this.baseUrl}/analytics/current/bac?${params.toString()}`
+            `${this.baseUrl}/bac/current?${params.toString()}`
         );
 
         return this.handleJsonResponse<CurrentBACResponse>(response);
@@ -211,10 +215,41 @@ export class ApiService {
         });
 
         const response = await this.fetchWithAuth(
-            `${this.baseUrl}/analytics/timeline/bac?${params.toString()}`
+            `${this.baseUrl}/bac/timeline?${params.toString()}`
         );
 
         return this.handleJsonResponse<BACCalculationResponse>(response);
+    }
+
+    async getDrinkStats(period: DrinkStatsPeriod, params?: {
+        start_date?: string;
+        end_date?: string;
+    }): Promise<DrinkStatsResponse> {
+        const queryParams = new URLSearchParams({
+            period: period,
+            ...(params?.start_date && { start_date: params.start_date }),
+            ...(params?.end_date && { end_date: params.end_date })
+        });
+
+        const response = await this.fetchWithAuth(
+            `${this.baseUrl}/analytics/drink-stats?${queryParams.toString()}`
+        );
+        return this.handleJsonResponse<DrinkStatsResponse>(response);
+    }
+
+    async getMonthlyBACStats(params?: {
+        start_date?: string;
+        end_date?: string;
+    }): Promise<MonthlyBACStatsResponse> {
+        const queryParams = new URLSearchParams({
+            ...(params?.start_date && { start_date: params.start_date }),
+            ...(params?.end_date && { end_date: params.end_date })
+        });
+
+        const response = await this.fetchWithAuth(
+            `${this.baseUrl}/analytics/monthly-bac?${queryParams.toString()}`
+        );
+        return this.handleJsonResponse<MonthlyBACStatsResponse>(response);
     }
 }
 

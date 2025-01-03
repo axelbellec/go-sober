@@ -134,6 +134,30 @@ definitions:
       total:
         type: integer
     type: object
+  dtos.MonthlyBACStats:
+    properties:
+      counts:
+        additionalProperties:
+          type: integer
+        type: object
+      month:
+        type: integer
+      total:
+        type: integer
+      year:
+        type: integer
+    type: object
+  dtos.MonthlyBACStatsResponse:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/models.BACCategory'
+        type: array
+      stats:
+        items:
+          $ref: '#/definitions/dtos.MonthlyBACStats'
+        type: array
+    type: object
   dtos.ParseDrinkLogRequest:
     properties:
       text:
@@ -227,6 +251,20 @@ definitions:
       message:
         type: string
     type: object
+  models.BACCategory:
+    enum:
+    - sober
+    - light
+    - heavy
+    type: string
+    x-enum-comments:
+      BACCategoryHeavy: BAC >= 0.08 (includes significant, severe, dangerous)
+      BACCategoryLight: 0 < BAC < 0.08 (includes minimal, light, mild)
+      BACCategorySober: BAC == 0
+    x-enum-varnames:
+    - BACCategorySober
+    - BACCategoryLight
+    - BACCategoryHeavy
   models.BACPoint:
     properties:
       bac:
@@ -388,6 +426,38 @@ paths:
           schema:
             $ref: '#/definitions/Error'
       summary: Get drink statistics
+      tags:
+      - analytics
+  /analytics/monthly-bac:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Start date
+        in: query
+        name: start_date
+        type: string
+      - description: End date
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.MonthlyBACStatsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Get monthly BAC statistics
       tags:
       - analytics
   /auth/login:

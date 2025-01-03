@@ -1,5 +1,5 @@
 import { DrinkLogForm } from "@/components/forms/drink-log-form";
-import { DrinkHistoryView } from "@/components/views/drink-history-view";
+import { ConsumptionHistoryView } from "@/components/views/consumption-history-view";
 import { Separator } from "@/components/ui/separator";
 import { PageLayout } from "@/components/layouts/page-layout";
 import Link from "next/link";
@@ -23,7 +23,7 @@ export default function DrinkLogPage() {
       </Link>
       <Separator className="my-4" />
       <div className="flex-1 overflow-y-auto">
-        <DrinkHistoryView />
+        <ConsumptionHistoryView />
       </div>
     </PageLayout>
   );

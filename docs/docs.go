@@ -90,6 +90,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/analytics/monthly-bac": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "summary": "Get monthly BAC statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date",
+                        "name": "end_date",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.MonthlyBACStatsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "description": "Authenticate a user and generate a JWT token",
@@ -1107,6 +1156,43 @@ const docTemplate = `{
                 }
             }
         },
+        "dtos.MonthlyBACStats": {
+            "type": "object",
+            "properties": {
+                "counts": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "month": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dtos.MonthlyBACStatsResponse": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.BACCategory"
+                    }
+                },
+                "stats": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dtos.MonthlyBACStats"
+                    }
+                }
+            }
+        },
         "dtos.ParseDrinkLogRequest": {
             "type": "object",
             "properties": {
@@ -1246,6 +1332,24 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "models.BACCategory": {
+            "type": "string",
+            "enum": [
+                "sober",
+                "light",
+                "heavy"
+            ],
+            "x-enum-comments": {
+                "BACCategoryHeavy": "BAC \u003e= 0.08 (includes significant, severe, dangerous)",
+                "BACCategoryLight": "0 \u003c BAC \u003c 0.08 (includes minimal, light, mild)",
+                "BACCategorySober": "BAC == 0"
+            },
+            "x-enum-varnames": [
+                "BACCategorySober",
+                "BACCategoryLight",
+                "BACCategoryHeavy"
+            ]
         },
         "models.BACPoint": {
             "type": "object",

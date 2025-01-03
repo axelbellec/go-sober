@@ -127,3 +127,29 @@ export interface CurrentBACResponse {
     last_calculated: string;
 }
 
+export interface DrinkStatsPoint {
+    drink_count: number;
+    time_period: string;
+    total_standard_drinks: number;
+}
+
+export interface DrinkStatsResponse {
+    stats: DrinkStatsPoint[];
+}
+
+export type DrinkStatsPeriod = 'daily' | 'weekly' | 'monthly' | 'yearly';
+
+export type BACCategories = 'sober' | 'light' | 'heavy';
+
+export interface MonthlyBACStats {
+    year: number;
+    month: number;
+    counts: { [key in BACCategories]: number };
+    total: number;
+}
+
+export interface MonthlyBACStatsResponse {
+    stats: MonthlyBACStats[];
+    categories: BACCategories[];
+}
+

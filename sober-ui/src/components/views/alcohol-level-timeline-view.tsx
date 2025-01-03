@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/card";
 import { apiService } from "@/lib/api";
 
-export function BACTimelineView() {
+export function AlcoholLevelTimelineView() {
   const [data, setData] = useState<BACCalculationResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 

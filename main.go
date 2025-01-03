@@ -101,6 +101,7 @@ func main() {
 
 	// Analytics
 	mux.HandleFunc("GET /api/v1/analytics/drink-stats", authMiddleware.RequireAuth(drinkStatsController.GetDrinkStats))
+	mux.HandleFunc("GET /api/v1/analytics/monthly-bac", authMiddleware.RequireAuth(drinkStatsController.GetMonthlyBACStats))
 
 	// Swagger documentation
 	mux.HandleFunc("GET /api/v1/swagger/doc.json", httpSwagger.WrapHandler)

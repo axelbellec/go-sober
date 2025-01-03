@@ -7,7 +7,7 @@ import { DrinkLog } from "@/lib/types/api";
 import { DrinkLogForm } from "@/components/forms/drink-log-form";
 import { useState } from "react";
 
-export function DrinkHistoryView() {
+export function ConsumptionHistoryView() {
   const { drinkLogs, refreshDrinkLogs } = useDrinkLogs();
 
   useEffect(() => {

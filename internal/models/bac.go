@@ -15,6 +15,27 @@ const (
 	BACStatusDangerous   BACStatus = "Dangerous"
 )
 
+// GetCategory converts a BACStatus to a simplified BACCategory
+func (status BACStatus) GetCategory() BACCategory {
+	switch status {
+	case BACStatusSober:
+		return BACCategorySober
+	case BACStatusMinimal, BACStatusLight, BACStatusMild:
+		return BACCategoryLight
+	default:
+		return BACCategoryHeavy
+	}
+}
+
+// BACCategory represents a simplified BAC status category
+type BACCategory string
+
+const (
+	BACCategorySober BACCategory = "sober" // BAC == 0
+	BACCategoryLight BACCategory = "light" // 0 < BAC < 0.08 (includes minimal, light, mild)
+	BACCategoryHeavy BACCategory = "heavy" // BAC >= 0.08 (includes significant, severe, dangerous)
+)
+
 type BACCalculationParams struct {
 	StartTime    time.Time `json:"start_time"`
 	EndTime      time.Time `json:"end_time"`

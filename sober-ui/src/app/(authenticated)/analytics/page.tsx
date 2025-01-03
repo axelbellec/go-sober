@@ -1,13 +1,17 @@
-import { BACTimelineView } from "@/components/views/bac-timeline-view";
 import { PageLayout } from "@/components/layouts/page-layout";
+import { DrinkingTrendsView } from "@/components/views/drinking-trends-view";
+import { SobrietyDashboardView } from "@/components/views/sobriety-dashboard-view";
+import { SobrietyStatsView } from "@/components/views/sobriety-stats-view";
 
 export default function AnalyticsPage() {
   return (
     <PageLayout
-      heading="Your BAC Timeline 📊"
-      subheading="Monitor your blood alcohol content over time"
+      heading="Analytics 📈"
+      subheading="Monitor your drinking habits over time"
     >
-      <BACTimelineView />
+      <DrinkingTrendsView />
+      <SobrietyDashboardView />
+      <SobrietyStatsView />
     </PageLayout>
   );
 }
