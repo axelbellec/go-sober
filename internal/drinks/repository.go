@@ -200,8 +200,8 @@ func (r *Repository) GetDrinkLogs(userID int64, page, pageSize int, filters dtos
 	baseQuery := `
         SELECT 
             dl.id, dl.user_id, dl.logged_at, dl.updated_at,
-            dld.name, dld.type, dld.size_value,
-            dld.size_unit, dld.abv
+            dld.name, dld.type, dld.size_value, 
+            dld.size_unit, dld.abv, dld.standard_drinks
         FROM drink_logs dl
         JOIN drink_log_details dld ON dl.drink_details_id = dld.id
         WHERE dl.user_id = ?
@@ -257,12 +257,13 @@ func (r *Repository) GetDrinkLogs(userID int64, page, pageSize int, filters dtos
 
 		// Validate sort column to prevent SQL injection
 		validSortColumns := map[string]string{
-			"logged_at":  "dl.logged_at",
-			"updated_at": "dl.updated_at",
-			"abv":        "dld.abv",
-			"size_value": "dld.size_value",
-			"name":       "dld.name",
-			"type":       "dld.type",
+			"logged_at":       "dl.logged_at",
+			"updated_at":      "dl.updated_at",
+			"standard_drinks": "dld.standard_drinks",
+			"abv":             "dld.abv",
+			"size_value":      "dld.size_value",
+			"name":            "dld.name",
+			"type":            "dld.type",
 		}
 
 		if sortCol, valid := validSortColumns[filters.SortBy]; valid {
@@ -303,6 +304,7 @@ func (r *Repository) GetDrinkLogs(userID int64, page, pageSize int, filters dtos
 			&log.SizeValue,
 			&log.SizeUnit,
 			&log.ABV,
+			&log.StandardDrinks,
 		)
 		if err != nil {
 			return nil, 0, fmt.Errorf("error scanning drink log: %w", err)

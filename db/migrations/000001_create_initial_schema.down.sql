@@ -1,3 +1,11 @@
+-- Drop triggers first
+DROP TRIGGER IF EXISTS update_drink_log_details_standard_drinks_update;
+DROP TRIGGER IF EXISTS update_drink_log_details_standard_drinks_insert;
+DROP TRIGGER IF EXISTS update_user_updated_at;
+DROP TRIGGER IF EXISTS update_drink_templates_standard_drinks_update;
+DROP TRIGGER IF EXISTS update_drink_templates_standard_drinks_insert;
+DROP TRIGGER IF EXISTS update_drink_templates_timestamp;
+
 -- Drop indexes
 DROP INDEX IF EXISTS idx_drink_embeddings_drink_template_id;
 DROP INDEX IF EXISTS idx_drink_logs_logged_at;

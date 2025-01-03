@@ -93,7 +93,7 @@ function DrinkLogItem({ drink }: { drink: DrinkLog }) {
           <h3 className="font-medium">{drink.name}</h3>
           <p className="text-sm text-muted-foreground">
             {drink.size_value}
-            {drink.size_unit}, {drink.abv * 100}% ABV
+            {drink.size_unit}, {(drink.abv * 100).toFixed(2)}% ABV
           </p>
         </div>
         <div className="text-sm text-muted-foreground">{timeAgo}</div>

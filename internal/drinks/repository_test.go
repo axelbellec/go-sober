@@ -28,6 +28,7 @@ func setupTestDB(t *testing.T) *Repository {
 			size_value REAL NOT NULL CHECK (size_value > 0),
 			size_unit TEXT NOT NULL,
 			abv REAL NOT NULL CHECK (abv >= 0 AND abv <= 1),
+			standard_drinks REAL DEFAULT 0 CHECK (standard_drinks >= 0),
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT NULL
 		);
