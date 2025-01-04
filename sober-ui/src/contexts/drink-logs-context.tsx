@@ -6,8 +6,8 @@ import { apiService } from "@/lib/api";
 
 interface DrinkLogsContextType {
   drinkLogs: DrinkLog[];
-  addDrinkLog: (log: DrinkLog) => void;
   refreshDrinkLogs: () => Promise<void>;
+  fetchMoreDrinkLogs: () => Promise<DrinkLog[]>;
 }
 
 const DrinkLogsContext = createContext<DrinkLogsContextType | undefined>(
@@ -16,27 +16,38 @@ const DrinkLogsContext = createContext<DrinkLogsContextType | undefined>(
 
 export function DrinkLogsProvider({ children }: { children: React.ReactNode }) {
   const [drinkLogs, setDrinkLogs] = useState<DrinkLog[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const refreshDrinkLogs = useCallback(async () => {
     try {
-      const response = await apiService.getDrinkLogs();
-      setDrinkLogs(response.drink_logs || []);
+      const response = await apiService.getDrinkLogs({ page: 1 });
+      setDrinkLogs(response.drink_logs);
+      setCurrentPage(1);
     } catch (error) {
       console.error("Failed to fetch drink logs:", error);
-      setDrinkLogs([]);
     }
   }, []);
 
-  const addDrinkLog = useCallback((newLog: DrinkLog) => {
-    setDrinkLogs((prev) => {
-      const currentLogs = Array.isArray(prev) ? prev : [];
-      return [newLog, ...currentLogs];
-    });
-  }, []);
+  const fetchMoreDrinkLogs = useCallback(async () => {
+    try {
+      const nextPage = currentPage + 1;
+      const response = await apiService.getDrinkLogs({ page: nextPage });
+      setDrinkLogs((prev) => [...prev, ...response.drink_logs]);
+      setCurrentPage(nextPage);
+      return response.drink_logs;
+    } catch (error) {
+      console.error("Failed to fetch more drink logs:", error);
+      return [];
+    }
+  }, [currentPage]);
 
   return (
     <DrinkLogsContext.Provider
-      value={{ drinkLogs, addDrinkLog, refreshDrinkLogs }}
+      value={{
+        drinkLogs,
+        refreshDrinkLogs,
+        fetchMoreDrinkLogs,
+      }}
     >
       {children}
     </DrinkLogsContext.Provider>

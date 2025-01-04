@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDrinkLogs } from "@/contexts/drink-logs-context";
 import { format, formatDistanceToNow } from "date-fns";
 import { DrinkLog } from "@/lib/types/api";
 import { DrinkLogForm } from "@/components/forms/drink-log-form";
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export function ConsumptionHistoryView() {
-  const { drinkLogs, refreshDrinkLogs } = useDrinkLogs();
+  const { drinkLogs, refreshDrinkLogs, fetchMoreDrinkLogs } = useDrinkLogs();
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     refreshDrinkLogs();
@@ -34,6 +36,18 @@ export function ConsumptionHistoryView() {
     return groups;
   }, {} as Record<string, DrinkLog[]>);
 
+  const handleLoadMore = async () => {
+    setIsLoading(true);
+    try {
+      const newLogs = await fetchMoreDrinkLogs();
+      setHasMore(newLogs.length > 0);
+    } catch (error) {
+      console.error("Error loading more drinks:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6 min-h-0">
       {Object.entries(groupedDrinks)
@@ -50,6 +64,18 @@ export function ConsumptionHistoryView() {
             </div>
           </div>
         ))}
+
+      {hasMore && (drinkLogs ?? []).length > 0 && (
+        <div className="flex justify-center py-4">
+          <Button
+            variant="outline"
+            onClick={handleLoadMore}
+            disabled={isLoading}
+          >
+            {isLoading ? "Loading..." : "Load More"}
+          </Button>
+        </div>
+      )}
 
       {(drinkLogs ?? []).length === 0 && (
         <div className="text-center py-8 text-muted-foreground">
