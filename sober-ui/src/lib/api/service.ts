@@ -23,6 +23,7 @@ import type {
     DrinkStatsResponse,
     DrinkStatsPeriod,
     MonthlyBACStatsResponse,
+    DeleteDrinkLogResponse,
 } from '../types/api';
 
 
@@ -164,11 +165,11 @@ export class ApiService {
         return this.handleJsonResponse<void>(response);
     }
 
-    async deleteDrinkLog(id: number): Promise<void> {
+    async deleteDrinkLog(id: number): Promise<DeleteDrinkLogResponse> {
         const response = await this.fetchWithAuth(`${this.baseUrl}/drink-logs/${id}`, {
             method: 'DELETE',
         });
-        return this.handleJsonResponse<void>(response);
+        return this.handleJsonResponse<DeleteDrinkLogResponse>(response);
     }
 
     async parseDrinkLog(text: string): Promise<ParseDrinkLogResponse> {

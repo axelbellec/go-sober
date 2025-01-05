@@ -433,7 +433,7 @@ func (c *Controller) UpdateDrinkLog(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param Authorization header string true "Bearer token"
 // @Param id path string true "Drink log ID"
-// @Success 204
+// @Success 200 {object} dtos.DeleteDrinkLogResponse
 // @Failure 400 {object} dtos.ClientError
 // @Failure 401 {object} dtos.ClientError
 // @Failure 404 {object} dtos.ClientError
@@ -465,5 +465,11 @@ func (c *Controller) DeleteDrinkLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	response := dtos.DeleteDrinkLogResponse{
+		ID: logID,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
 }

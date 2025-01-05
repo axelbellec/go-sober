@@ -72,6 +72,10 @@ export interface UpdateDrinkLogRequest extends CreateDrinkLogRequest {
     id: number;
 }
 
+export interface DeleteDrinkLogResponse {
+    id: number;
+}
+
 export interface CreateDrinkLogResponse {
     id: number;
 }

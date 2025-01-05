@@ -52,12 +52,14 @@ interface DrinkLogFormProps {
   initialDrinkLog?: DrinkLog;
   onCancel?: () => void;
   mode?: "create" | "edit";
+  onDelete?: () => void;
 }
 
 export function DrinkLogForm({
   initialDrinkLog,
   onCancel,
   mode = "create",
+  onDelete,
 }: DrinkLogFormProps) {
   const [drinkTemplates, setDrinkTemplates] = useState<DrinkTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -298,6 +300,11 @@ export function DrinkLogForm({
           {mode === "edit" && onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
+            </Button>
+          )}
+          {mode === "edit" && onDelete && (
+            <Button type="button" variant="destructive" onClick={onDelete}>
+              Delete
             </Button>
           )}
         </div>

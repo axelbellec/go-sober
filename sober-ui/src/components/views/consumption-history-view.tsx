@@ -6,6 +6,8 @@ import { format, formatDistanceToNow } from "date-fns";
 import { DrinkLog } from "@/lib/types/api";
 import { DrinkLogForm } from "@/components/forms/drink-log-form";
 import { Button } from "@/components/ui/button";
+import { apiService } from "@/lib/api";
+import { toast } from "sonner";
 
 export function ConsumptionHistoryView() {
   const { drinkLogs, refreshDrinkLogs, fetchMoreDrinkLogs } = useDrinkLogs();
@@ -88,6 +90,7 @@ export function ConsumptionHistoryView() {
 
 function DrinkLogItem({ drink }: { drink: DrinkLog }) {
   const [isEditing, setIsEditing] = useState(false);
+  const { refreshDrinkLogs } = useDrinkLogs();
 
   // Safely parse the date and handle invalid dates
   const loggedDate = new Date(drink.logged_at);
@@ -101,6 +104,15 @@ function DrinkLogItem({ drink }: { drink: DrinkLog }) {
         <DrinkLogForm
           initialDrinkLog={drink}
           onCancel={() => setIsEditing(false)}
+          onDelete={async () => {
+            try {
+              await apiService.deleteDrinkLog(drink.id);
+              await refreshDrinkLogs();
+              toast.success("Drink log deleted");
+            } catch (error) {
+              console.error("Error deleting drink log:", error);
+            }
+          }}
           mode="edit"
         />
       </div>

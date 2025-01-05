@@ -54,6 +54,10 @@ type UpdateDrinkLogResponse struct {
 	ID int64 `json:"id"`
 }
 
+type DeleteDrinkLogResponse struct {
+	ID int64 `json:"id"`
+}
+
 type DrinkLogFilters struct {
 	StartDate *time.Time `json:"start_date"`
 	EndDate   *time.Time `json:"end_date"`
