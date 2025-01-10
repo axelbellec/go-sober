@@ -33,6 +33,19 @@ export interface UserMeResponse {
 }
 
 
+export interface UserProfile {
+    id: number;
+    email: string;
+    gender: 'male' | 'female' | 'unknown';
+    weight_kg: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface UpdateUserProfileRequest {
+    gender: 'male' | 'female' | 'unknown';
+    weight_kg: number;
+}
 export interface DrinkTemplate {
     id: number;
     name: string;

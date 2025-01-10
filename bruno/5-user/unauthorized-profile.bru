@@ -1,0 +1,15 @@
+meta {
+  name: Unauthorized Profile Access
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{host}}/users/profile
+}
+
+tests {
+  test("should return 401 for missing token", function() {
+    expect(res.status).to.equal(401);
+  });
+} 

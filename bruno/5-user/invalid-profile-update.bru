@@ -1,0 +1,27 @@
+meta {
+  name: Invalid Profile Update
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{host}}/users/profile
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{auth_token}}
+}
+
+body {
+  {
+    "weight_kg": -1,
+    "gender": "invalid"
+  }
+}
+
+tests {
+  test("should return 400 for invalid profile data", function() {
+    expect(res.status).to.equal(400);
+  });
+} 

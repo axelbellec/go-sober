@@ -167,3 +167,15 @@ CREATE TABLE IF NOT EXISTS drink_embeddings (
 
 CREATE INDEX idx_drink_embeddings_drink_template_id ON drink_embeddings(drink_template_id);
 
+
+---
+CREATE TABLE IF NOT EXISTS user_profiles (
+    user_id INTEGER PRIMARY KEY,
+    weight_kg REAL NOT NULL CHECK (weight_kg > 0),
+    gender TEXT NOT NULL CHECK (gender IN ('male', 'female', 'unknown')),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE INDEX idx_user_profiles_user_id ON user_profiles(user_id);

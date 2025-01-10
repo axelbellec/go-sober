@@ -24,6 +24,9 @@ import type {
     DrinkStatsPeriod,
     MonthlyBACStatsResponse,
     DeleteDrinkLogResponse,
+    // User types
+    UserProfile,
+    UpdateUserProfileRequest,
 } from '../types/api';
 
 
@@ -251,6 +254,22 @@ export class ApiService {
             `${this.baseUrl}/analytics/monthly-bac?${queryParams.toString()}`
         );
         return this.handleJsonResponse<MonthlyBACStatsResponse>(response);
+    }
+
+    async getUserProfile(): Promise<UserProfile> {
+        const response = await this.fetchWithAuth(`${this.baseUrl}/users/profile`);
+        return this.handleJsonResponse<UserProfile>(response);
+    }
+
+    async updateUserProfile(data: UpdateUserProfileRequest): Promise<UserProfile> {
+        const response = await this.fetchWithAuth(`${this.baseUrl}/users/profile`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        return this.handleJsonResponse<UserProfile>(response);
     }
 }
 
