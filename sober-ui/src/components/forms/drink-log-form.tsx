@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -11,11 +11,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { DrinkTemplate, DrinkLog } from "@/lib/types/api";
+import {
+  DrinkTemplate,
+  DrinkLog,
+  ParseDrinkLogResponse,
+} from "@/lib/types/api";
 import {
   Select,
   SelectContent,
@@ -26,15 +31,21 @@ import {
 import { apiService } from "@/lib/api";
 import { useDrinkLogs } from "@/contexts/drink-logs-context";
 import { toast } from "sonner";
+import { useDebounce } from "@/hooks/use-debounce";
 
-const createDrinkLogSchema = z.object({
-  drinkTemplateId: z.string().min(1, "Please select a drink"),
-  abv: z.number().min(0.01, "ABV must be greater than 0").max(100),
-  sizeValue: z.number().min(1, "Size must be greater than 0"),
-  sizeUnit: z.enum(["cl", "ml"], {
-    errorMap: () => ({ message: "Please select a valid unit" }),
-  }),
-});
+const createDrinkLogSchema = z
+  .object({
+    drinkTemplateId: z.string().optional(),
+    freeText: z.string().optional(),
+    abv: z.number().min(0.01, "ABV must be greater than 0").max(100),
+    sizeValue: z.number().min(1, "Size must be greater than 0"),
+    sizeUnit: z.enum(["cl", "ml"], {
+      errorMap: () => ({ message: "Please select a valid unit" }),
+    }),
+  })
+  .refine((data) => data.drinkTemplateId || data.freeText, {
+    message: "Please either select a drink or describe what you had",
+  });
 
 const editDrinkLogSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -63,6 +74,8 @@ export function DrinkLogForm({
 }: DrinkLogFormProps) {
   const [drinkTemplates, setDrinkTemplates] = useState<DrinkTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isParsingDrink, setIsParsingDrink] = useState(false);
+  const [showParsingSpinner, setShowParsingSpinner] = useState(false);
 
   const form = useForm<DrinkLogFormValues>({
     resolver: zodResolver(
@@ -71,6 +84,7 @@ export function DrinkLogForm({
     defaultValues: {
       drinkTemplateId:
         mode === "create" ? initialDrinkLog?.id?.toString() : undefined,
+      freeText: "",
       name: mode === "edit" ? initialDrinkLog?.name ?? "" : undefined,
       abv: initialDrinkLog ? initialDrinkLog.abv * 100 : 0,
       sizeValue: initialDrinkLog?.size_value ?? 0,
@@ -107,6 +121,46 @@ export function DrinkLogForm({
         shouldValidate: true,
       });
     }
+  };
+
+  const parseDrink = async (value: string) => {
+    if (!value) return;
+
+    setIsParsingDrink(true);
+    try {
+      const response: ParseDrinkLogResponse = await apiService.parseDrinkLog(
+        value
+      );
+
+      form.setValue("drinkTemplateId", response.drink_template.id.toString(), {
+        shouldValidate: true,
+      });
+      form.setValue("abv", response.drink_template.abv * 100, {
+        shouldValidate: true,
+      });
+      form.setValue("sizeValue", response.drink_template.size_value, {
+        shouldValidate: true,
+      });
+      form.setValue(
+        "sizeUnit",
+        response.drink_template.size_unit as "cl" | "ml",
+        {
+          shouldValidate: true,
+        }
+      );
+    } catch (error) {
+      console.error("Failed to parse drink:", error);
+    } finally {
+      setIsParsingDrink(false);
+    }
+  };
+
+  const debouncedParseDrink = useDebounce(parseDrink, 400);
+
+  const onFreeTextChange = (value: string) => {
+    form.setValue("freeText", value);
+    form.setValue("drinkTemplateId", undefined);
+    debouncedParseDrink(value);
   };
 
   async function onSubmit(data: DrinkLogFormValues) {
@@ -170,35 +224,81 @@ export function DrinkLogForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {mode === "create" ? (
-          <FormField
-            control={form.control}
-            name="drinkTemplateId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Select Drink</FormLabel>
-                <Select
-                  onValueChange={onDrinkSelect}
-                  value={field.value?.toString() || ""}
-                >
+        {mode === "create" && (
+          <>
+            <FormField
+              control={form.control}
+              name="freeText"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Describe your drink</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a drink" />
-                    </SelectTrigger>
+                    <div className="relative">
+                      <Input
+                        placeholder="e.g., had a mojito cocktail"
+                        {...field}
+                        onChange={(e) => onFreeTextChange(e.target.value)}
+                      />
+                      {isParsingDrink && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                        </div>
+                      )}
+                    </div>
                   </FormControl>
-                  <SelectContent>
-                    {drinkTemplates.map((drink) => (
-                      <SelectItem key={drink.id} value={drink.id.toString()}>
-                        {drink.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ) : (
+                  <FormDescription>
+                    Describe what you had or select from templates below
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  or select from templates
+                </span>
+              </div>
+            </div>
+
+            <FormField
+              control={form.control}
+              name="drinkTemplateId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Select Drink</FormLabel>
+                  <Select
+                    onValueChange={(value) => {
+                      form.setValue("freeText", "");
+                      onDrinkSelect(value);
+                    }}
+                    value={field.value?.toString() || ""}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a drink" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {drinkTemplates.map((drink) => (
+                        <SelectItem key={drink.id} value={drink.id.toString()}>
+                          {drink.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
+
+        {mode === "edit" && (
           <FormField
             control={form.control}
             name="name"
