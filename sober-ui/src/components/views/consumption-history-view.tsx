@@ -138,7 +138,7 @@ export function ConsumptionHistoryView() {
           className={`${
             screenSize.greaterThanOrEqual("lg")
               ? "h-full w-[400px] border-l"
-              : "h-[90vh] rounded-t-[10px] sm:max-w-none"
+              : "h-[80vh] rounded-t-[10px] sm:max-w-none"
           }`}
         >
           <SheetHeader>

@@ -120,7 +120,7 @@ export function DrinkLogItem({ drink }: { drink: DrinkLog }) {
       >
         <SheetContent
           side="bottom"
-          className="h-[90vh] rounded-t-[10px] sm:max-w-none"
+          className="h-[80vh] rounded-t-[10px] sm:max-w-none"
         >
           <SheetHeader>
             <SheetTitle>Edit Drink</SheetTitle>
