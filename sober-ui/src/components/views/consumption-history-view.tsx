@@ -30,38 +30,53 @@ export function ConsumptionHistoryView() {
     refreshDrinkLogs();
   }, [refreshDrinkLogs]);
 
-  // Move the grouping logic into useMemo
   const groupedDrinks = useMemo(() => {
-    return (drinkLogs ?? []).reduce((groups, drink) => {
-      const drinkDate = new Date(drink.logged_at);
-      if (isNaN(drinkDate.getTime())) {
-        return groups;
-      }
+    const groups: Record<string, DrinkLog[]> = {};
 
-      const date = format(drinkDate, "yyyy-MM-dd");
-      if (!groups[date]) {
-        groups[date] = [];
-      }
-      groups[date].push(drink);
-      groups[date].sort(
-        (a, b) =>
-          new Date(b.logged_at).getTime() - new Date(a.logged_at).getTime()
-      );
-      return groups;
-    }, {} as Record<string, DrinkLog[]>);
-  }, [drinkLogs]);
+    if (!drinkLogs?.length) return groups;
 
-  // Calculate daily stats using useMemo
+    // Sort all drinks first by date (newest first)
+    const sortedDrinks = [...drinkLogs].sort(
+      (a, b) =>
+        new Date(b.logged_at).getTime() - new Date(a.logged_at).getTime()
+    );
+
+    // Group drinks by date
+    for (const drink of sortedDrinks) {
+      try {
+        const drinkDate = new Date(drink.logged_at);
+        const dateKey = format(drinkDate, "yyyy-MM-dd");
+
+        if (!groups[dateKey]) {
+          groups[dateKey] = [];
+        }
+        groups[dateKey].push(drink);
+      } catch (error) {
+        console.error("Error processing drink:", drink, error);
+      }
+    }
+
+    return groups;
+  }, [drinkLogs?.length, drinkLogs]);
+
   const dailyStats = useMemo(() => {
-    return Object.entries(groupedDrinks).map(([date, drinks]) => ({
-      date,
-      drinks,
-      drinkCount: drinks.reduce((total) => total + 1, 0),
-      standardDrinks: drinks.reduce(
-        (total, drink) => total + drink.standard_drinks,
-        0
-      ),
-    }));
+    const stats = Object.entries(groupedDrinks).map(([date, drinks]) => {
+      const standardDrinks = drinks.reduce((total, drink) => {
+        const drinks = Number(drink.standard_drinks) || 0;
+        return total + drinks;
+      }, 0);
+
+      return {
+        date,
+        drinks,
+        drinkCount: drinks.length,
+        standardDrinks,
+      };
+    });
+
+    return stats.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
   }, [groupedDrinks]);
 
   const handleLoadMore = async () => {
@@ -87,7 +102,7 @@ export function ConsumptionHistoryView() {
             <h2 className="text-lg font-semibold flex items-center gap-3">
               {format(new Date(date), "EEEE, MMMM d, yyyy")}
             </h2>
-            <div className="flex gap-x-2">
+            {/* <div className="flex gap-x-2">
               <Badge
                 variant="secondary"
                 className="flex items-center gap-x-1 text-muted-foreground font-semibold tracking-tight"
@@ -106,7 +121,7 @@ export function ConsumptionHistoryView() {
                   {standardDrinks.toFixed(1)} standard drinks
                 </p>
               </Badge>
-            </div>
+            </div> */}
             <AnimatePresence>
               <motion.div
                 className="space-y-4"
