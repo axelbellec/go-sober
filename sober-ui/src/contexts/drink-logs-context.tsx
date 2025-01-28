@@ -1,14 +1,30 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 import { DrinkLog } from "@/lib/types/api";
 import { apiService } from "@/lib/api";
+import { format } from "date-fns";
+
+interface DailyStats {
+  date: string;
+  drinks: DrinkLog[];
+  drinkCount: number;
+  standardDrinks: number;
+}
 
 interface DrinkLogsContextType {
   drinkLogs: DrinkLog[];
   refreshDrinkLogs: () => Promise<void>;
   fetchMoreDrinkLogs: () => Promise<DrinkLog[]>;
   hasMoreLogs: boolean;
+  groupedDrinks: Record<string, DrinkLog[]>;
+  dailyStats: DailyStats[];
 }
 
 const PAGE_SIZE = 10;
@@ -21,6 +37,57 @@ export function DrinkLogsProvider({ children }: { children: React.ReactNode }) {
   const [drinkLogs, setDrinkLogs] = useState<DrinkLog[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMoreLogs, setHasMoreLogs] = useState(true);
+
+  // Calculate grouped drinks
+  const groupedDrinks = useMemo(() => {
+    const groups: Record<string, DrinkLog[]> = {};
+
+    if (!drinkLogs?.length) return groups;
+
+    // Sort all drinks first by date (newest first)
+    const sortedDrinks = [...drinkLogs].sort(
+      (a, b) =>
+        new Date(b.logged_at).getTime() - new Date(a.logged_at).getTime()
+    );
+
+    // Group drinks by date
+    for (const drink of sortedDrinks) {
+      try {
+        const drinkDate = new Date(drink.logged_at);
+        const dateKey = format(drinkDate, "yyyy-MM-dd");
+
+        if (!groups[dateKey]) {
+          groups[dateKey] = [];
+        }
+        groups[dateKey].push(drink);
+      } catch (error) {
+        console.error("Error processing drink:", drink, error);
+      }
+    }
+
+    return groups;
+  }, [drinkLogs]);
+
+  // Calculate daily stats
+  const dailyStats = useMemo(() => {
+    const stats = Object.entries(groupedDrinks).map(([date, drinks]) => {
+      const standardDrinks = drinks.reduce((total, drink) => {
+        const drinks = Number(drink.standard_drinks) || 0;
+        return total + drinks;
+      }, 0);
+
+      return {
+        date,
+        drinks,
+        drinkCount: drinks.length,
+        standardDrinks,
+      };
+    });
+
+    return stats.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+  }, [groupedDrinks]);
 
   const refreshDrinkLogs = useCallback(async () => {
     try {
@@ -62,6 +129,8 @@ export function DrinkLogsProvider({ children }: { children: React.ReactNode }) {
         refreshDrinkLogs,
         fetchMoreDrinkLogs,
         hasMoreLogs,
+        groupedDrinks,
+        dailyStats,
       }}
     >
       {children}

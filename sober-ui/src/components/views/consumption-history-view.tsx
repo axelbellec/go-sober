@@ -1,15 +1,14 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useDrinkLogs } from "@/contexts/drink-logs-context";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
-import { DrinkLog } from "@/lib/types/api";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { DrinkLogItem } from "@/components/items/drink-log-item";
 import { Plus, Info, Beer } from "lucide-react";
 import { useScreenSize } from "@/hooks/use-screen-size";
-import { Badge } from "@/components/ui/badge";
 import {
   Sheet,
   SheetContent,
@@ -20,8 +19,13 @@ import {
 import { DrinkLogForm } from "@/components/forms/drink-log-form";
 
 export function ConsumptionHistoryView() {
-  const { drinkLogs, refreshDrinkLogs, fetchMoreDrinkLogs, hasMoreLogs } =
-    useDrinkLogs();
+  const {
+    drinkLogs,
+    refreshDrinkLogs,
+    fetchMoreDrinkLogs,
+    hasMoreLogs,
+    dailyStats,
+  } = useDrinkLogs();
   const [isLoading, setIsLoading] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const screenSize = useScreenSize();
@@ -29,55 +33,6 @@ export function ConsumptionHistoryView() {
   useEffect(() => {
     refreshDrinkLogs();
   }, [refreshDrinkLogs]);
-
-  const groupedDrinks = useMemo(() => {
-    const groups: Record<string, DrinkLog[]> = {};
-
-    if (!drinkLogs?.length) return groups;
-
-    // Sort all drinks first by date (newest first)
-    const sortedDrinks = [...drinkLogs].sort(
-      (a, b) =>
-        new Date(b.logged_at).getTime() - new Date(a.logged_at).getTime()
-    );
-
-    // Group drinks by date
-    for (const drink of sortedDrinks) {
-      try {
-        const drinkDate = new Date(drink.logged_at);
-        const dateKey = format(drinkDate, "yyyy-MM-dd");
-
-        if (!groups[dateKey]) {
-          groups[dateKey] = [];
-        }
-        groups[dateKey].push(drink);
-      } catch (error) {
-        console.error("Error processing drink:", drink, error);
-      }
-    }
-
-    return groups;
-  }, [drinkLogs?.length, drinkLogs]);
-
-  const dailyStats = useMemo(() => {
-    const stats = Object.entries(groupedDrinks).map(([date, drinks]) => {
-      const standardDrinks = drinks.reduce((total, drink) => {
-        const drinks = Number(drink.standard_drinks) || 0;
-        return total + drinks;
-      }, 0);
-
-      return {
-        date,
-        drinks,
-        drinkCount: drinks.length,
-        standardDrinks,
-      };
-    });
-
-    return stats.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-  }, [groupedDrinks]);
 
   const handleLoadMore = async () => {
     setIsLoading(true);
@@ -95,61 +50,59 @@ export function ConsumptionHistoryView() {
 
   return (
     <div className="space-y-8 relative min-h-[300px]">
-      {dailyStats
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .map(({ date, drinks, drinkCount, standardDrinks }) => (
-          <div key={date} className="space-y-4">
-            <h2 className="text-lg font-semibold flex items-center gap-3">
-              {format(new Date(date), "EEEE, MMMM d, yyyy")}
-            </h2>
-            {/* <div className="flex gap-x-2">
-              <Badge
-                variant="secondary"
-                className="flex items-center gap-x-1 text-muted-foreground font-semibold tracking-tight"
-              >
-                <Beer className="h-4 w-4" />
-                <p className="text-sm">
-                  {drinkCount} {drinkCount === 1 ? "drink" : "drinks"}
-                </p>
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="flex items-center gap-x-1 text-muted-foreground font-semibold tracking-tight"
-              >
-                <Info className="h-4 w-4" />
-                <p className="text-sm">
-                  {standardDrinks.toFixed(1)} standard drinks
-                </p>
-              </Badge>
-            </div> */}
-            <AnimatePresence>
-              <motion.div
-                className="space-y-4"
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  visible: {
-                    transition: {
-                      staggerChildren: 0.1,
-                    },
-                  },
-                }}
-              >
-                {drinks.map((drink) => (
-                  <motion.div
-                    key={drink.id}
-                    variants={{
-                      hidden: { opacity: 0, y: 20 },
-                      visible: { opacity: 1, y: 0 },
-                    }}
-                  >
-                    <DrinkLogItem drink={drink} />
-                  </motion.div>
-                ))}
-              </motion.div>
-            </AnimatePresence>
+      {dailyStats.map(({ date, drinks, drinkCount, standardDrinks }) => (
+        <div key={date} className="space-y-4">
+          <h2 className="text-lg font-semibold flex items-center gap-3">
+            {format(new Date(date), "EEEE, MMMM d, yyyy")}
+          </h2>
+          <div className="flex gap-x-2 justify-start">
+            <Badge
+              variant="secondary"
+              className="flex items-center gap-x-1 text-muted-foreground font-semibold tracking-tight"
+            >
+              <Beer className="h-4 w-4" />
+              <p className="text-sm">
+                {drinkCount} {drinkCount === 1 ? "drink" : "drinks"} consumed
+              </p>
+            </Badge>
+            <Badge
+              variant="secondary"
+              className="flex items-center gap-x-1 text-muted-foreground font-semibold tracking-tight"
+            >
+              <Info className="h-4 w-4" />
+              <p className="text-sm">
+                {standardDrinks.toFixed(1)} standard drinks
+              </p>
+            </Badge>
           </div>
-        ))}
+          <AnimatePresence>
+            <motion.div
+              className="space-y-4"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                visible: {
+                  transition: {
+                    staggerChildren: 0.1,
+                  },
+                },
+              }}
+            >
+              {drinks.map((drink) => (
+                <motion.div
+                  key={drink.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                >
+                  <DrinkLogItem drink={drink} />
+                </motion.div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      ))}
 
       {hasLogs && (
         <div className="flex justify-center py-4">
