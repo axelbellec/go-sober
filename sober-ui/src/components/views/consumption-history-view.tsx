@@ -17,6 +17,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { DrinkLogForm } from "@/components/forms/drink-log-form";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 
 export function ConsumptionHistoryView() {
   const {
@@ -56,24 +62,72 @@ export function ConsumptionHistoryView() {
             {format(new Date(date), "EEEE, MMMM d, yyyy")}
           </h2>
           <div className="flex gap-x-2 justify-start">
-            <Badge
-              variant="secondary"
-              className="flex items-center gap-x-1 text-muted-foreground font-semibold tracking-tight"
-            >
-              <Beer className="h-4 w-4" />
-              <p className="text-sm">
-                {drinkCount} {drinkCount === 1 ? "drink" : "drinks"} consumed
-              </p>
-            </Badge>
-            <Badge
-              variant="secondary"
-              className="flex items-center gap-x-1 text-muted-foreground font-semibold tracking-tight"
-            >
-              <Info className="h-4 w-4" />
-              <p className="text-sm">
-                {standardDrinks.toFixed(1)} standard drinks
-              </p>
-            </Badge>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Badge
+                  variant="secondary"
+                  className="flex items-center gap-x-1 text-muted-foreground font-semibold tracking-tight cursor-pointer"
+                >
+                  <Beer className="h-4 w-4" />
+                  <p className="text-sm">
+                    {drinkCount} {drinkCount === 1 ? "drink" : "drinks"}{" "}
+                    consumed
+                  </p>
+                </Badge>
+              </SheetTrigger>
+              <SheetTrigger asChild>
+                <Badge
+                  variant="secondary"
+                  className="flex items-center gap-x-1 text-muted-foreground font-semibold tracking-tight cursor-pointer"
+                >
+                  <Info className="h-4 w-4" />
+                  <p className="text-sm">
+                    {standardDrinks.toFixed(1)} standard drinks
+                  </p>
+                </Badge>
+              </SheetTrigger>
+              <SheetContent
+                side={screenSize.greaterThanOrEqual("lg") ? "right" : "bottom"}
+                className={`${
+                  screenSize.greaterThanOrEqual("lg")
+                    ? "w-[400px] border-l"
+                    : "h-[80vh] rounded-t-[10px] sm:max-w-none"
+                }`}
+              >
+                <SheetHeader>
+                  <SheetTitle>Understanding Your Drinks</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6 space-y-6">
+                  <div className="space-y-4">
+                    <h3 className="font-medium">Drinks Consumed</h3>
+                    <p className="text-muted-foreground">
+                      This shows the total number of individual drinks you've
+                      had, regardless of their size or alcohol content.
+                    </p>
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="font-medium">Standard Drinks</h3>
+                    <p className="text-muted-foreground">
+                      A standard drink contains 10g of pure alcohol. This
+                      measurement helps track alcohol intake more accurately
+                      than counting drinks alone.
+                    </p>
+                    <div className="space-y-3">
+                      <p className="font-medium">Common bar servings:</p>
+                      <ul className="space-y-2 pl-4 list-disc">
+                        <li>🍺 Half pint (250ml) of beer = 1 standard drink</li>
+                        <li>🍷 Glass of wine (125ml) = 1 standard drink</li>
+                        <li>🍺 Pint (500ml) of beer = 2 standard drinks</li>
+                        <li>🥃 Shot of spirits (30ml) = 1 standard drink</li>
+                        <li>
+                          🍸 Cocktail (60ml) spirit-based = 2 standard drinks
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
           <AnimatePresence>
             <motion.div
