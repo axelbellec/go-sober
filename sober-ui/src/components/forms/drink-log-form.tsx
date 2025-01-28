@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -66,6 +66,25 @@ interface DrinkLogFormProps {
   onDelete?: () => void;
 }
 
+const drinkLogPlaceholders = [
+  "e.g., had a glass of red wine",
+  "e.g., drank a pint of beer",
+  "e.g., had a mojito cocktail",
+  "e.g., enjoyed a gin and tonic",
+  "e.g., had a shot of tequila",
+  "e.g., drank a vodka soda",
+  "e.g., had a glass of prosecco",
+  "e.g., enjoyed an old fashioned",
+  "e.g., had a margarita",
+  "e.g., drank a whiskey neat",
+];
+
+const getRandomPlaceholder = () => {
+  return drinkLogPlaceholders[
+    Math.floor(Math.random() * drinkLogPlaceholders.length)
+  ];
+};
+
 export function DrinkLogForm({
   initialDrinkLog,
   onCancel,
@@ -75,7 +94,11 @@ export function DrinkLogForm({
   const [drinkTemplates, setDrinkTemplates] = useState<DrinkTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isParsingDrink, setIsParsingDrink] = useState(false);
-  const [showParsingSpinner, setShowParsingSpinner] = useState(false);
+  const [placeholder, setPlaceholder] = useState("Describe your drink...");
+
+  useEffect(() => {
+    setPlaceholder(getRandomPlaceholder());
+  }, []);
 
   const form = useForm<DrinkLogFormValues>({
     resolver: zodResolver(
@@ -235,7 +258,8 @@ export function DrinkLogForm({
                   <FormControl>
                     <div className="relative">
                       <Input
-                        placeholder="e.g., had a mojito cocktail"
+                        placeholder={placeholder}
+                        autoComplete="off"
                         {...field}
                         onChange={(e) => onFreeTextChange(e.target.value)}
                       />
@@ -397,15 +421,19 @@ export function DrinkLogForm({
               ? `${mode === "edit" ? "Updating..." : "Logging..."}`
               : `${mode === "edit" ? "Update" : "Log"} Drink`}
           </Button>
-          {mode === "edit" && onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          )}
-          {mode === "edit" && onDelete && (
-            <Button type="button" variant="destructive" onClick={onDelete}>
-              Delete
-            </Button>
+          {mode === "edit" && (
+            <>
+              {onCancel && (
+                <Button type="button" variant="outline" onClick={onCancel}>
+                  Cancel
+                </Button>
+              )}
+              {onDelete && (
+                <Button type="button" variant="destructive" onClick={onDelete}>
+                  Delete
+                </Button>
+              )}
+            </>
           )}
         </div>
       </form>
