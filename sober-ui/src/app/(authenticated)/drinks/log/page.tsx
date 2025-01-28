@@ -1,4 +1,3 @@
-import { DrinkLogForm } from "@/components/forms/drink-log-form";
 import { ConsumptionHistoryView } from "@/components/views/consumption-history-view";
 import { Separator } from "@/components/ui/separator";
 import { PageLayout } from "@/components/layouts/page-layout";
@@ -13,8 +12,6 @@ export default function DrinkLogPage() {
       subheading="Keep track of what you're drinking"
       className="sm:w-[350px]"
     >
-      <DrinkLogForm />
-      <Separator className="my-4" />
       <Link href="/analytics" className="block">
         <Button variant="outline" className="w-full">
           <BarChart3 className="mr-2 h-4 w-4" />
