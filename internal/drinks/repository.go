@@ -284,13 +284,15 @@ func (r *Repository) GetDrinkLogs(userID int64, page, pageSize int, filters dtos
 		return nil, 0, fmt.Errorf("error counting drink logs: %w", err)
 	}
 
+	// Initialize drinkLogs as empty slice instead of nil
+	drinkLogs := []models.DrinkLog{}
+
 	rows, err := r.db.Query(baseQuery, args...)
 	if err != nil {
 		return nil, 0, fmt.Errorf("error querying drink logs: %w", err)
 	}
 	defer rows.Close()
 
-	var drinkLogs []models.DrinkLog
 	for rows.Next() {
 		var log models.DrinkLog
 		var updatedAt sql.NullTime
