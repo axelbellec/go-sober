@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useDrinkLogs } from "@/contexts/drink-logs-context";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { DrinkLog } from "@/lib/types/api";
 import { Button } from "@/components/ui/button";
 import { DrinkLogItem } from "@/components/items/drink-log-item";
-import { Plus } from "lucide-react";
+import { Plus, Info, Beer } from "lucide-react";
 import { useScreenSize } from "@/hooks/use-screen-size";
+import { Badge } from "@/components/ui/badge";
 import {
   Sheet,
   SheetContent,
@@ -29,25 +30,39 @@ export function ConsumptionHistoryView() {
     refreshDrinkLogs();
   }, [refreshDrinkLogs]);
 
-  // Group drinks by date
-  const groupedDrinks = (drinkLogs ?? []).reduce((groups, drink) => {
-    // Safely parse the date and handle invalid dates
-    const drinkDate = new Date(drink.logged_at);
-    if (isNaN(drinkDate.getTime())) {
-      return groups; // Skip invalid dates
-    }
+  // Move the grouping logic into useMemo
+  const groupedDrinks = useMemo(() => {
+    return (drinkLogs ?? []).reduce((groups, drink) => {
+      const drinkDate = new Date(drink.logged_at);
+      if (isNaN(drinkDate.getTime())) {
+        return groups;
+      }
 
-    const date = format(drinkDate, "yyyy-MM-dd");
-    if (!groups[date]) {
-      groups[date] = [];
-    }
-    groups[date].push(drink);
-    groups[date].sort(
-      (a, b) =>
-        new Date(b.logged_at).getTime() - new Date(a.logged_at).getTime()
-    );
-    return groups;
-  }, {} as Record<string, DrinkLog[]>);
+      const date = format(drinkDate, "yyyy-MM-dd");
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(drink);
+      groups[date].sort(
+        (a, b) =>
+          new Date(b.logged_at).getTime() - new Date(a.logged_at).getTime()
+      );
+      return groups;
+    }, {} as Record<string, DrinkLog[]>);
+  }, [drinkLogs]);
+
+  // Calculate daily stats using useMemo
+  const dailyStats = useMemo(() => {
+    return Object.entries(groupedDrinks).map(([date, drinks]) => ({
+      date,
+      drinks,
+      drinkCount: drinks.reduce((total) => total + 1, 0),
+      standardDrinks: drinks.reduce(
+        (total, drink) => total + drink.standard_drinks,
+        0
+      ),
+    }));
+  }, [groupedDrinks]);
 
   const handleLoadMore = async () => {
     setIsLoading(true);
@@ -65,13 +80,33 @@ export function ConsumptionHistoryView() {
 
   return (
     <div className="space-y-8 relative min-h-[300px]">
-      {Object.entries(groupedDrinks)
-        .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime())
-        .map(([date, drinks]) => (
+      {dailyStats
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .map(({ date, drinks, drinkCount, standardDrinks }) => (
           <div key={date} className="space-y-4">
-            <h2 className="text-lg font-semibold">
+            <h2 className="text-lg font-semibold flex items-center gap-3">
               {format(new Date(date), "EEEE, MMMM d, yyyy")}
             </h2>
+            <div className="flex gap-x-2">
+              <Badge
+                variant="secondary"
+                className="flex items-center gap-x-1 text-muted-foreground font-semibold tracking-tight"
+              >
+                <Beer className="h-4 w-4" />
+                <p className="text-sm">
+                  {drinkCount} {drinkCount === 1 ? "drink" : "drinks"}
+                </p>
+              </Badge>
+              <Badge
+                variant="secondary"
+                className="flex items-center gap-x-1 text-muted-foreground font-semibold tracking-tight"
+              >
+                <Info className="h-4 w-4" />
+                <p className="text-sm">
+                  {standardDrinks.toFixed(1)} standard drinks
+                </p>
+              </Badge>
+            </div>
             <AnimatePresence>
               <motion.div
                 className="space-y-4"

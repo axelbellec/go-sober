@@ -522,24 +522,8 @@ export function DrinkLogForm({
                   type="button"
                   variant="destructive"
                   onClick={async () => {
-                    if (initialDrinkLog) {
-                      try {
-                        toast.loading("Deleting drink...");
-                        await apiService.deleteDrinkLog(initialDrinkLog.id);
-                        toast.success(`Removed ${initialDrinkLog.name}`, {
-                          description:
-                            "The drink has been deleted from your log",
-                          duration: 3000,
-                        });
-                        refreshDrinkLogs();
-                        if (onDelete) onDelete();
-                      } catch (error) {
-                        toast.error("Failed to delete", {
-                          description:
-                            "Please try again or contact support if the problem persists",
-                          duration: 5000,
-                        });
-                      }
+                    if (initialDrinkLog && onDelete) {
+                      onDelete();
                     }
                   }}
                 >

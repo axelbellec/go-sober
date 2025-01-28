@@ -51,7 +51,9 @@ export function DrinkLogItem({ drink }: { drink: DrinkLog }) {
         try {
           await apiService.deleteDrinkLog(drink.id);
           await refreshDrinkLogs();
-          toast.success("Drink log deleted");
+          toast.success(
+            `Deleted ${drink.name} (${drink.size_value}${drink.size_unit}, ${drink.abv}% ABV)`
+          );
           setIsEditing(false);
         } catch (error) {
           console.error("Error deleting drink log:", error);

@@ -53,6 +53,7 @@ export interface DrinkTemplate {
     size_value: number;
     size_unit: string;
     abv: number;
+    standard_drinks: number;
 }
 
 
