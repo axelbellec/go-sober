@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
+import { motion } from "framer-motion";
 import { DrinkLog } from "@/lib/types/api";
 import { DrinkLogForm } from "@/components/forms/drink-log-form";
 import { Button } from "@/components/ui/button";
@@ -36,7 +37,12 @@ export function DrinkLogItem({ drink }: { drink: DrinkLog }) {
 
   if (isEditing) {
     return (
-      <div className="rounded-lg border p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.2 }}
+        className="rounded-lg border p-4"
+      >
         <DrinkLogForm
           initialDrinkLog={drink}
           onCancel={() => setIsEditing(false)}
@@ -51,12 +57,17 @@ export function DrinkLogItem({ drink }: { drink: DrinkLog }) {
           }}
           mode="edit"
         />
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="rounded-lg border p-4 group relative">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.2 }}
+      className="flex flex-col gap-2 rounded-lg border p-4"
+    >
       <div
         className="hover:bg-muted/50 p-2 -m-2 rounded-lg cursor-pointer"
         onClick={() => setIsEditing(true)}
@@ -87,6 +98,6 @@ export function DrinkLogItem({ drink }: { drink: DrinkLog }) {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
