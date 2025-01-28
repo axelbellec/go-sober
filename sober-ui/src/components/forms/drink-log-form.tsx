@@ -227,10 +227,20 @@ export function DrinkLogForm({
 
       if (mode === "edit" && initialDrinkLog) {
         await apiService.updateDrinkLog(drinkData);
-        toast.success("Drink updated successfully");
+        toast.success(`Updated ${drinkData.name}`, {
+          description: `Changed to ${drinkData.size_value}${
+            drinkData.size_unit
+          } at ${(drinkData.abv * 100).toFixed(1)}% ABV`,
+          duration: 3000,
+        });
       } else {
         await apiService.createDrinkLog(drinkData);
-        toast.success("Drink logged successfully");
+        toast.success(`Added ${drinkData.name} to your log`, {
+          description: `${drinkData.size_value}${drinkData.size_unit} at ${(
+            drinkData.abv * 100
+          ).toFixed(1)}% ABV`,
+          duration: 3000,
+        });
       }
 
       form.reset();
@@ -238,7 +248,11 @@ export function DrinkLogForm({
       if (onCancel) onCancel();
     } catch (error) {
       console.error(`Failed to ${mode} drink:`, error);
-      toast.error(`Failed to ${mode} drink`);
+      toast.error(`Unable to ${mode === "edit" ? "update" : "log"} drink`, {
+        description:
+          "Something went wrong. Please check your input and try again.",
+        duration: 5000,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -429,7 +443,31 @@ export function DrinkLogForm({
                 </Button>
               )}
               {onDelete && (
-                <Button type="button" variant="destructive" onClick={onDelete}>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={async () => {
+                    if (initialDrinkLog) {
+                      try {
+                        toast.loading("Deleting drink...");
+                        await apiService.deleteDrinkLog(initialDrinkLog.id);
+                        toast.success(`Removed ${initialDrinkLog.name}`, {
+                          description:
+                            "The drink has been deleted from your log",
+                          duration: 3000,
+                        });
+                        refreshDrinkLogs();
+                        if (onDelete) onDelete();
+                      } catch (error) {
+                        toast.error("Failed to delete", {
+                          description:
+                            "Please try again or contact support if the problem persists",
+                          duration: 5000,
+                        });
+                      }
+                    }
+                  }}
+                >
                   Delete
                 </Button>
               )}

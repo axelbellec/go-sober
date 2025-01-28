@@ -49,11 +49,19 @@ export function SignupForm() {
     setIsLoading(true);
     try {
       await apiService.signup(data.email, data.password);
-      toast.success("Account created successfully!");
+      toast.success("Welcome to Sōber!", {
+        description:
+          "Your account has been created successfully. Redirecting you to get started...",
+        duration: 4000,
+      });
       router.push("/drinks/log");
     } catch (error) {
       console.error("Signup failed:", error);
-      toast.error("Failed to create account");
+      toast.error("Unable to create account", {
+        description:
+          "This email might already be registered. Please try a different email or login instead.",
+        duration: 5000,
+      });
     } finally {
       setIsLoading(false);
     }

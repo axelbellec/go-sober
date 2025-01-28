@@ -47,11 +47,17 @@ export function LoginForm() {
         process.env.NEXT_PUBLIC_LOCALSTORAGE_TOKEN_KEY!,
         response.token
       );
-      toast.success("Login successful!");
+      toast.success("Welcome back!", {
+        description: "Successfully logged in. Taking you to your dashboard...",
+        duration: 4000,
+      });
       router.push("/drinks/log");
     } catch (error) {
       console.error("Login failed:", error);
-      toast.error("Invalid email or password");
+      toast.error("Login failed", {
+        description: "Please check your email and password and try again",
+        duration: 5000,
+      });
     } finally {
       setIsLoading(false);
     }
