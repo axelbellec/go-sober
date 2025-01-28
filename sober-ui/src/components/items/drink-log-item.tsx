@@ -52,7 +52,9 @@ export function DrinkLogItem({ drink }: { drink: DrinkLog }) {
           await apiService.deleteDrinkLog(drink.id);
           await refreshDrinkLogs();
           toast.success(
-            `Deleted ${drink.name} (${drink.size_value}${drink.size_unit}, ${drink.abv}% ABV)`
+            `Deleted ${drink.name} (${drink.size_value}${drink.size_unit}, ${(
+              drink.abv * 100
+            ).toFixed(2)}% ABV)`
           );
           setIsEditing(false);
         } catch (error) {
