@@ -85,6 +85,77 @@ const getRandomPlaceholder = () => {
   ];
 };
 
+interface DrinkDiff {
+  name?: { from: string; to: string };
+  size?: { from: number; to: number; unit: string };
+  abv?: { from: number; to: number };
+  unit?: { from: string; to: string };
+}
+
+function computeDrinkDiff(
+  before: DrinkLog,
+  after: {
+    name: string;
+    size_value: number;
+    size_unit: string;
+    abv: number;
+  }
+): DrinkDiff {
+  const diff: DrinkDiff = {};
+
+  if (before.name !== after.name) {
+    diff.name = { from: before.name, to: after.name };
+  }
+
+  if (before.size_value !== after.size_value) {
+    diff.size = {
+      from: before.size_value,
+      to: after.size_value,
+      unit: after.size_unit,
+    };
+  }
+
+  if (before.size_unit !== after.size_unit) {
+    diff.unit = { from: before.size_unit, to: after.size_unit };
+  }
+
+  if (before.abv !== after.abv) {
+    diff.abv = { from: before.abv * 100, to: after.abv * 100 };
+  }
+
+  return diff;
+}
+
+function formatDrinkDiff(diff: DrinkDiff): string {
+  const changes: string[] = [];
+
+  if (diff.name) {
+    changes.push(`name from "${diff.name.from}" to "${diff.name.to}"`);
+  }
+
+  if (diff.size) {
+    changes.push(
+      `size from ${diff.size.from} to ${diff.size.to}${diff.size.unit}`
+    );
+  }
+
+  if (diff.unit) {
+    changes.push(`unit from ${diff.unit.from} to ${diff.unit.to}`);
+  }
+
+  if (diff.abv) {
+    changes.push(
+      `ABV from ${diff.abv.from.toFixed(1)}% to ${diff.abv.to.toFixed(1)}%`
+    );
+  }
+
+  if (changes.length === 0) return "No changes made";
+  if (changes.length === 1) return `Changed ${changes[0]}`;
+
+  const lastChange = changes.pop();
+  return `Changed ${changes.join(", ")} and ${lastChange}`;
+}
+
 export function DrinkLogForm({
   initialDrinkLog,
   onCancel,
@@ -227,10 +298,14 @@ export function DrinkLogForm({
 
       if (mode === "edit" && initialDrinkLog) {
         await apiService.updateDrinkLog(drinkData);
+        const diff = computeDrinkDiff(initialDrinkLog, {
+          name: drinkData.name,
+          size_value: drinkData.size_value,
+          size_unit: drinkData.size_unit,
+          abv: drinkData.abv,
+        });
         toast.success(`Updated ${drinkData.name}`, {
-          description: `Changed to ${drinkData.size_value}${
-            drinkData.size_unit
-          } at ${(drinkData.abv * 100).toFixed(1)}% ABV`,
+          description: formatDrinkDiff(diff),
           duration: 3000,
         });
       } else {
