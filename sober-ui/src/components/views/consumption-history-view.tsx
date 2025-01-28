@@ -17,12 +17,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { DrinkLogForm } from "@/components/forms/drink-log-form";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
 
 export function ConsumptionHistoryView() {
   const {

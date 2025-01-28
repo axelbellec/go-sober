@@ -55,7 +55,7 @@ export function ProfileForm() {
     try {
       await apiService.updateUserProfile(data);
       toast.success("Profile updated successfully");
-    } catch (err) {
+    } catch {
       toast.error("Failed to update profile");
     } finally {
       setIsLoading(false);

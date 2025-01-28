@@ -30,7 +30,11 @@ export function DrinkLogItem({ drink }: { drink: DrinkLog }) {
         abv: drink.abv,
       });
       await refreshDrinkLogs();
-      toast.success("Drink logged again");
+      toast.success(
+        `Logged ${drink.name} (${drink.size_value}${drink.size_unit}, ${(
+          drink.abv * 100
+        ).toFixed(2)}% ABV) again`
+      );
     } catch (error) {
       console.error("Failed to re-log drink:", error);
       toast.error("Failed to log drink again");
