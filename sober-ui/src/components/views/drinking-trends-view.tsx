@@ -27,6 +27,12 @@ import {
 } from "@/components/ui/select";
 import { apiService } from "@/lib/api";
 
+interface DrinkingTrendData {
+  date: string;
+  drink_count: number;
+  total_standard_drinks: number;
+}
+
 const chartConfig = {
   drinks: {
     label: "Drinks",
@@ -43,7 +49,7 @@ const chartConfig = {
 
 export function DrinkingTrendsView() {
   const [timeRange, setTimeRange] = React.useState("90d");
-  const [chartData, setChartData] = React.useState<any[]>([]);
+  const [chartData, setChartData] = React.useState<DrinkingTrendData[]>([]);
 
   React.useEffect(() => {
     const fetchDrinkStats = async () => {

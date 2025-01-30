@@ -36,8 +36,16 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+interface DashboardChartData {
+  month: string;
+  sober: number;
+  light: number;
+  heavy: number;
+  soberPercentage: number;
+}
+
 export function SobrietyDashboardView() {
-  const [chartData, setChartData] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<DashboardChartData[]>([]);
   const [trend, setTrend] = useState<number | null>(null);
 
   useEffect(() => {
@@ -117,7 +125,7 @@ export function SobrietyDashboardView() {
             />
             <PolarAngleAxis
               dataKey="month"
-              tick={({ x, y, textAnchor, value, index, ...props }) => {
+              tick={({ x, y, textAnchor, _value, index, ...props }) => {
                 const data = chartData[index];
 
                 return (
