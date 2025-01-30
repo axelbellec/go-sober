@@ -96,16 +96,18 @@ export function DrinkLogItem({ drink }: { drink: DrinkLog }) {
           role="button"
           tabIndex={0}
         >
-          <div className="flex justify-between">
-            <div>
-              <h3 className="font-medium">{drink.name}</h3>
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <h3 className="font-medium line-clamp-2">{drink.name}</h3>
               <p className="text-sm text-muted-foreground">
                 {drink.size_value}
                 {drink.size_unit}, {(drink.abv * 100).toFixed(2)}% ABV
               </p>
             </div>
-            <div className="flex flex-col items-end gap-1">
-              <span className="text-sm text-muted-foreground">{timeAgo}</span>
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">
+                {timeAgo}
+              </span>
               <Button
                 variant="outline"
                 size="sm"

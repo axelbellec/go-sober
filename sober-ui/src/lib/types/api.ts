@@ -94,15 +94,24 @@ export interface CreateDrinkLogResponse {
     id: number;
 }
 
-
+export interface DrinkParsed {
+    name: string;
+    type: string;
+    size_value: number;
+    size_unit: string;
+    abv: number;
+    success: boolean;
+    confidence: number;
+    error_message: string;
+    original_input: string;
+}
 
 export interface ParseDrinkLogRequest {
     text: string;
 }
 
 export interface ParseDrinkLogResponse {
-    drink_template: DrinkTemplate;
-    confidence: number;
+    drink_parsed: DrinkParsed;
 }
 
 // Analytics types
