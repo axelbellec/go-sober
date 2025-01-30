@@ -96,7 +96,8 @@ tasks:
   docker:run:prod:all:
     desc: Run all services in production mode
     cmds:
-      - docker compose down && docker compose build --no-cache && docker compose up -d
+      # - docker compose down && docker compose build --no-cache && docker compose up -d
+      - docker compose down && docker compose build && docker compose up -d
 
   docs:
     desc: Generate Swagger documentation
