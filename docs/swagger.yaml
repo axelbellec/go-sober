@@ -170,10 +170,8 @@ definitions:
     type: object
   dtos.ParseDrinkLogResponse:
     properties:
-      confidence:
-        type: number
-      drink_template:
-        $ref: '#/definitions/models.DrinkTemplate'
+      drink_parsed:
+        $ref: '#/definitions/models.DrinkParsed'
     type: object
   dtos.UpdateDrinkLogRequest:
     properties:
@@ -364,6 +362,27 @@ definitions:
         type: string
       user_id:
         type: integer
+    type: object
+  models.DrinkParsed:
+    properties:
+      abv:
+        type: number
+      confidence:
+        type: number
+      error_message:
+        type: string
+      name:
+        type: string
+      original_input:
+        type: string
+      size_unit:
+        type: string
+      size_value:
+        type: number
+      success:
+        type: boolean
+      type:
+        type: string
     type: object
   models.DrinkStatsPoint:
     properties:
@@ -866,7 +885,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Parse a drink log and return the drink template and confidence
+      description: Parse a drink log and return the drink parsed
       parameters:
       - description: Bearer token
         in: header

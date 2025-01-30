@@ -12,7 +12,6 @@ import (
 	"go-sober/internal/bac"
 	"go-sober/internal/database"
 	"go-sober/internal/drinks"
-	"go-sober/internal/embedding"
 	"go-sober/internal/health"
 	"go-sober/internal/middleware"
 	"go-sober/internal/user"
@@ -54,11 +53,7 @@ func main() {
 	// Initialize the drinks components
 	drinkRepo := drinks.NewRepository(db)
 	drinkService := drinks.NewService(drinkRepo)
-	embeddingService := embedding.NewOllamaEmbedding(
-		config.Embedding.Ollama.BaseURL,
-		config.Embedding.Ollama.Model,
-	)
-	drinkController := drinks.NewController(drinkService, embeddingService, db)
+	drinkController := drinks.NewController(drinkService, db)
 
 	// Initialize analytics components
 	drinkStatsRepo := analytics.NewRepository(db)
@@ -124,6 +119,7 @@ func main() {
 	// Start server using config port
 	addr := ":" + config.Port
 	log.Printf("Server starting on http://localhost%s, environment: %s\n", addr, config.Environment)
+	log.Printf("Swagger UI: http://localhost%s/api/v1/swagger/\n", addr)
 	if err := http.ListenAndServe(addr, loggingMiddleware.LogRequest(corsMiddleware.EnableCors(mux))); err != nil {
 		log.Fatal(err)
 	}

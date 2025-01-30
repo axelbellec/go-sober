@@ -618,7 +618,7 @@ const docTemplate = `{
         },
         "/drink-logs/parse": {
             "post": {
-                "description": "Parse a drink log and return the drink template and confidence",
+                "description": "Parse a drink log and return the drink parsed",
                 "consumes": [
                     "application/json"
                 ],
@@ -1298,11 +1298,8 @@ const docTemplate = `{
         "dtos.ParseDrinkLogResponse": {
             "type": "object",
             "properties": {
-                "confidence": {
-                    "type": "number"
-                },
-                "drink_template": {
-                    "$ref": "#/definitions/models.DrinkTemplate"
+                "drink_parsed": {
+                    "$ref": "#/definitions/models.DrinkParsed"
                 }
             }
         },
@@ -1582,6 +1579,38 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.DrinkParsed": {
+            "type": "object",
+            "properties": {
+                "abv": {
+                    "type": "number"
+                },
+                "confidence": {
+                    "type": "number"
+                },
+                "error_message": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "original_input": {
+                    "type": "string"
+                },
+                "size_unit": {
+                    "type": "string"
+                },
+                "size_value": {
+                    "type": "number"
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "type": "string"
                 }
             }
         },

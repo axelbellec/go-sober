@@ -18,10 +18,11 @@ type LoggerConfig struct {
 	Format string `env:"LOG_FORMAT" envDefault:"json"`
 }
 
-type EmbeddingConfig struct {
-	Ollama struct {
-		BaseURL string `env:"OLLAMA_BASE_URL" envDefault:"http://localhost:11434"`
-		Model   string `env:"OLLAMA_MODEL" envDefault:"nomic-embed-text"`
+type LLMConfig struct {
+	Groq struct {
+		BaseURL string `env:"GROQ_BASE_URL" envDefault:"https://api.groq.com/openai/v1"`
+		Model   string `env:"GROQ_MODEL" envDefault:"llama-3.2-1b-preview"`
+		APIKey  string `env:"GROQ_API_KEY"`
 	}
 }
 
@@ -48,7 +49,7 @@ type Config struct {
 	Logger      LoggerConfig
 	Database    DatabaseConfig
 	Auth        AuthConfig
-	Embedding   EmbeddingConfig
+	LLM         LLMConfig
 }
 
 var AppConfig *Config = nil

@@ -46,8 +46,7 @@ type ParseDrinkLogRequest struct {
 }
 
 type ParseDrinkLogResponse struct {
-	DrinkTemplate models.DrinkTemplate `json:"drink_template"`
-	Confidence    float64              `json:"confidence"`
+	DrinkParsed models.DrinkParsed `json:"drink_parsed"`
 }
 
 type UpdateDrinkLogResponse struct {

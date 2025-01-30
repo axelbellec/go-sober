@@ -11,23 +11,20 @@ import (
 
 	"go-sober/internal/constants"
 	"go-sober/internal/dtos"
-	"go-sober/internal/embedding"
 	"go-sober/internal/models"
 	"go-sober/internal/params"
 	"go-sober/internal/parser"
 )
 
 type Controller struct {
-	service          *Service
-	embeddingService embedding.EmbeddingService
-	db               *sql.DB
+	service *Service
+	db      *sql.DB
 }
 
-func NewController(service *Service, embeddingService embedding.EmbeddingService, db *sql.DB) *Controller {
+func NewController(service *Service, db *sql.DB) *Controller {
 	return &Controller{
-		service:          service,
-		embeddingService: embeddingService,
-		db:               db,
+		service: service,
+		db:      db,
 	}
 }
 
@@ -329,7 +326,7 @@ func (c *Controller) GetDrinkLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 // @Summary Parse a drink log
-// @Description Parse a drink log and return the drink template and confidence
+// @Description Parse a drink log and return the drink parsed
 // @Tags drinks
 // @Accept json
 // @Produce json
@@ -352,13 +349,7 @@ func (c *Controller) ParseDrinkLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	drinkTemplates, err := c.service.GetDrinkTemplates()
-	if err != nil {
-		http.Error(w, "Could not fetch drink templates", http.StatusInternalServerError)
-		return
-	}
-
-	parser := parser.NewDrinkParser(drinkTemplates, c.embeddingService, c.db)
+	parser := parser.NewDrinkParser()
 	match, err := parser.Parse(req.Text)
 	if err != nil {
 		http.Error(w, "Could not parse drink description", http.StatusBadRequest)
@@ -366,8 +357,7 @@ func (c *Controller) ParseDrinkLog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := dtos.ParseDrinkLogResponse{
-		DrinkTemplate: match.DrinkTemplate,
-		Confidence:    match.Confidence,
+		DrinkParsed: *match,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
