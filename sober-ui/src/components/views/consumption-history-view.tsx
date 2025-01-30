@@ -50,6 +50,66 @@ export function ConsumptionHistoryView() {
 
   return (
     <div className="space-y-8 relative min-h-[300px]">
+      {/* Desktop Add Button */}
+      <div className="hidden md:flex justify-end mb-4">
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <SheetTrigger asChild>
+            <Button className="gap-2">
+              <Plus className="h-5 w-5" />
+              Add Drink
+            </Button>
+          </SheetTrigger>
+          <SheetContent
+            side={screenSize.greaterThanOrEqual("lg") ? "right" : "bottom"}
+            className={`${
+              screenSize.greaterThanOrEqual("lg")
+                ? "h-full w-[400px] border-l"
+                : "h-[80vh] rounded-t-[10px] sm:max-w-none"
+            }`}
+          >
+            <SheetHeader>
+              <SheetTitle>Log a Drink</SheetTitle>
+            </SheetHeader>
+            <div className="mt-4 overflow-y-auto pb-safe">
+              <DrinkLogForm
+                onCancel={() => setIsSheetOpen(false)}
+                mode="create"
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* Mobile Floating Action Button and Sheet */}
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetTrigger asChild>
+          <Button
+            size="icon"
+            className="md:hidden fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg"
+          >
+            <Plus className="h-6 w-6" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent
+          side={screenSize.greaterThanOrEqual("lg") ? "right" : "bottom"}
+          className={`${
+            screenSize.greaterThanOrEqual("lg")
+              ? "h-full w-[400px] border-l"
+              : "h-[80vh] rounded-t-[10px] sm:max-w-none"
+          }`}
+        >
+          <SheetHeader>
+            <SheetTitle>Log a Drink</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 overflow-y-auto pb-safe">
+            <DrinkLogForm
+              onCancel={() => setIsSheetOpen(false)}
+              mode="create"
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
+
       {dailyStats.map(({ date, drinks, drinkCount, standardDrinks }) => (
         <div key={date} className="space-y-4">
           <h2 className="text-lg font-semibold flex items-center gap-3">
@@ -173,36 +233,6 @@ export function ConsumptionHistoryView() {
           No drinks logged yet
         </div>
       )}
-
-      {/* Floating Action Button and Sheet */}
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetTrigger asChild>
-          <Button
-            size="icon"
-            className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg"
-          >
-            <Plus className="h-6 w-6" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent
-          side={screenSize.greaterThanOrEqual("lg") ? "right" : "bottom"}
-          className={`${
-            screenSize.greaterThanOrEqual("lg")
-              ? "h-full w-[400px] border-l"
-              : "h-[80vh] rounded-t-[10px] sm:max-w-none"
-          }`}
-        >
-          <SheetHeader>
-            <SheetTitle>Log a Drink</SheetTitle>
-          </SheetHeader>
-          <div className="mt-4 overflow-y-auto pb-safe">
-            <DrinkLogForm
-              onCancel={() => setIsSheetOpen(false)}
-              mode="create"
-            />
-          </div>
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }
