@@ -173,20 +173,20 @@ export default function Home() {
         {/* Hero Section */}
         <section className="flex flex-col items-center justify-center space-y-4 px-4 py-24 text-center md:py-32">
           <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-            Mindful Drinking Made Simple 🧃
+            Track Your Drinks, Transform Your Life 🌱
           </h1>
           <p className="max-w-[700px] text-lg text-muted-foreground sm:text-xl">
-            Take control of your drinking habits with Sōber. Track your drinks,
-            understand your limits, and make informed decisions about your
-            alcohol consumption.
+            Build healthier drinking habits with Sōber. Simple tracking,
+            personalized insights, and a supportive journey toward mindful
+            consumption.
           </p>
           <div className="flex flex-col gap-4 sm:flex-row">
             <Link href="/signup">
-              <Button size="lg">Start Your Journey</Button>
+              <Button size="lg">Get Started - It's Free</Button>
             </Link>
             <Link href="/login">
               <Button variant="outline" size="lg">
-                Welcome Back
+                Sign In
               </Button>
             </Link>
           </div>
@@ -271,12 +271,10 @@ export default function Home() {
                   🔒
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold">
-                    Your Data, Your Privacy
-                  </h3>
+                  <h3 className="text-xl font-semibold">Private & Secure</h3>
                   <p className="mt-2 text-muted-foreground">
-                    Rest easy knowing your information is encrypted and
-                    completely private. We never share your data.
+                    Your data stays private and encrypted. We never share your
+                    information with third parties.
                   </p>
                 </div>
               </div>
@@ -285,10 +283,12 @@ export default function Home() {
                   📱
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold">Effortless Tracking</h3>
+                  <h3 className="text-xl font-semibold">
+                    Quick & Easy Tracking
+                  </h3>
                   <p className="mt-2 text-muted-foreground">
-                    Track your drinks in seconds with our intuitive interface
-                    designed for real-world use.
+                    Log your drinks in seconds with our smart, intuitive
+                    interface designed for real-life use.
                   </p>
                 </div>
               </div>
@@ -297,10 +297,10 @@ export default function Home() {
                   📈
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold">Clear Insights</h3>
+                  <h3 className="text-xl font-semibold">Smart Insights</h3>
                   <p className="mt-2 text-muted-foreground">
-                    Understand your habits with easy-to-read charts and
-                    personalized insights that matter.
+                    Get personalized insights and visualize your progress with
+                    easy-to-understand charts and trends.
                   </p>
                 </div>
               </div>
@@ -311,15 +311,14 @@ export default function Home() {
         {/* CTA Section */}
         <section className="bg-muted py-16">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="mb-4 text-3xl font-bold">
-              Start Your Mindful Journey Today
-            </h2>
+            <h2 className="mb-4 text-3xl font-bold">Ready to Take Control?</h2>
             <p className="mb-8 text-muted-foreground">
-              Join thousands making smarter choices about their drinking habits
+              Join thousands of people making mindful choices about their
+              drinking
             </p>
             <Link href="/signup">
               <Button size="lg" className="min-w-[200px]">
-                Get Started Free
+                Start Free
               </Button>
             </Link>
           </div>
@@ -333,7 +332,7 @@ export default function Home() {
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold">Sōber</h3>
                 <p className="text-sm text-muted-foreground">
-                  Making mindful drinking easier through technology.
+                  Empowering mindful drinking through technology.
                 </p>
               </div>
 
@@ -442,7 +441,8 @@ export default function Home() {
             <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
               <p>© 2024 Sōber. All rights reserved.</p>
               <p className="mt-2">
-                Drink responsibly. This app is for informational purposes only.
+                Please drink responsibly. This app is for informational purposes
+                only and should not be used as medical advice.
               </p>
             </div>
           </div>

@@ -369,8 +369,8 @@ export function DrinkLogForm({
         {mode === "create" ? (
           <Tabs defaultValue="template" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="template">Choose from templates</TabsTrigger>
-              <TabsTrigger value="freetext">Describe your drink</TabsTrigger>
+              <TabsTrigger value="template">Quick Select</TabsTrigger>
+              <TabsTrigger value="freetext">Custom Drink</TabsTrigger>
             </TabsList>
 
             <TabsContent value="template" className="space-y-4">
@@ -379,7 +379,7 @@ export function DrinkLogForm({
                 name="drinkTemplateId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Select Drink</FormLabel>
+                    <FormLabel>Common Drinks</FormLabel>
                     <Select
                       onValueChange={(value) => {
                         form.setValue("freeText", "");
@@ -389,7 +389,7 @@ export function DrinkLogForm({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a drink" />
+                          <SelectValue placeholder="Choose a drink" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -497,7 +497,7 @@ export function DrinkLogForm({
                     <FormControl>
                       <div className="relative">
                         <Input
-                          placeholder={placeholder}
+                          placeholder="Example: 330ml can of beer, glass of red wine"
                           autoComplete="off"
                           {...field}
                           onChange={(e) => onFreeTextChange(e.target.value)}
@@ -510,7 +510,8 @@ export function DrinkLogForm({
                       </div>
                     </FormControl>
                     <FormDescription>
-                      Describe what you had and we'll try to understand it
+                      Tell us what you had in your own words - we'll figure it
+                      out
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -526,7 +527,7 @@ export function DrinkLogForm({
                       <FormItem>
                         <FormLabel>Drink Name</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input placeholder="Name of your drink" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -543,7 +544,7 @@ export function DrinkLogForm({
                           <Input
                             type="number"
                             step="0.1"
-                            placeholder="Alcohol percentage"
+                            placeholder="e.g. 5.0"
                             {...field}
                             value={field.value || ""}
                             onChange={(e) =>
@@ -568,7 +569,7 @@ export function DrinkLogForm({
                           <FormControl>
                             <Input
                               type="number"
-                              placeholder="Amount"
+                              placeholder="e.g. 330"
                               {...field}
                               value={field.value || ""}
                               onChange={(e) =>
@@ -710,8 +711,8 @@ export function DrinkLogForm({
             disabled={isLoading || !form.formState.isValid}
           >
             {isLoading
-              ? `${mode === "edit" ? "Updating..." : "Logging..."}`
-              : `${mode === "edit" ? "Update" : "Log"} Drink`}
+              ? `${mode === "edit" ? "Saving changes..." : "Adding drink..."}`
+              : `${mode === "edit" ? "Save Changes" : "Add Drink"}`}
           </Button>
           {mode === "edit" && (
             <>
@@ -730,7 +731,7 @@ export function DrinkLogForm({
                     }
                   }}
                 >
-                  Delete
+                  Remove
                 </Button>
               )}
             </>

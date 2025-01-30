@@ -27,14 +27,14 @@ import { toast } from "sonner";
 
 const profileSchema = z.object({
   gender: z.enum(["male", "female", "unknown"], {
-    required_error: "Please select a gender",
+    required_error: "Please select your gender",
   }),
   weight_kg: z
     .number({
-      required_error: "Weight is required",
+      required_error: "Please enter your weight",
     })
-    .min(30, "Weight must be at least 30")
-    .max(300, "Weight must be less than 300"),
+    .min(30, "Weight should be at least 30 kg")
+    .max(300, "Weight should be less than 300 kg"),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -99,14 +99,15 @@ export function ProfileForm() {
             <FormItem>
               <FormLabel>Weight (kg)</FormLabel>
               <FormDescription>
-                Your weight is a key factor in calculating how alcohol affects
-                you. A higher body weight typically means alcohol has less
-                impact.
+                Your weight helps us calculate alcohol's effects more
+                accurately. This information is private and used only for
+                calculations.
               </FormDescription>
               <FormControl>
                 <Input
                   type="number"
                   step="0.5"
+                  placeholder="e.g. 70"
                   {...field}
                   onChange={(e) => field.onChange(parseFloat(e.target.value))}
                 />
@@ -117,7 +118,7 @@ export function ProfileForm() {
         />
 
         <Button type="submit" disabled={isLoading} className="w-full">
-          {isLoading ? "Saving..." : "Save Changes"}
+          {isLoading ? "Saving your profile..." : "Save Profile"}
         </Button>
       </form>
     </Form>

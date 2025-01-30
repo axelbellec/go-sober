@@ -48,14 +48,14 @@ export function LoginForm() {
         response.token
       );
       toast.success("Welcome back!", {
-        description: "Successfully logged in. Taking you to your dashboard...",
+        description: "Signed in successfully. Taking you to your dashboard...",
         duration: 4000,
       });
       router.push("/drinks/log");
     } catch (error) {
       console.error("Login failed:", error);
-      toast.error("Login failed", {
-        description: "Please check your email and password and try again",
+      toast.error("Unable to sign in", {
+        description: "Please check your email and password",
         duration: 5000,
       });
     } finally {
@@ -73,11 +73,7 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input
-                  type="email"
-                  placeholder="email@example.com"
-                  {...field}
-                />
+                <Input type="email" placeholder="you@example.com" {...field} />
               </FormControl>
             </FormItem>
           )}
@@ -89,22 +85,18 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input
-                  type="password"
-                  placeholder="Enter your password"
-                  {...field}
-                />
+                <Input type="password" placeholder="Your password" {...field} />
               </FormControl>
             </FormItem>
           )}
         />
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Logging in..." : "Log in"}
+          {isLoading ? "Signing you in..." : "Sign In"}
         </Button>
         <div className="text-center text-sm mt-4">
-          Don't have an account?{" "}
+          New to Sōber?{" "}
           <Link href="/signup" className="text-primary hover:underline">
-            Sign up
+            Create an account
           </Link>
         </div>
       </form>

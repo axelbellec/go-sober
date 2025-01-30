@@ -97,7 +97,7 @@ export function SignupForm() {
               <FormControl>
                 <Input
                   type="password"
-                  placeholder="Create a password"
+                  placeholder="At least 8 characters"
                   {...field}
                 />
               </FormControl>
@@ -115,7 +115,7 @@ export function SignupForm() {
               <FormControl>
                 <Input
                   type="password"
-                  placeholder="Confirm your password"
+                  placeholder="Type your password again"
                   {...field}
                 />
               </FormControl>
@@ -125,13 +125,13 @@ export function SignupForm() {
         />
 
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Creating account..." : "Sign up"}
+          {isLoading ? "Setting up your account..." : "Create Account"}
         </Button>
 
         <div className="text-center text-sm mt-4">
-          Already have an account?{" "}
+          Have an account?{" "}
           <Link href="/login" className="text-primary hover:underline">
-            Log in
+            Sign in here
           </Link>
         </div>
       </form>
