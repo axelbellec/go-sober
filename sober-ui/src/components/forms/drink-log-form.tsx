@@ -497,7 +497,7 @@ export function DrinkLogForm({
                     <FormControl>
                       <div className="relative">
                         <Input
-                          placeholder="Example: 330ml can of beer, glass of red wine"
+                          placeholder="e.g. 330ml can of beer, glass of red wine"
                           autoComplete="off"
                           {...field}
                           onChange={(e) => onFreeTextChange(e.target.value)}
